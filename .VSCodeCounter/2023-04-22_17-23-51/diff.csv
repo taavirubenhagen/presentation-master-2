@@ -1,0 +1,12 @@
+"filename", "language", "JSON", "HTML", "C++", "Project.pbxproj", "XML", "Swift", "Markdown", "comment", "blank", "total"
+"c:\Users\User\CODE\mobile_apps\presenter_2\ios\Runner.xcodeproj\project.pbxproj", "Project.pbxproj", 0, 0, 0, -443, 0, 0, 0, -27, -14, -484
+"c:\Users\User\CODE\mobile_apps\presenter_2\ios\Runner\AppDelegate.swift", "Swift", 0, 0, 0, 0, 0, -12, 0, 0, -2, -14
+"c:\Users\User\CODE\mobile_apps\presenter_2\ios\Runner\Assets.xcassets\AppIcon.appiconset\Contents.json", "JSON", -122, 0, 0, 0, 0, 0, 0, 0, -1, -123
+"c:\Users\User\CODE\mobile_apps\presenter_2\ios\Runner\Assets.xcassets\LaunchImage.imageset\Contents.json", "JSON", -23, 0, 0, 0, 0, 0, 0, 0, -1, -24
+"c:\Users\User\CODE\mobile_apps\presenter_2\ios\Runner\Assets.xcassets\LaunchImage.imageset\README.md", "Markdown", 0, 0, 0, 0, 0, 0, -3, 0, -2, -5
+"c:\Users\User\CODE\mobile_apps\presenter_2\ios\Runner\Base.lproj\LaunchScreen.storyboard", "XML", 0, 0, 0, 0, -36, 0, 0, -1, -1, -38
+"c:\Users\User\CODE\mobile_apps\presenter_2\ios\Runner\Base.lproj\Main.storyboard", "XML", 0, 0, 0, 0, -25, 0, 0, -1, -1, -27
+"c:\Users\User\CODE\mobile_apps\presenter_2\ios\Runner\Runner-Bridging-Header.h", "C++", 0, 0, -1, 0, 0, 0, 0, 0, -1, -2
+"c:\Users\User\CODE\mobile_apps\presenter_2\web\index.html", "HTML", 0, 38, 0, 0, 0, 0, 0, 16, 6, 60
+"c:\Users\User\CODE\mobile_apps\presenter_2\web\manifest.json", "JSON", 35, 0, 0, 0, 0, 0, 0, 0, 1, 36
+"Total", "-", -110, 38, -1, -443, -61, -12, -3, -13, -16, -621
