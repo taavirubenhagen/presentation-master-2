@@ -1,5 +1,7 @@
 /*  TODO:
-      - MaterialButton -> TextButton
+      - Eliminate every presenter_2 after making safety copy of project
+      - Make vibration less strong
+      - Check if WiFi is on
 */
 
 import "package:flutter/services.dart";
@@ -7,52 +9,46 @@ import 'package:flutter/material.dart';
 
 import "package:logger/logger.dart";
 
-import 'package:presenter_2/home.dart';
+import 'package:presentation_master_2/store.dart' as store;
+import 'package:presentation_master_2/home.dart';
 
-// GLOBAL CONSTANTS OR SEMICONSTANTS
 
-final logger = Logger(printer: PrettyPrinter());
 
-ColorScheme appLightColorScheme = ColorScheme(
-  brightness: Brightness.light,
-  primary: const Color.fromRGBO(0, 0, 0, 1),
-  onPrimary: Colors.white,
-  secondary: const Color.fromRGBO(0, 0, 0, 1),
-  onSecondary: Colors.white,
-  error: Colors.red.shade700,
-  onError: Colors.white,
-  background: Colors.white,
-  onBackground: Colors.black,
-  surface: Colors.white,
-  onSurface: Colors.black,
-);
-ColorScheme appDarkColorScheme = ColorScheme(
+
+ColorScheme colorScheme = ColorScheme(
   brightness: Brightness.dark,
-  primary: Colors.black,
-  onPrimary: Colors.white.withOpacity(0.8),
-  secondary: Colors.black,
+  primary: Colors.white,
+  onPrimary: Colors.black,
+  secondary: Colors.grey.shade900,
   onSecondary: Colors.white,
   error: Colors.red,
   onError: Colors.white,
   background: Colors.black,
-  onBackground: Colors.white.withOpacity(0.8),
+  onBackground: Colors.white,
   surface: Colors.grey.shade900,
   onSurface: Colors.white,
 );
 
-// GLOBAL VARIABLES
+const appDefaultCurve = Cubic(.4, 0, .2, 1);
+final logger = Logger(printer: PrettyPrinter());
 
-ColorScheme colorScheme = appLightColorScheme;
-
-// GLOBAL FUNCTIONS
+store.Presentations? globalPresentations;
+bool hasUltra = false;
+String? serverIP;
 
 double screenHeight(BuildContext context) => MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
 double screenWidth(BuildContext context) => MediaQuery.of(context).size.width;
+
+
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
+
+
+
 
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -60,30 +56,14 @@ class MyApp extends StatefulWidget {
   @override
   State<MyApp> createState() => _MyAppState();
 
-  // TODO: R?
   static void setAppState(BuildContext context, [Function()? function]) {
-    _MyAppState state = context.findAncestorStateOfType<_MyAppState>()!;
-    colorScheme = MediaQuery.of(context).platformBrightness == Brightness.dark && false
-        ? appDarkColorScheme
-        : appLightColorScheme;
+    _MyAppState? _ancestorState = context.findAncestorStateOfType<_MyAppState>();
     // ignore: invalid_use_of_protected_member
-    state.setState(function ?? () {});
+    _ancestorState?.setState(function ?? () {});
   }
 }
 
 class _MyAppState extends State<MyApp> {
-  @override
-  void initState() {
-    super.initState();
-    final window = WidgetsBinding.instance.window;
-
-    window.onPlatformBrightnessChanged = () {
-      WidgetsBinding.instance.handlePlatformBrightnessChanged();
-      colorScheme = window.platformBrightness == Brightness.dark
-          ? appDarkColorScheme
-          : appLightColorScheme;
-    };
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,49 +74,46 @@ class _MyAppState extends State<MyApp> {
     return Builder(builder: (context) {
       ThemeData materialAppTheme = ThemeData(
         useMaterial3: true,
-        colorScheme: colorScheme.brightness == Brightness.dark
-            ? appDarkColorScheme
-            : colorScheme,
+        colorScheme: colorScheme,
         scaffoldBackgroundColor: colorScheme.background,
         iconTheme: IconThemeData(
-          color: colorScheme.onBackground,
+          color: colorScheme.onSurface,
           size: 24,
         ),
         iconButtonTheme: IconButtonThemeData(
           style: ButtonStyle(
             padding: MaterialStateProperty.all(EdgeInsets.zero),
+            iconColor: MaterialStateProperty.all(colorScheme.onSurface),
           ),
         ),
         textButtonTheme: TextButtonThemeData(
           style: ButtonStyle(
+            shape: MaterialStateProperty.all(const RoundedRectangleBorder()),
             padding: MaterialStateProperty.all(EdgeInsets.zero),
-            overlayColor: MaterialStateProperty.all(colorScheme.primary.withOpacity(0.05)),
+            backgroundColor: MaterialStateProperty.all(colorScheme.background),
+            overlayColor: MaterialStateProperty.all(colorScheme.onSurface.withOpacity(0.1)),
           ),
-        ),
-        floatingActionButtonTheme: FloatingActionButtonThemeData(
-          shape: const CircleBorder(),
-          sizeConstraints: const BoxConstraints(
-            maxWidth: 72,
-            maxHeight: 72,
-            minWidth: 72,
-            minHeight: 72,
-          ),
-          backgroundColor: colorScheme.primary,
         ),
         inputDecorationTheme: const InputDecorationTheme(
           contentPadding: EdgeInsets.zero,
         ),
         dividerTheme: const DividerThemeData(
           space: 0,
+        ),
+        appBarTheme: AppBarTheme(
+          toolbarHeight: 0,
+          systemOverlayStyle: SystemUiOverlayStyle(
+            statusBarColor: colorScheme.background,
+            statusBarIconBrightness: Brightness.light,
+            systemNavigationBarColor: colorScheme.background,
+          ),
         )
       );
 
       return MaterialApp(
-        title: "Presentation Master",
+        title: "Presentation Master 2",
         theme: materialAppTheme,
-        themeMode: colorScheme.brightness == Brightness.dark
-            ? ThemeMode.dark
-            : ThemeMode.light,
+        themeMode: ThemeMode.dark,
         debugShowCheckedModeBanner: false,
         home: Home(),
       );

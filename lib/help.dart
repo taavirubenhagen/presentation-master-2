@@ -1,228 +1,224 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-import 'package:snapping_sheet/snapping_sheet.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
-import 'package:presenter_2/main.dart';
-import 'package:presenter_2/design.dart';
-import 'package:presenter_2/components.dart';
+import 'package:presentation_master_2/main.dart';
+import 'package:presentation_master_2/design.dart';
+import 'package:presentation_master_2/presenter.dart';
+import 'package:presentation_master_2/store.dart' as store;
+import 'package:presentation_master_2/home.dart';
 
 
 
 
-// TODO: Fix PageController error
-class HelpPanel extends StatefulWidget {
-  const HelpPanel({required this.body, required this.controller, super.key});
+class HelpScaffold extends StatelessWidget {
+  const HelpScaffold({super.key, required this.tiles});
 
-  final Widget body;
-  final SnappingSheetController controller;
-
-  @override
-  State<HelpPanel> createState() => _HelpPanelState();
-}
-
-class _HelpPanelState extends State<HelpPanel> {
-
-  final PageController _firstHeadingPageController = PageController();
-  final PageController _secondHeadingPageController = PageController();
-  final PageController _firstContentPageController = PageController();
-  final PageController _secondContentPageController = PageController();
-
-  final List<List> _helpSections = [
-    ["???", Container()],
-    ["Connect a PC", Container()],
-    ["Switch theme", Container()],
-  ];
-
-  void _switchHelpSection(int index) {
-    _secondHeadingPageController.jumpToPage(index);
-    _firstHeadingPageController.animateToPage(
-      index != -1 ? 1 : 0,
-      duration: const Duration(milliseconds: 400),
-      curve: Cubic(.4, 0, .2, 1),
-    );
-    _secondContentPageController.jumpToPage(index);
-    _firstContentPageController.animateToPage(
-      index != -1 ? 1 : 0,
-      duration: const Duration(milliseconds: 400),
-      curve: Cubic(.4, 0, .2, 1),
-    );
-  }
+  final List<Widget> tiles;
 
   @override
   Widget build(BuildContext context) {
-    return SnappingSheet(
-      controller: widget.controller,
-      onSheetMoved: (data) => setState(() {}),
-      snappingPositions: [
-        SnappingPosition.pixels(positionPixels: -32),
-        SnappingPosition.factor(positionFactor: 0.5),
-        SnappingPosition.factor(positionFactor: 0.9),
-      ],
-      grabbingHeight: 32,
-      grabbing: Material(
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
-        color: colorScheme.surface,
-        child: Column(
-          children: [
-            Container(
-              margin: const EdgeInsets.only(top: 12),
-              width: 64,
-              height: 4,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                color: colorScheme.onSurface.withOpacity(0.5),
-              ),
-            ),
-          ],
+    return Scaffold(
+      backgroundColor: colorScheme.background,
+      appBar: AppBar(
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: colorScheme.background,
+          statusBarIconBrightness: Brightness.light,
+          systemNavigationBarColor: colorScheme.background,
+        ),
+        toolbarHeight: 96,
+        backgroundColor: colorScheme.background,
+        leadingWidth: 96,
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          padding: const EdgeInsets.all(16),
+          iconSize: 32,
+          color: colorScheme.onSurface,
+          icon: const Icon(Icons.arrow_back_outlined),
         ),
       ),
-      sheetBelow: SnappingSheetContent(
-        draggable: true,
-        child: Scaffold(
-          body: Container(
-            color: colorScheme.surface,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  height: AppOutlinedButton.defaultHeight + 2 * 16,
-                  padding: const EdgeInsets.symmetric(horizontal: 32),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: PageView(
-                          controller: _firstHeadingPageController,
-                          physics: NeverScrollableScrollPhysics(),
-                          children: [
-                            // TODO: Center headings
-                            LargeHeading("Help center"),
-                            PageView.builder(
-                              controller: _secondHeadingPageController,
-                              scrollDirection: Axis.vertical,
-                              physics: NeverScrollableScrollPhysics(),
-                              itemCount: _helpSections.length,
-                              itemBuilder: (BuildContext context, int i) => Row(
-                                children: [
-                                  IconButton(
-                                    onPressed: () => _switchHelpSection(0),
-                                    iconSize: 32,
-                                    color: colorScheme.onSurface,
-                                    icon: Icon(Icons.arrow_back_rounded),
-                                  ),
-                                  LargeHeading(_helpSections[i][0]),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      AppOutlinedButton(
-                        onPressed: () => widget.controller.snapToPosition(SnappingPosition.pixels(positionPixels: 32)),
-                        iconData: Icons.check_rounded,
-                        text: "Close",
-                      ),
-                    ],
+      body: Column(
+        children: tiles,
+      ),
+    );
+  }
+}
+
+
+
+
+class AppHelpTile extends StatelessWidget {
+  const AppHelpTile({
+    super.key,
+    this.onButtonPressed,
+    required this.title,
+    this.tappableIconData,
+    this.buttonTitle,
+    this.isButtonExternalLink = false,
+    this.content,
+  });
+
+  final Function()? onButtonPressed;
+  final String title;
+  final IconData? tappableIconData;
+  final String? buttonTitle;
+  final bool isButtonExternalLink;
+  final Widget? content;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 32),
+      child: TextButton(
+        onPressed: onButtonPressed,
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all(colorScheme.surface),
+          shape: MaterialStateProperty.all(RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          )),
+        ),
+        child: Container(
+          width: screenWidth(context) - 32,
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: SmallHeading(title),
                   ),
-                ),
-                Expanded(
-                  child: PageView(
-                    controller: _firstContentPageController,
-                    physics: NeverScrollableScrollPhysics(),
-                    children: [
-                      ListView.builder(
-                        padding: EdgeInsets.zero,
-                        itemCount: _helpSections.length,
-                        itemBuilder: (BuildContext context, int i) => Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
-                          child: TextButton(
-                            onPressed: () => _switchHelpSection(i),
-                            style: ButtonStyle(
-                              shape: MaterialStateProperty.all(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                  side: BorderSide(color: colorScheme.onSurface),
-                                ),
-                              ),
-                              fixedSize: MaterialStateProperty.all(Size.fromHeight(96)),
-                              padding: MaterialStateProperty.all(const EdgeInsets.symmetric(horizontal: 32)),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.add_card,
-                                      size: 32,
-                                    ),
-                                    const SizedBox(width: 32),
-                                    MediumHeading(_helpSections[i][0]),
-                                  ],
-                                ),
-                                Icon(
-                                  Icons.arrow_forward_ios_rounded,
-                                  size: 24,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      PageView.builder(
-                        controller: _secondContentPageController,
-                        scrollDirection: Axis.vertical,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: _helpSections.length,
-                        itemBuilder: (BuildContext context, int i) => _helpSections[i][1]
-                      ),
-                      // TODO: D
-                      /*Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        // TODO: Add illustration
-                        children: [
-                          LargeHeading("Page not found"),
-                          const SizedBox(height: 32),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              AppOutlinedButton(
-                                onPressed: () => _switchHelpSection(0),
-                                text: "Go back",
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 64),
-                        ],
-                      ),*/
-                    ],
+                  Icon(
+                    tappableIconData,
+                    size: 32,
+                    color: colorScheme.onSurface.withOpacity(0.5)
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
+              if (content != null) const SizedBox(height: 32),
+              if (content != null) content!,
+              if (tappableIconData == null && buttonTitle != null && onButtonPressed != null) const SizedBox(height: 32),
+              if (tappableIconData == null && buttonTitle != null && onButtonPressed != null) AppTextButton(
+                onPressed: onButtonPressed!,
+                isLink: isButtonExternalLink,
+                label: buttonTitle!,
+              ),
+            ],
           ),
         ),
       ),
-      child: Stack(
-        children: [
-          widget.body,
-          IgnorePointer(
-            ignoring: true,
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 2000),
-              color: Colors.black.withOpacity(
-                widget.controller.isAttached && widget.controller.currentPosition > 0
-                ? ( widget.controller.currentPosition < screenHeight(context) * 2
-                  ? widget.controller.currentPosition / screenHeight(context) / 2
-                  : 1
-                )
-                : 0,
-              ),
+    );
+  }
+}
+
+
+
+
+class HelpCenter extends StatelessWidget {
+  const HelpCenter({super.key, required this.presentationData});
+
+  final Map<String, dynamic>? presentationData;
+
+  @override
+  Widget build(BuildContext context) {
+    return HelpScaffold(
+      tiles: [
+        AppHelpTile(
+          onButtonPressed: () => Navigator.push(context, MaterialPageRoute(
+            builder: (context) => WifiSetup(presentationData: presentationData),
+          )),
+          title: "Connect Remote",
+          tappableIconData: Icons.arrow_forward_ios_outlined,
+        ),
+        AppHelpTile(
+          onButtonPressed: () => Navigator.push(context, MaterialPageRoute(
+            builder: (context) => WifiSetup(
+              use: true,
+              presentationData: presentationData,
             ),
+          )),
+          title: "Use Remote",
+          tappableIconData: Icons.arrow_forward_ios_outlined,
+        ),
+        AppHelpTile(
+          onButtonPressed: () => Navigator.push(context, MaterialPageRoute(
+            builder: (context) => const GetUltraScreen(),
+          )),
+          title: hasUltra ? "Manage Ultra" : "Get Ultra",
+          tappableIconData: Icons.arrow_forward_ios_outlined,
+        ),
+        AppHelpTile(
+          onButtonPressed: () => Navigator.push(context, MaterialPageRoute(
+            builder: (context) => const ContactScreen(),
+          )),
+          title: "Contact",
+          tappableIconData: Icons.arrow_forward_ios_outlined,
+        ),
+      ],
+    );
+  }
+}
+
+
+
+
+class WifiSetupScaffold extends StatelessWidget {
+  const WifiSetupScaffold({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.onPrimaryButtonPressed,
+    required this.primaryButtonLabel,
+    this.onSecondaryButtonPressed,
+    this.secondaryButtonLabel,
+    required this.illustrationImage
+  });
+
+  final String title;
+  final  String subtitle;
+  final Function() onPrimaryButtonPressed;
+  final String primaryButtonLabel;
+  final Function()? onSecondaryButtonPressed;
+  final String? secondaryButtonLabel;
+  final Widget illustrationImage;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(32).copyWith(bottom: 0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Placeholder(
+            child: SizedBox(
+              width: screenWidth(context) / 3,
+              height: screenWidth(context) / 3,
+              child: illustrationImage,
+            ),
+          ),
+          Column(
+            children: [
+              MediumHeading(title),
+              const SizedBox(height: 32),
+              MediumLabel(subtitle),
+            ],
+          ),
+          Column(
+            children: [
+              AppTextButton(
+                onPressed: onPrimaryButtonPressed,
+                label: primaryButtonLabel,
+              ),
+              if (secondaryButtonLabel != null && onSecondaryButtonPressed != null) const SizedBox(height: 16),
+              if (secondaryButtonLabel != null && onSecondaryButtonPressed != null) AppTextButton(
+                onPressed: onSecondaryButtonPressed!,
+                secondary: true,
+                label: secondaryButtonLabel!,
+              ),
+            ],
           ),
         ],
       ),
@@ -231,15 +227,175 @@ class _HelpPanelState extends State<HelpPanel> {
 }
 
 
+// TODO: 18
+class WifiSetup extends StatefulWidget {
+  const WifiSetup({super.key, this.use = false, required this.presentationData});
 
+  final bool use;
+  final Map<String, dynamic>? presentationData;
 
-class HelpSection extends StatelessWidget {
-  const HelpSection({required this.name, super.key});
+  @override
+  State<WifiSetup> createState() => _WifiSetupState();
+}
 
-  final String name;
+class _WifiSetupState extends State<WifiSetup> {
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      backgroundColor: colorScheme.surface,
+      appBar: AppBar(
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: colorScheme.surface,
+          statusBarIconBrightness: Brightness.light,
+          systemNavigationBarColor: colorScheme.surface,
+        ),
+        toolbarHeight: 96,
+        leadingWidth: 96,
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          padding: const EdgeInsets.all(16),
+          iconSize: 32,
+          color: colorScheme.onSurface,
+          icon: const Icon(Icons.arrow_back_outlined),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.only(left: 32, right: 32, bottom: 64),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.only(bottom: 32),
+                children: [
+                  MediumHeading(widget.use ? "Using the remote control" : "Set up remote control"),
+                  const SizedBox(height: 32),
+                  MediumLabel(
+                    widget.use
+                    ? '1. Make sure to follow the "Connect Remote" instructions in the help center first, then connect both devices to the same WiFi.\n\n2. Open both apps. Tap the play button in the mobile app to turn on presentation mode.\n\n3. Open a PowerPoint on your PC and wait for the mobile app to connect.'
+                    : "Watch a short video to learn how to download the PC app that receives the signals of the remote control.\n\nAlternatively, you can just add speaker notes and use the app only as note card replacement.",
+                  ),
+                ],
+              ),
+            ),
+            Column(
+              children: [
+                AppTextButton(
+                  onPressed: () => widget.use
+                  ? navigateToAvailablePresenter(context, widget.presentationData)
+                  : launchUrlString(
+                    "https://youtu.be/zjYiOR03C8M",
+                    mode: LaunchMode.externalApplication,
+                  ),
+                  isActive: !widget.use || serverIP != null,
+                  isLink: !widget.use,
+                  label: widget.use
+                  ? serverIP == null ? "Scanning..." : "Try presenting"
+                  : "Watch video",
+                ),
+                const SizedBox(height: 16),
+                AppTextButton(
+                  onPressed: () => widget.use
+                  ? Navigator.pop(context)
+                  : Navigator.push(context, MaterialPageRoute(
+                    builder: (context) => Home(editing: true),
+                  )),
+                  secondary: true,
+                  label: widget.use ? "Close" : "Edit notes",
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+
+
+class ContactScreen extends StatelessWidget {
+  const ContactScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return HelpScaffold(
+      // TODO: 18
+      tiles: [
+        AppHelpTile(
+          onButtonPressed: () => launchUrlString("mailto:tavyai.apps@gmail.com", mode: LaunchMode.externalApplication),
+          title: "Feedback",
+          tappableIconData: Icons.open_in_new_outlined,
+        ),
+        AppHelpTile(
+          onButtonPressed: () => launchUrlString("https://taavirubenhagen.netlify.app/main/contact", mode: LaunchMode.externalApplication),
+          title: "Contact",
+          tappableIconData: Icons.open_in_new_outlined,
+        ),
+        AppHelpTile(
+          onButtonPressed: () => launchUrlString("https://taavirubenhagen.netlify.app/main/presenter/privacy-policy", mode: LaunchMode.externalApplication),
+          title: "Privacy Policy",
+          tappableIconData: Icons.open_in_new_outlined,
+        ),
+      ],
+    );
+  }
+}
+
+
+
+
+class GetUltraScreen extends StatefulWidget {
+  const GetUltraScreen({super.key});
+
+  @override
+  State<GetUltraScreen> createState() => _GetUltraScreenState();
+}
+
+class _GetUltraScreenState extends State<GetUltraScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return HelpScaffold(
+      tiles: [
+        AppHelpTile(
+          title: "Get Ultra",
+          onButtonPressed: () async {
+            hasUltra = await store.accessUltraStatus(toggle: true) ?? true;
+            setState(() {});
+          },
+          // TODO: 18
+          buttonTitle: hasUltra ? "Return to basic" : "Unlock for free",
+          content: Column(
+            children: [
+              for (List featureData in [
+                  [Icons.timer_outlined, "Presentation timer"],
+                  [Icons.copy_outlined, "Multiple presentation notes"],
+                  [Icons.text_format_outlined, "Markdown formatting"],
+              ]) Padding(
+                padding: const EdgeInsets.symmetric(vertical: 32),
+                child: SizedBox(
+                  width: screenWidth(context) - 32 - 32,
+                  child: Row(
+                    children: [
+                      Icon(
+                        featureData[0],
+                        size: 32,
+                        color: colorScheme.onSurface,
+                      ),
+                      const SizedBox(width: 32),
+                      Flexible(
+                        child: MediumLabel(featureData[1]),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }

@@ -1,231 +1,754 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
-
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-import 'package:animate_gradient/animate_gradient.dart';
-
-import 'package:presenter_2/main.dart';
-import 'package:presenter_2/design.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 
+import 'package:wakelock_plus/wakelock_plus.dart';
+import 'package:flutter_vibrate/flutter_vibrate.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
+
+import 'package:presentation_master_2/store.dart' as store;
+
+import 'package:presentation_master_2/main.dart';
+import 'package:presentation_master_2/design.dart';
+import 'package:presentation_master_2/wifi.dart';
+import 'package:presentation_master_2/home.dart';
+import 'package:presentation_master_2/help.dart';
 
 
-class Presenter extends StatefulWidget {
-  const Presenter({this.textSize = 20, this.minutes = 0, super.key});
 
-  final double textSize;
-  final int minutes;
 
-  @override
-  State<Presenter> createState() => _PresenterState();
+void navigateToAvailablePresenter(BuildContext context, Map<String, dynamic>? presentation, {bool preferMinimalPresenter = false}) {
+  if (presentation == null || ( presentation[store.presentationNotesKey] ?? "" ) == "") {
+    if (serverIP == null) {
+      Navigator.push(context, MaterialPageRoute(
+        builder: (context) => WifiSetup(presentationData: presentation ?? {}),
+      ));
+      return;
+    }
+    Navigator.push(context, MaterialPageRoute(
+      builder: (context) => MinimalPresenter(
+        presentationData: ( presentation?[store.presentationMinutesKey] ?? 0 ) == 0 ? {} : presentation!),
+    ));
+    return;
+  }
+  Navigator.push(context, MaterialPageRoute(
+    builder: (context) => preferMinimalPresenter
+    ? MinimalPresenter(presentationData: presentation)
+    : NotePresenter(presentationData: presentation),
+  ));
 }
 
-class _PresenterState extends State<Presenter> {
 
-  Timer _timer = Timer(const Duration(), () {});
+bool _showClosingDialog(BuildContext context, {bool navigateToNoteEditor = false}) {
+  showBooleanDialog(
+    context: context,
+    title: "End presentation?",
+    onYes: () {
+      Navigator.pop(context);
+      if (navigateToNoteEditor) {
+        Navigator.push(context, MaterialPageRoute(
+          builder: (context) => Home(editing: true),
+        ));
+      }
+    },
+  );
+  return false;
+}
+
+
+
+
+class NotePresenter extends StatefulWidget {
+  const NotePresenter({required this.presentationData, super.key});
+
+  final Map<String, dynamic> presentationData;
+
+  @override
+  State<NotePresenter> createState() => _NotePresenterState();
+}
+
+class _NotePresenterState extends State<NotePresenter> {
+
+  bool _connected = false;
+  Timer? _connectionStatusTimer;
+  bool _wasCancelled = false;
+  bool _mouseReady = true;
+
+  Timer _visibleTimer = Timer(const Duration(), () {});
+  bool _isTimerActive = false;
   int _timerMinutes = 0;
-  
-  bool _isTextFieldEditable = false;
+  int _timerSeconds = 0;
 
-  bool _isMousePadExpanded = true;
-  bool _isMousePadWidthExpanded = true;
-  bool _isMousePadHeightExpanded = true;
+  double _notesTextScaleFactor = 1;
 
-  void control({movesBack = false}) {
-    //
-  }
+  bool _isMousePadExpanded = false;
+
 
   @override
   void initState() {
     super.initState();
 
-    _timerMinutes = widget.minutes;
-    _timer = Timer.periodic(Duration(minutes: 1), (Timer timer) {
-      setState(() => _timerMinutes--);
+    WakelockPlus.enable();
+
+    _timerMinutes = widget.presentationData[store.presentationMinutesKey];
+    _isTimerActive = _timerMinutes > 0;
+
+    _visibleTimer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
+      setState(() {
+        if (_timerSeconds <= 0) {
+          if (_timerMinutes <= 0) {
+            Vibrate.vibrate();
+            _visibleTimer.cancel();
+            return;
+          }
+          _timerSeconds = 59;
+          _timerMinutes--;
+          return;
+        }
+        _timerSeconds--;
+      });
+    });
+
+    _connectionStatusTimer = Timer.periodic(
+      const Duration(seconds: 1),
+      (Timer timer) => setState(() {
+        _isMousePadExpanded = serverIP != null && _isMousePadExpanded;
+        if (_connected != ( serverIP != null )) {
+          _wasCancelled = false;
+        }
+        _connected = serverIP != null;
+      }),
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    WakelockPlus.disable();
+    _visibleTimer.cancel();
+    _connectionStatusTimer?.cancel();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: () async => _showClosingDialog(context),
+      child: Scaffold(
+        backgroundColor: colorScheme.background,
+        appBar: AppBar(
+          toolbarHeight: 0,
+          systemOverlayStyle: SystemUiOverlayStyle(
+            statusBarColor: colorScheme.background,
+            statusBarIconBrightness: Brightness.dark,
+            systemNavigationBarColor: colorScheme.background,
+          ),
+        ),
+        body: SafeArea(
+          child: Stack(
+            alignment: Alignment.bottomCenter,
+            children: [
+              Container(
+                height: screenHeight(context),
+                padding: const EdgeInsets.all(16).copyWith(top: 32),
+                child: Markdown(
+                  styleSheet: MarkdownStyleSheet(
+                    textScaleFactor: _notesTextScaleFactor,
+                    blockSpacing: 16,
+                    p: MainText.textStyle.copyWith(fontSize: 22),
+                    pPadding: const EdgeInsets.only(bottom: 10),
+                    h1: MainText.textStyle.copyWith(fontSize: 40),
+                    h1Padding: const EdgeInsets.only(bottom: 20),
+                    h2: MainText.textStyle.copyWith(fontSize: 36),
+                    h2Padding: const EdgeInsets.only(bottom: 12),
+                    h3: MainText.textStyle.copyWith(fontSize: 32),
+                    h3Padding: const EdgeInsets.only(bottom: 16),
+                    h4: MainText.textStyle.copyWith(fontSize: 30),
+                    h4Padding: const EdgeInsets.only(bottom: 15),
+                    h5: MainText.textStyle.copyWith(fontSize: 28),
+                    h5Padding: const EdgeInsets.only(bottom: 14),
+                    h6: MainText.textStyle.copyWith(fontSize: 24),
+                    h6Padding: const EdgeInsets.only(bottom: 12),
+                    code: MainText.textStyle.copyWith(fontFamily: "IBM Plex Mono"),
+                  ),
+                  data: widget.presentationData[store.presentationNotesKey] ?? "Error loading notes. Please contact the developer.",
+                ),
+              ),
+              AnimatedPositioned(
+                duration: const Duration(milliseconds: 800),
+                curve: appDefaultCurve,
+                bottom: serverIP == null ? -256 : 0,
+                width: screenWidth(context),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    GestureDetector(
+                      onTap: () => showBooleanDialog(
+                        context: context,
+                        readOnly: true,
+                        onYes: () {},
+                        title: "Drag to control your PC's cursor.",
+                      ),
+                      onPanUpdate: (details) {
+                        if (_mouseReady) {
+                          _mouseReady = false;
+                          control(
+                            context: context,
+                            action: ControlAction.mousemove,
+                            mouseXY: [
+                              ( details.delta.dx / screenWidth(context) * 1920 ).toInt(),
+                              ( details.delta.dy / ( screenWidth(context) * 9/16 ) * 1080 ).toInt(),
+                            ],
+                          );
+                          Timer(const Duration(milliseconds: 0), () => _mouseReady = true);
+                        }
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        curve: appDefaultCurve,
+                        height: _isMousePadExpanded ? ( screenWidth(context) - 2 * 16 ) * 9/16 : 0,
+                        margin: _isMousePadExpanded
+                        ? const EdgeInsets.all(8).copyWith(top: 0, bottom: 16)
+                        : EdgeInsets.only(left: 8 + ( screenWidth(context) - 16 ) * 0.2, right: 8),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: colorScheme.surface,
+                        ),
+                        alignment: Alignment.center,
+                        child: _isMousePadExpanded
+                        ? Icon(
+                          Icons.mouse_outlined,
+                          size: 32,
+                          color: colorScheme.onSurface.withOpacity(0.1),
+                        )
+                        : const SizedBox(),
+                      ),
+                    ),
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 400),
+                      curve: Curves.easeInCubic,
+                      height: _connected || _wasCancelled ? 0 : 64,
+                      child: SingleChildScrollView(
+                        child: Container(
+                          height: 64,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: AppAnimatedSwitcher(
+                                      value: serverIP != null,
+                                      trueChild: const Icon(
+                                        Icons.check_outlined,
+                                        color: Colors.green,
+                                      ),
+                                      falseChild: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: colorScheme.error,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 32),
+                                  AppAnimatedSwitcher(
+                                    value: serverIP != null,
+                                    trueChild: SmallLabel("Connected"),
+                                    falseChild: SmallLabel("Connecting..."),
+                                  ),
+                                ],
+                              ),
+                              // If this can be used anywhere else, move into design.dart
+                              AppAnimatedSwitcher(
+                                value: serverIP != null,
+                                trueChild: const SizedBox(),
+                                falseChild: TextButton(
+                                  onPressed: () => setState(() {
+                                    _wasCancelled = true;
+                                  }),
+                                  style: ButtonStyle(
+                                    shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    )),
+                                    backgroundColor: MaterialStateProperty.all(colorScheme.surface),
+                                  ),
+                                  child: Container(
+                                    height: 32,
+                                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                                    alignment: Alignment.center,
+                                    child: SmallLabel("Cancel"),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    ),
+                    Divider(
+                      height: 0,
+                      color: colorScheme.surface,
+                    ),
+                    SizedBox(
+                      height: 64,
+                      child: Row(
+                        children: [
+                          hasUltra && _isTimerActive
+                          ? SizedBox(
+                            width: 64,
+                            height: 64,
+                            child: TextButton(
+                              onPressed: () => _showClosingDialog(context),
+                              child: Icon(
+                                Icons.close_outlined,
+                                color: colorScheme.onSurface.withOpacity(0.5),
+                              ),
+                            ),
+                          )
+                          : Expanded(
+                            child: SizedBox(
+                              height: 64,
+                              child: TextButton(
+                                onPressed: () => _showClosingDialog(context),
+                                child: Icon(
+                                  Icons.close_outlined,
+                                  color: colorScheme.onSurface.withOpacity(0.5),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              VerticalDivider(
+                                width: 1,
+                                color: colorScheme.surface,
+                              ),
+                              TextButton(
+                                onPressed: () => setState(() => _notesTextScaleFactor /= 1.1),
+                                child: SizedBox(
+                                  width: serverIP != null || ( hasUltra && _isTimerActive ) ? 64 : screenWidth(context) / 3,
+                                  height: 64,
+                                  child: Icon(
+                                    Icons.text_decrease_outlined,
+                                    color: colorScheme.onSurface.withOpacity(0.5),
+                                  ),
+                                ),
+                              ),
+                              VerticalDivider(
+                                width: 1,
+                                color: colorScheme.surface,
+                              ),
+                              TextButton(
+                                onPressed: () => setState(() => _notesTextScaleFactor *= 1.1),
+                                child: SizedBox(
+                                  width: serverIP != null || ( hasUltra && _isTimerActive ) ? 64 : screenWidth(context) / 3,
+                                  height: 64,
+                                  child: Icon(
+                                    Icons.text_increase_outlined,
+                                    color: colorScheme.onSurface.withOpacity(0.5),
+                                  ),
+                                ),
+                              ),
+                              VerticalDivider(
+                                width: 1,
+                                color: colorScheme.surface,
+                              ),
+                            ],
+                          ),
+                          Builder(
+                            builder: (context) {
+
+                              final Widget _child = TextButton(
+                                onPressed: () {
+                                  if (serverIP != null) {
+                                    setState(() => _isMousePadExpanded = !_isMousePadExpanded);
+                                  }
+                                },
+                                style: serverIP != null
+                                ? null
+                                : ButtonStyle(
+                                  overlayColor: MaterialStateProperty.all(Colors.transparent),
+                                  splashFactory: NoSplash.splashFactory,
+                                  enableFeedback: false,
+                                ),
+                                child: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 200),
+                                  switchInCurve: Curves.easeInOut,
+                                  switchOutCurve: Curves.easeInOut,
+                                  transitionBuilder: (Widget child, Animation<double> animation) {
+                                    return ScaleTransition(
+                                      scale: animation,
+                                      child: child,
+                                    );
+                                  },
+                                  child: Icon(
+                                    serverIP == null
+                                    ? Icons.wifi_off_outlined
+                                    : (
+                                      _isMousePadExpanded
+                                      ? Icons.expand_more_outlined
+                                      : Icons.mouse_outlined
+                                    ),
+                                    key: ValueKey<bool>(_isMousePadExpanded || serverIP != null),
+                                    color: colorScheme.onSurface.withOpacity(serverIP != null ? 0.5 : 0.1),
+                                  ),
+                                ),
+                              );
+
+                              return hasUltra && _isTimerActive
+                              ? SizedBox(
+                                width: 64,
+                                height: 64,
+                                child: _child,
+                              )
+                              : Expanded(
+                                child: SizedBox(
+                                  height: 64,
+                                  child: _child,
+                                ),
+                              );
+                            }
+                          ),
+                          if (hasUltra && _isTimerActive) VerticalDivider(
+                            width: 1,
+                            color: colorScheme.surface,
+                          ),
+                          if (hasUltra && _isTimerActive) Expanded(
+                            child: Container(
+                              height: 64,
+                              decoration: BoxDecoration(
+                                color: colorScheme.background,
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                ( _timerMinutes < 10 ? "0$_timerMinutes" : _timerMinutes.toString() ) + ":" +
+                                ( _timerSeconds < 10 ? "0$_timerSeconds" : _timerSeconds.toString() ),
+                                style: GoogleFonts.lexend(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Divider(
+                      height: 0,
+                      color: colorScheme.surface,
+                    ),
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      curve: appDefaultCurve,
+                      height: _isMousePadExpanded ? 192 : 256,
+                      child: Row(
+                        children: [
+                          TextButton(
+                            onPressed: () => control(context: context, action: ControlAction.back),
+                            style: ButtonStyle(
+                              shape: MaterialStateProperty.all(const RoundedRectangleBorder()),
+                              fixedSize: MaterialStateProperty.all(Size(screenWidth(context) / 2 - 0.5, 256)),
+                            ),
+                            child: hasUltra
+                            ? Icon(
+                              Icons.arrow_back_ios_new_outlined,
+                              size: 32,
+                              color: colorScheme.onSurface.withOpacity(0.5),
+                            )
+                            : Opacity(
+                              opacity: 0.5,
+                              child: ButtonLabel("Previous\nSlide"),
+                            ),
+                          ),
+                          VerticalDivider(
+                            width: 1,
+                            color: colorScheme.surface,
+                          ),
+                          TextButton(
+                            onPressed: () => control(context: context, action: ControlAction.forward),
+                            style: ButtonStyle(
+                              shape: MaterialStateProperty.all(const RoundedRectangleBorder()),
+                              fixedSize: MaterialStateProperty.all(Size(screenWidth(context) / 2 - 0.5, 256)),
+                            ),
+                            child: hasUltra
+                            ? Icon(
+                              Icons.arrow_forward_ios_outlined,
+                              size: 32,
+                              color: colorScheme.onSurface.withOpacity(0.5),
+                            )
+                            : Opacity(
+                              opacity: 0.5,
+                              child: ButtonLabel("Next\nSlide"),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+
+
+class MinimalPresenter extends StatefulWidget {
+  const MinimalPresenter({required this.presentationData, super.key});
+
+  final Map<String, dynamic> presentationData;
+
+  @override
+  State<MinimalPresenter> createState() => _MinimalPresenterState();
+}
+
+class _MinimalPresenterState extends State<MinimalPresenter> {
+
+  bool _leftHanded = false;
+
+  Timer _timer = Timer(const Duration(), () {});
+  bool _isTimerActive = false;
+  int _timerMinutes = 0;
+  int _timerSeconds = 0;
+
+  bool _mouseReady = true;
+
+
+  @override
+  void initState() {
+    super.initState();
+
+    WakelockPlus.enable();
+
+    _timerMinutes = widget.presentationData[store.presentationMinutesKey] ?? 0;
+    _isTimerActive = _timerMinutes > 0;
+    _timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
+      setState(() {
+        if (_timerSeconds <= 0) {
+          if (_timerMinutes <= 0) {
+            Vibrate.vibrate();
+            _timer.cancel();
+            return;
+          }
+          _timerSeconds = 59;
+          _timerMinutes--;
+          return;
+        }
+        _timerSeconds--;
+      });
     });
   }
 
   @override
   void dispose() {
     super.dispose();
+    WakelockPlus.disable();
     _timer.cancel();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: colorScheme.surface,
-      appBar: AppBar(
-        toolbarHeight: 0,
-        systemOverlayStyle: SystemUiOverlayStyle(
-          //statusBarColor: Colors.white,
-          //statusBarIconBrightness: Brightness.light,
+    return WillPopScope(
+      onWillPop: () async => _showClosingDialog(context),
+      child: Scaffold(
+        backgroundColor: colorScheme.background,
+        appBar: AppBar(
+          toolbarHeight: 0,
+          systemOverlayStyle: SystemUiOverlayStyle(
+            statusBarColor: colorScheme.background,
+            statusBarIconBrightness: Brightness.dark,
+            systemNavigationBarColor: colorScheme.background,
+          ),
         ),
-      ),
-      body: GestureDetector(
-        onDoubleTap: () => _isTextFieldEditable = true,
-        child: Column(
-          children: [
-            Container(
-              height: screenHeight(context) / 2,
-              padding: const EdgeInsets.all(16),
-              child: TextFormField(
-                readOnly: !_isTextFieldEditable,
-                minLines: 4,
-                maxLines: 4096,
-                style: MainText.textStyle.copyWith(fontSize: widget.textSize),
-                initialValue: "Example note:\n\nPoint 1: Additional information about point 1\n\nAnother point: I don't really know what to write here lol xd.",
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  hintText: "Double tap to add speaker notes for your presentation.",
+        body: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: Stack(
+                  alignment: _leftHanded ? Alignment.bottomRight : Alignment.bottomLeft,
+                  children: [
+                    Builder(
+                      builder: (context) {
+                        final Widget previousButton = TextButton(
+                          onPressed: () => control(context: context, action: ControlAction.back),
+                          child: SizedBox(
+                            width: 128,
+                            child: Opacity(
+                              opacity: 0.75,
+                              child: ButtonLabel("Previous"),
+                            ),
+                          ),
+                        );
+
+                        final Widget nextButton = Expanded(
+                          child: TextButton(
+                            onPressed: () => control(context: context, action: ControlAction.forward),
+                            child: Opacity(
+                              opacity: 0.75,
+                              child: ButtonLabel("Next\nSlide"),
+                            ),
+                          ),
+                        );
+
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            _leftHanded ? nextButton : previousButton,
+                            VerticalDivider(
+                              width: 1,
+                              color: colorScheme.onSurface.withOpacity(0.25),
+                            ),
+                            _leftHanded ? previousButton : nextButton,
+                          ],
+                        );
+                      }
+                    ),
+                    TextButton(
+                      onPressed: () => setState(() => _leftHanded = !_leftHanded),
+                      child: Container(
+                        width: 128,
+                        height: 128,
+                        decoration: BoxDecoration(
+                          border: Border(
+                            top: BorderSide(
+                              color: colorScheme.onBackground.withOpacity(0.25),
+                            ),
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.swap_horiz_outlined,
+                          size: 32,
+                          color: colorScheme.onSurface.withOpacity(0.25),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-            SizedBox(
-              height: screenHeight(context) / 2,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  AnimatedContainer(
-                    onEnd: () => setState(() {
-                      if (_isMousePadWidthExpanded == _isMousePadHeightExpanded) {
-                        _isMousePadExpanded = _isMousePadWidthExpanded;
-                        return;
-                      }
-                      _isMousePadExpanded ? _isMousePadWidthExpanded = false : _isMousePadHeightExpanded = true;
-                    }),
-                    duration: Duration(milliseconds: 200),
-                    curve: Cubic(.4, 0, .2, 1),
-                    margin: EdgeInsets.only(top: _isMousePadHeightExpanded ? 0 : screenHeight(context) / 2 - 256 - 16 - 48),
-                    width: _isMousePadWidthExpanded ? screenWidth(context) : 48,
-                    height: _isMousePadHeightExpanded ? screenHeight(context) / 2 - 256 - ( widget.minutes > 0 ? 16 : 0 ) : 48,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.only(topLeft: Radius.circular(_isMousePadHeightExpanded ? 0 : 8),),
-                      color: colorScheme.onSurface.withOpacity(0.1),
-                    ),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        AnimatedOpacity(
-                          duration: Duration(milliseconds: _isMousePadExpanded && _isMousePadHeightExpanded && _isMousePadWidthExpanded ? 200 : 100),
-                          curve: Cubic(.4, 0, .2, 1),
-                          opacity: _isMousePadExpanded && _isMousePadHeightExpanded && _isMousePadWidthExpanded ? 1 : 0,
-                          child: TextButton(
-                            onPressed: () {},   // TODO: Add hint that this is not a button
-                            child: Icon(
-                              Icons.mouse_outlined,
-                              size: 32,
-                              color: colorScheme.onSurface.withOpacity(0.1),
-                            ),
-                          ),
-                        ),
-                        AnimatedPositioned(
-                          duration: Duration(milliseconds: 400),
-                          curve: Cubic(.4, 0, .2, 1),
-                          right: 0,
-                          top: 0,
-                          child: SizedBox(
-                            width: 48,
-                            height: 48,
-                            child: TextButton(
-                              onPressed: () => setState(() {
-                                _isMousePadExpanded ? _isMousePadHeightExpanded = false : _isMousePadWidthExpanded = true;
-                              }),
-                              style: ButtonStyle(
-                                shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(8),)),
-                                overlayColor: MaterialStateProperty.all(colorScheme.onPrimary.withOpacity(0.25)),
-                              ),
-                              child: AnimatedRotation(
-                                duration: Duration(milliseconds: 400),
-                                curve: Cubic(.4, 0, .2, 1),
-                                turns: _isMousePadWidthExpanded || _isMousePadHeightExpanded ? 0 :  0.5,
-                                child: Icon(
-                                  Icons.expand_more_outlined,
-                                  size: 24,
-                                  color: colorScheme.onSurface.withOpacity(0.2),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (widget.minutes > 0) Divider(
-                    height: 0,
-                    color: colorScheme.onSurface.withOpacity(0.25),
-                  ),
-                  if (widget.minutes > 0) Container(
-                    width: screenWidth(context) * _timerMinutes / widget.minutes,
-                    height: 16,
-                    color: colorScheme.primary,
-                  ),
-                  Divider(
-                    height: 0,
-                    color: colorScheme.onSurface.withOpacity(0.25),
-                  ),
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      SizedBox(
-                        height: 256,
-                        child: Row(
-                          children: [
-                            TextButton(
-                              onPressed: () {},
-                              style: ButtonStyle(
-                                shape: MaterialStateProperty.all(RoundedRectangleBorder()),
-                                fixedSize: MaterialStateProperty.all(Size(screenWidth(context) / 2, 256)),
-                              ),
-                              child: Icon(
-                                Icons.arrow_back_ios_new_outlined,
-                                size: 32,
-                                color: colorScheme.onSurface,
-                              ),
-                            ),
-                            VerticalDivider(
-                              width: 0,
-                              color: colorScheme.onSurface,
-                            ),
-                            TextButton(
-                              onPressed: () {},
-                              style: ButtonStyle(
-                                shape: MaterialStateProperty.all(RoundedRectangleBorder()),
-                                fixedSize: MaterialStateProperty.all(Size(screenWidth(context) / 2, 256)),
-                              ),
-                              child: Icon(
-                                Icons.arrow_forward_ios_outlined,
-                                size: 32,
-                                color: colorScheme.onSurface,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      if (widget.minutes > 0) Positioned(
-                        top: -1,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8).copyWith(topLeft: Radius.circular(0), topRight: Radius.circular(0)),
-                            /*border: Border.all(
-                              color: colorScheme.onSurface
-                            ),*/
-                            color: colorScheme.surface,
-                          ),
-                          height: 65,
-                          alignment: Alignment.center,
-                          child: HugeLabel(_timerMinutes < 10 ? "0$_timerMinutes" : _timerMinutes.toString()),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+              Divider(
+                height: 0,
+                color: colorScheme.onSurface.withOpacity(0.25),
               ),
-            ),
-          ],
+              GestureDetector(
+                onTap: () => showBooleanDialog(
+                  context: context,
+                  readOnly: true,
+                  onYes: () {},
+                  title: "Drag to control your PC's cursor.",
+                ),
+                onPanUpdate: (details) {
+                  if (_mouseReady) {
+                    _mouseReady = false;
+                    control(
+                      context: context,
+                      action: ControlAction.mousemove,
+                      mouseXY: [
+                        ( details.delta.dx / screenWidth(context) * 1920 ).toInt(),
+                        ( details.delta.dy / ( screenWidth(context) * 9/16 ) * 1080 ).toInt(),
+                      ],
+                    );
+                    Timer(const Duration(milliseconds: 0), () => _mouseReady = true);
+                  }
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  curve: appDefaultCurve,
+                  height: screenWidth(context) * 9/16,
+                  color: colorScheme.surface,
+                  alignment: Alignment.center,
+                  child: Icon(
+                    Icons.mouse_outlined,
+                    size: 32,
+                    color: colorScheme.onSurface.withOpacity(0.1),
+                  ),
+                ),
+              ),
+              Divider(
+                height: 1,
+                color: colorScheme.onSurface.withOpacity(0.25),
+              ),
+              SizedBox(
+                height: 128,
+                child: Builder(
+                  builder: (context) {
+
+                    final Widget closeButton = SizedBox(
+                      width: 128,
+                      height: 128,
+                      child: TextButton(
+                        onPressed: () => _showClosingDialog(context),
+                        child: Icon(
+                          Icons.close_outlined,
+                          size: 32,
+                          color: colorScheme.onSurface.withOpacity(0.25),
+                        ),
+                      ),
+                    );
+
+                    final Widget otherButton = Expanded(
+                      child: Container(
+                        height: 128,
+                        alignment: Alignment.center,
+                        child: hasUltra && _isTimerActive
+                        ? Text(
+                          ( _timerMinutes < 10 ? "0$_timerMinutes" : _timerMinutes.toString() ) + ":" +
+                          ( _timerSeconds < 10 ? "0$_timerSeconds" : _timerSeconds.toString() ),
+                          style: GoogleFonts.lexend(
+                            fontSize: 48,
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.onBackground.withOpacity(0.75),
+                          ),
+                        )
+                        : TextButton(
+                          onPressed: () => _showClosingDialog(context, navigateToNoteEditor: true),
+                          child: Opacity(
+                            opacity: 0.25,
+                            child: ButtonLabel("Add speaker notes"),
+                          ),
+                        ),
+                      ),
+                    );
+
+                    return Row(
+                      children: [
+                        _leftHanded ? otherButton : closeButton,
+                        if (hasUltra && _isTimerActive) VerticalDivider(
+                          width: 1,
+                          color: colorScheme.onSurface.withOpacity(0.25),
+                        ),
+                        _leftHanded ? closeButton : otherButton,
+                      ],
+                    );
+                  }
+                ),
+              ),
+              if (!hasUltra && !_isTimerActive) Divider(
+                height: 0,
+                color: colorScheme.onSurface.withOpacity(0.25),
+              ),
+              if (!hasUltra && !_isTimerActive) SizedBox(
+                height: 96,
+                child: TextButton(
+                  onPressed: () => _showClosingDialog(context, navigateToNoteEditor: true),
+                  child: Opacity(
+                    opacity: 0.25,
+                    child: ButtonLabel("Add speaker notes"),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
