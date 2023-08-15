@@ -15,6 +15,7 @@ import 'package:presentation_master_2/presenter.dart';
 
 
 
+// ignore: must_be_immutable
 class Home extends StatefulWidget {
   Home({super.key, this.editing = false});
 

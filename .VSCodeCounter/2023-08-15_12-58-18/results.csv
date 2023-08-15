@@ -1,0 +1,17 @@
+"filename", "language", "Gradle", "Java Properties", "XML", "Kotlin", "comment", "blank", "total"
+"c:\Users\User\CODE\mobile_apps\A_Better_Presenter\presentation_master_2\android\app\build.gradle", "Gradle", 67, 0, 0, 0, 0, 14, 81
+"c:\Users\User\CODE\mobile_apps\A_Better_Presenter\presentation_master_2\android\app\src\debug\AndroidManifest.xml", "XML", 0, 0, 4, 0, 4, 1, 9
+"c:\Users\User\CODE\mobile_apps\A_Better_Presenter\presentation_master_2\android\app\src\main\AndroidManifest.xml", "XML", 0, 0, 35, 0, 6, 3, 44
+"c:\Users\User\CODE\mobile_apps\A_Better_Presenter\presentation_master_2\android\app\src\main\kotlin\com\example\presenter_2\MainActivity.kt", "Kotlin", 0, 0, 0, 4, 0, 2, 6
+"c:\Users\User\CODE\mobile_apps\A_Better_Presenter\presentation_master_2\android\app\src\main\res\drawable-v21\launch_background.xml", "XML", 0, 0, 9, 0, 0, 1, 10
+"c:\Users\User\CODE\mobile_apps\A_Better_Presenter\presentation_master_2\android\app\src\main\res\drawable\launch_background.xml", "XML", 0, 0, 9, 0, 0, 1, 10
+"c:\Users\User\CODE\mobile_apps\A_Better_Presenter\presentation_master_2\android\app\src\main\res\values-night-v31\styles.xml", "XML", 0, 0, 14, 0, 7, 1, 22
+"c:\Users\User\CODE\mobile_apps\A_Better_Presenter\presentation_master_2\android\app\src\main\res\values-night\styles.xml", "XML", 0, 0, 9, 0, 9, 1, 19
+"c:\Users\User\CODE\mobile_apps\A_Better_Presenter\presentation_master_2\android\app\src\main\res\values-v31\styles.xml", "XML", 0, 0, 14, 0, 7, 1, 22
+"c:\Users\User\CODE\mobile_apps\A_Better_Presenter\presentation_master_2\android\app\src\main\res\values\styles.xml", "XML", 0, 0, 13, 0, 9, 1, 23
+"c:\Users\User\CODE\mobile_apps\A_Better_Presenter\presentation_master_2\android\app\src\profile\AndroidManifest.xml", "XML", 0, 0, 4, 0, 4, 1, 9
+"c:\Users\User\CODE\mobile_apps\A_Better_Presenter\presentation_master_2\android\build.gradle", "Gradle", 27, 0, 0, 0, 0, 5, 32
+"c:\Users\User\CODE\mobile_apps\A_Better_Presenter\presentation_master_2\android\gradle.properties", "Java Properties", 0, 3, 0, 0, 0, 1, 4
+"c:\Users\User\CODE\mobile_apps\A_Better_Presenter\presentation_master_2\android\gradle\wrapper\gradle-wrapper.properties", "Java Properties", 0, 5, 0, 0, 0, 1, 6
+"c:\Users\User\CODE\mobile_apps\A_Better_Presenter\presentation_master_2\android\settings.gradle", "Gradle", 8, 0, 0, 0, 0, 4, 12
+"Total", "-", 102, 8, 111, 4, 46, 38, 309
