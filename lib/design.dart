@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:presentation_master_2/home.dart';
 
 import 'package:presentation_master_2/main.dart';
 
@@ -97,17 +96,6 @@ class SmallHeading extends BaseText {
 }
 
 
-class MediumHeading extends BaseText {
-  MediumHeading(data, {isOnPrimary = false, isOnBackground = false, super.key})
-  : super(data, textStyle, textAlign: TextAlign.left, isOnPrimary: isOnPrimary, isOnBackground: isOnBackground);
-
-  static final TextStyle textStyle = GoogleFonts.lexend(
-    fontSize: 36,
-    wordSpacing: 2,
-  );
-}
-
-
 
 
 class AppAnimatedSwitcher extends StatelessWidget {
@@ -166,6 +154,7 @@ class AppTextButton extends StatelessWidget {
     this.isOnBackground = false,
     this.isActive = true,
     this.isLink = false,
+    this.isNext = false,
     required this.label,
   });
 
@@ -174,6 +163,7 @@ class AppTextButton extends StatelessWidget {
   final bool isOnBackground;
   final bool isActive;
   final bool isLink;
+  final bool isNext;
   final String label;
 
   @override
@@ -213,7 +203,7 @@ class AppTextButton extends StatelessWidget {
                 children: [
                   ButtonLabel(label),
                   const SizedBox(width: 16),
-                  if (isLink) const Icon(Icons.open_in_new_outlined),
+                  if (isLink || isNext) Icon(isLink ? Icons.open_in_new_outlined : Icons.arrow_forward_outlined),
                 ],
               ),
             ),

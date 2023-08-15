@@ -88,7 +88,6 @@ class _MyAppState extends State<MyApp> {
         ),
         textButtonTheme: TextButtonThemeData(
           style: ButtonStyle(
-            shape: MaterialStateProperty.all(const RoundedRectangleBorder()),
             padding: MaterialStateProperty.all(EdgeInsets.zero),
             backgroundColor: MaterialStateProperty.all(colorScheme.background),
             overlayColor: MaterialStateProperty.all(colorScheme.onSurface.withOpacity(0.1)),
@@ -96,9 +95,6 @@ class _MyAppState extends State<MyApp> {
         ),
         inputDecorationTheme: const InputDecorationTheme(
           contentPadding: EdgeInsets.zero,
-        ),
-        dividerTheme: const DividerThemeData(
-          space: 0,
         ),
         appBarTheme: AppBarTheme(
           toolbarHeight: 0,

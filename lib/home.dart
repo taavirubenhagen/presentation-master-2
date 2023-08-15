@@ -24,7 +24,9 @@ class Home extends StatefulWidget {
   State<Home> createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
+
+  late AnimationController _scanAnimationController;
 
   Map<String, dynamic>? _currentPresentation;
   bool _presentationsExpanded = false;
@@ -69,6 +71,9 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
+
+    _scanAnimationController = AnimationController(vsync: this, duration: const Duration(seconds: 5))..repeat();
+
     (() async {
       hasUltra = await store.accessUltraStatus() ?? await store.accessUltraStatus(toggle: true) ?? false;
 
@@ -347,38 +352,39 @@ class _HomeState extends State<Home> {
                             _currentPresentation,
                             preferMinimalPresenter: true,
                           ),
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              ShaderMask(
-                                blendMode: BlendMode.srcIn,
-                                shaderCallback: (Rect bounds) => 
-                                SweepGradient(
-                                  transform: const GradientRotation(math.pi),
-                                  colors: [
-                                    Colors.white,
-                                    (() {
-                                      final presentationsAvailable = store.presentationAvailable(_currentPresentation);
-                                      return serverIP != null
-                                      ? (
-                                          presentationsAvailable
-                                            ? Colors.blue.shade900
-                                            : Colors.green.shade900
-                                      )
-                                      : (
-                                          presentationsAvailable
-                                            ? Colors.yellow.shade900
-                                            : Colors.black
-                                      );
-                                    })(),
-                                  ],
-                                ).createShader(bounds),
+                          child: RotationTransition(
+                              turns: Tween(begin: 0.0, end: serverIP == null ? 1.0 : 0.0).animate(_scanAnimationController),
+                              child: ShaderMask(
+                              blendMode: BlendMode.srcIn,
+                              shaderCallback: (Rect bounds) => 
+                              SweepGradient(
+                                transform: const GradientRotation(math.pi),
+                                colors: [
+                                  Colors.white,
+                                  (() {
+                                    final presentationsAvailable = store.presentationAvailable(_currentPresentation);
+                                    return serverIP != null
+                                    ? (
+                                        presentationsAvailable
+                                          ? Colors.blue.shade900
+                                          : Colors.green.shade900
+                                    )
+                                    : (
+                                        presentationsAvailable
+                                          ? Colors.yellow.shade900
+                                          : Colors.black
+                                    );
+                                  })(),
+                                ],
+                              ).createShader(bounds),
+                              child: RotationTransition(
+                                turns: Tween(begin: 0.0, end: serverIP == null ? -1.0 : 0.0).animate(_scanAnimationController),
                                 child: const Icon(
                                   Icons.play_arrow_outlined,
                                   size: 128,
                                 ),
                               ),
-                            ],
+                            ),
                           ),
                         ),
                       ),

@@ -31,7 +31,7 @@ dependencies:
 
   flutter_native_splash: ^2.2.0
 
-  google_fonts: ^3.0.1
+  google_fonts: ^4.0.3
   flutter_markdown: ^0.6.10+2
   skeletons: ^0.0.3
 

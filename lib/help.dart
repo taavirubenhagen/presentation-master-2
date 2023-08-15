@@ -130,17 +130,7 @@ class HelpCenter extends StatelessWidget {
           onButtonPressed: () => Navigator.push(context, MaterialPageRoute(
             builder: (context) => WifiSetup(presentationData: presentationData),
           )),
-          title: "Connect Remote",
-          tappableIconData: Icons.arrow_forward_ios_outlined,
-        ),
-        AppHelpTile(
-          onButtonPressed: () => Navigator.push(context, MaterialPageRoute(
-            builder: (context) => WifiSetup(
-              use: true,
-              presentationData: presentationData,
-            ),
-          )),
-          title: "Use Remote",
+          title: "Remote Control",
           tappableIconData: Icons.arrow_forward_ios_outlined,
         ),
         AppHelpTile(
@@ -165,73 +155,10 @@ class HelpCenter extends StatelessWidget {
 
 
 
-class WifiSetupScaffold extends StatelessWidget {
-  const WifiSetupScaffold({
-    super.key,
-    required this.title,
-    required this.subtitle,
-    required this.onPrimaryButtonPressed,
-    required this.primaryButtonLabel,
-    this.onSecondaryButtonPressed,
-    this.secondaryButtonLabel,
-    required this.illustrationImage
-  });
-
-  final String title;
-  final  String subtitle;
-  final Function() onPrimaryButtonPressed;
-  final String primaryButtonLabel;
-  final Function()? onSecondaryButtonPressed;
-  final String? secondaryButtonLabel;
-  final Widget illustrationImage;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(32).copyWith(bottom: 0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Placeholder(
-            child: SizedBox(
-              width: screenWidth(context) / 3,
-              height: screenWidth(context) / 3,
-              child: illustrationImage,
-            ),
-          ),
-          Column(
-            children: [
-              MediumHeading(title),
-              const SizedBox(height: 32),
-              MediumLabel(subtitle),
-            ],
-          ),
-          Column(
-            children: [
-              AppTextButton(
-                onPressed: onPrimaryButtonPressed,
-                label: primaryButtonLabel,
-              ),
-              if (secondaryButtonLabel != null && onSecondaryButtonPressed != null) const SizedBox(height: 16),
-              if (secondaryButtonLabel != null && onSecondaryButtonPressed != null) AppTextButton(
-                onPressed: onSecondaryButtonPressed!,
-                secondary: true,
-                label: secondaryButtonLabel!,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-
 // TODO: 18
 class WifiSetup extends StatefulWidget {
-  const WifiSetup({super.key, this.use = false, required this.presentationData});
+  const WifiSetup({super.key,  required this.presentationData});
 
-  final bool use;
   final Map<String, dynamic>? presentationData;
 
   @override
@@ -239,6 +166,8 @@ class WifiSetup extends StatefulWidget {
 }
 
 class _WifiSetupState extends State<WifiSetup> {
+
+  final _wifiSetupPageController = PageController();
 
   @override
   Widget build(BuildContext context) {
@@ -260,54 +189,68 @@ class _WifiSetupState extends State<WifiSetup> {
           icon: const Icon(Icons.arrow_back_outlined),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.only(left: 32, right: 32, bottom: 64),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.only(bottom: 32),
-                children: [
-                  MediumHeading(widget.use ? "Using the remote control" : "Set up remote control"),
-                  const SizedBox(height: 32),
-                  MediumLabel(
-                    widget.use
-                    ? '1. Make sure to follow the "Connect Remote" instructions in the help center first, then connect both devices to the same WiFi.\n\n2. Open both apps. Tap the play button in the mobile app to turn on presentation mode.\n\n3. Open a PowerPoint on your PC and wait for the mobile app to connect.'
-                    : "Watch a short video to learn how to download the PC app that receives the signals of the remote control.\n\nAlternatively, you can just add speaker notes and use the app only as note card replacement.",
-                  ),
-                ],
-              ),
-            ),
-            Column(
+      body: PageView.builder(
+        controller: _wifiSetupPageController,
+        itemCount: 2,
+        itemBuilder: (context, i) {
+          return Padding(
+            padding: const EdgeInsets.only(left: 32, right: 32, bottom: 64),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                AppTextButton(
-                  onPressed: () => widget.use
-                  ? navigateToAvailablePresenter(context, widget.presentationData)
-                  : launchUrlString(
-                    "https://youtu.be/zjYiOR03C8M",
-                    mode: LaunchMode.externalApplication,
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.only(bottom: 32),
+                    children: [
+                      MediumLabel(
+                        i == 1
+                        ? '1. Whenever you want to present, connect both devices to the same WiFi.\n\n2. Open both apps. Tap the big play button in the mobile app to turn on presentation mode.\n\n3. Open a PowerPoint on your PC and wait for the mobile app to connect.'
+                        : "To make this app work as a remote control for your PowerPoint/Google Slides/Keynote presentation, open the link",
+                      ),
+                      if (i == 0) Container(
+                        margin: const EdgeInsets.symmetric(vertical: 32),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          color: Colors.blueGrey,
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        alignment: Alignment.center,
+                        child: LargeLabel("presenter.onrender.com"),
+                      ),
+                      if (i == 0) MediumLabel(
+                        "in your PC's browser and follow the instructions exactly to install the PC app that receives the controlling signals.\n\nAlternatively, you can just add speaker notes and use the app only as note card/timer replacement.",
+                      ),
+                    ],
                   ),
-                  isActive: !widget.use || serverIP != null,
-                  isLink: !widget.use,
-                  label: widget.use
-                  ? serverIP == null ? "Scanning..." : "Try presenting"
-                  : "Watch video",
                 ),
-                const SizedBox(height: 16),
-                AppTextButton(
-                  onPressed: () => widget.use
-                  ? Navigator.pop(context)
-                  : Navigator.push(context, MaterialPageRoute(
-                    builder: (context) => Home(editing: true),
-                  )),
-                  secondary: true,
-                  label: widget.use ? "Close" : "Edit notes",
+                Column(
+                  children: [
+                    AppTextButton(
+                      onPressed: () => i == 1
+                      ? navigateToAvailablePresenter(context, widget.presentationData)
+                      : _wifiSetupPageController.nextPage(duration: const Duration(milliseconds: 400), curve: appDefaultCurve),
+                      isActive: i == 0 || serverIP != null,
+                      isNext: i == 0,
+                      label: i == 1
+                      ? serverIP == null ? "Scanning..." : "Try presenting"
+                      : "Next",
+                    ),
+                    const SizedBox(height: 16),
+                    AppTextButton(
+                      onPressed: () => i == 1
+                      ? Navigator.pop(context)
+                      : Navigator.push(context, MaterialPageRoute(
+                        builder: (context) => Home(editing: true),
+                      )),
+                      secondary: true,
+                      label: i == 1 ? "Close" : "Edit notes",
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
+          );
+        }
       ),
     );
   }

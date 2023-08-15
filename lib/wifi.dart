@@ -25,10 +25,6 @@ Map<ControlAction, String> controlRoutes = {
 
 
 
-
-
-
-
 Future connect(context, {recursionIndex = 0}) async {
   logger.i("Starting network scan");
   String deviceIP = ( await NetworkInfo().getWifiIP() )!;
@@ -55,6 +51,8 @@ Future connect(context, {recursionIndex = 0}) async {
     connect(context, recursionIndex: recursionIndex + 1);
   }
 }
+
+
 
 
 Future<String> control({

@@ -96,19 +96,21 @@ class _NotePresenterState extends State<NotePresenter> {
     _isTimerActive = _timerMinutes > 0;
 
     _visibleTimer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
-      setState(() {
-        if (_timerSeconds <= 0) {
-          if (_timerMinutes <= 0) {
-            Vibrate.vibrate();
-            _visibleTimer.cancel();
+      if (_isTimerActive) {
+        setState(() {
+          if (_timerSeconds <= 0) {
+            if (_timerMinutes <= 0) {
+              Vibrate.vibrate();
+              _visibleTimer.cancel();
+              return;
+            }
+            _timerSeconds = 59;
+            _timerMinutes--;
             return;
           }
-          _timerSeconds = 59;
-          _timerMinutes--;
-          return;
-        }
-        _timerSeconds--;
-      });
+          _timerSeconds--;
+        });
+      }
     });
 
     _connectionStatusTimer = Timer.periodic(
@@ -534,19 +536,21 @@ class _MinimalPresenterState extends State<MinimalPresenter> {
     _timerMinutes = widget.presentationData[store.presentationMinutesKey] ?? 0;
     _isTimerActive = _timerMinutes > 0;
     _timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
-      setState(() {
-        if (_timerSeconds <= 0) {
-          if (_timerMinutes <= 0) {
-            Vibrate.vibrate();
-            _timer.cancel();
+      if (_isTimerActive) {
+        setState(() {
+          if (_timerSeconds <= 0) {
+            if (_timerMinutes <= 0) {
+              Vibrate.vibrate();
+              _timer.cancel();
+              return;
+            }
+            _timerSeconds = 59;
+            _timerMinutes--;
             return;
           }
-          _timerSeconds = 59;
-          _timerMinutes--;
-          return;
-        }
-        _timerSeconds--;
-      });
+          _timerSeconds--;
+        });
+      }
     });
   }
 
