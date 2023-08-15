@@ -29,7 +29,8 @@ dependencies:
   ping_discover_network_forked: ^0.0.1
   url_launcher: ^6.0.18
 
-  flutter_native_splash: ^2.2.0
+  # Uncomment to use, comment to build iOS
+  #flutter_native_splash: ^2.2.0
 
   google_fonts: ^4.0.3
   flutter_markdown: ^0.6.10+2
@@ -61,21 +62,22 @@ flutter:
 
 
 
-flutter_native_splash:
+# Uncomment to use, comment to build iOS
+#flutter_native_splash:
 
-  color: "#000000"
+#  color: "#000000"
   #background_image: "assets/background.png"
 
   # Optional parameters are listed below.  To enable a parameter, uncomment the line by removing
   # the leading # character.
 
-  image: ./splash_screen_icon.png
+##  image: ./splash_screen_icon.png
 
   # https://developer.android.com/guide/topics/ui/splash-screen
-  android_12:
+#  android_12:
   
-    image: ./splash_screen_icon.png
+#    image: ./splash_screen_icon.png
 
-    color: "#000000"
+#    color: "#000000"
 
     #icon_background_color: "#111111"
