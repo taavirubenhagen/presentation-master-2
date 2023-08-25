@@ -1,6 +1,6 @@
 import "package:http/http.dart" as http;
 //import 'package:network_info_plus/network_info_plus.dart';
-import 'package:ping_discover_network_forked/ping_discover_network_forked.dart';
+//import 'package:ping_discover_network_forked/ping_discover_network_forked.dart';
 
 import 'package:presentation_master_2/main.dart';
 
@@ -26,7 +26,7 @@ Map<ControlAction, String> controlRoutes = {
 
 
 Future connect(context, {recursionIndex = 0}) async {
-  logger.i("Starting network scan");
+  /*TODOlogger.i("Starting network scan");
   String deviceIP = "";//( await NetworkInfo().getWifiIP() )!;
   final String subnet = deviceIP.substring(0, deviceIP.lastIndexOf('.'));
   do {
@@ -49,7 +49,7 @@ Future connect(context, {recursionIndex = 0}) async {
   MyApp.setAppState(context, () => serverIP = null);
   if (recursionIndex < 16) {
     connect(context, recursionIndex: recursionIndex + 1);
-  }
+  }*/
 }
 
 
