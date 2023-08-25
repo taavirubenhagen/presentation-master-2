@@ -27,7 +27,8 @@ dependencies:
   #flutter_vibrate: ^1.3.0
 
   http: ^1.1.0
-  network_info_plus: ^4.0.1
+  # TODO: Uncomment for android, comment to build iOS
+  #network_info_plus: ^4.0.1
   ping_discover_network_forked: ^0.0.1
   url_launcher: ^6.0.18
 
