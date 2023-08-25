@@ -3,7 +3,7 @@ description: All-in-one presentation remote and note taking app
 
 publish_to: 'none'
 
-version: 3.0.0+46
+version: 3.0.1+47
 
 environment:
   sdk: '>=2.19.2 <4.0.0'

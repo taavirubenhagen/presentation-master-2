@@ -1,7 +1,6 @@
 /*  TODO:
       - Eliminate every presenter_2 after making safety copy of project
       - Make vibration less strong
-      - Check if WiFi is on
 */
 
 import "package:flutter/services.dart";

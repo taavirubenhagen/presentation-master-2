@@ -147,6 +147,11 @@ class HelpCenter extends StatelessWidget {
           title: "Contact",
           tappableIconData: Icons.arrow_forward_ios_outlined,
         ),
+        AppHelpTile(
+          onButtonPressed: () => launchUrlString("https://www.buymeacoffee.com/taavirubenhagen", mode: LaunchMode.externalApplication),
+          title: "Support me",
+          tappableIconData: Icons.open_in_new_outlined,
+        ),
       ],
     );
   }

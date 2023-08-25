@@ -361,7 +361,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                               SweepGradient(
                                 transform: const GradientRotation(math.pi),
                                 colors: [
-                                  Colors.white,
                                   (() {
                                     final presentationsAvailable = store.presentationAvailable(_currentPresentation);
                                     return serverIP != null
@@ -376,6 +375,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                           : Colors.black
                                     );
                                   })(),
+                                  Colors.white,
                                 ],
                               ).createShader(bounds),
                               child: RotationTransition(
