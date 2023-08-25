@@ -18,7 +18,6 @@ dependencies:
 
   logger: ^1.1.0
 
-  package_info_plus: ^4.0.1
   # TODO: iOS
   path_provider: ^2.0.9
   shared_preferences: ^2.1.1
