@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 
 import 'package:wakelock_plus/wakelock_plus.dart';
-import 'package:flutter_vibrate/flutter_vibrate.dart';
+//import 'package:flutter_vibrate/flutter_vibrate.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
 import 'package:presentation_master_2/store.dart' as store;
@@ -100,7 +100,7 @@ class _NotePresenterState extends State<NotePresenter> {
         setState(() {
           if (_timerSeconds <= 0) {
             if (_timerMinutes <= 0) {
-              Vibrate.vibrate();
+              //TODOVibrate.vibrate();
               _visibleTimer.cancel();
               return;
             }
@@ -540,7 +540,7 @@ class _MinimalPresenterState extends State<MinimalPresenter> {
         setState(() {
           if (_timerSeconds <= 0) {
             if (_timerMinutes <= 0) {
-              Vibrate.vibrate();
+              //TODOVibrate.vibrate();
               _timer.cancel();
               return;
             }
