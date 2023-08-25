@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 
-import 'package:wakelock_plus/wakelock_plus.dart';
+//import 'package:wakelock_plus/wakelock_plus.dart';
 //import 'package:flutter_vibrate/flutter_vibrate.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
@@ -90,7 +90,7 @@ class _NotePresenterState extends State<NotePresenter> {
   void initState() {
     super.initState();
 
-    WakelockPlus.enable();
+    //WakelockPlus.enable();
 
     _timerMinutes = widget.presentationData[store.presentationMinutesKey];
     _isTimerActive = _timerMinutes > 0;
@@ -128,7 +128,7 @@ class _NotePresenterState extends State<NotePresenter> {
   @override
   void dispose() {
     super.dispose();
-    WakelockPlus.disable();
+    //WakelockPlus.disable();
     _visibleTimer.cancel();
     _connectionStatusTimer?.cancel();
   }
@@ -531,7 +531,7 @@ class _MinimalPresenterState extends State<MinimalPresenter> {
   void initState() {
     super.initState();
 
-    WakelockPlus.enable();
+    //WakelockPlus.enable();
 
     _timerMinutes = widget.presentationData[store.presentationMinutesKey] ?? 0;
     _isTimerActive = _timerMinutes > 0;
@@ -557,7 +557,7 @@ class _MinimalPresenterState extends State<MinimalPresenter> {
   @override
   void dispose() {
     super.dispose();
-    WakelockPlus.disable();
+    //WakelockPlus.disable();
     _timer.cancel();
   }
 

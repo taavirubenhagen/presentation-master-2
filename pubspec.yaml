@@ -22,7 +22,8 @@ dependencies:
   path_provider: ^2.0.9
   shared_preferences: ^2.1.1
 
-  wakelock_plus: ^1.1.1
+  # TODO: Uncomment for android, comment to build iOS
+  #wakelock_plus: ^1.1.1
   #flutter_vibrate: ^1.3.0
 
   http: ^1.1.0
