@@ -33,6 +33,10 @@ dependencies:
   # Uncomment to use, comment to build iOS
   #flutter_native_splash: ^2.2.0
 
+
+  google_fonts:
+    git:
+      url: https://github.com/taavirubenhagen/Tavy-Components-Flutter.git
   google_fonts: ^5.1.0
   flutter_markdown: ^0.6.10+2
   skeletons: ^0.0.3
