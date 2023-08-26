@@ -33,7 +33,7 @@ dependencies:
   # Uncomment to use, comment to build iOS
   #flutter_native_splash: ^2.2.0
 
-  google_fonts: ^4.0.3
+  google_fonts: ^5.1.0
   flutter_markdown: ^0.6.10+2
   skeletons: ^0.0.3
 
@@ -43,9 +43,9 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^1.0.0
+  flutter_lints: ^2.0.2
   flutter_launcher_icons: ^0.13.1
-  rename: ^2.0.1
+  rename: ^2.1.1
 
 
 
