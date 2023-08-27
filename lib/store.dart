@@ -18,7 +18,7 @@ const presentationNotesKey = "speakernotes";
 const presentationMinutesKey = "timerminutes";
 
 const _presentationsKey = "presentations";
-const _ultraStatusKey = "ultrastatus";
+const _ProStatusKey = "Prostatus";
 
 
 
@@ -80,10 +80,10 @@ presentationAvailable(Map<String, dynamic>? presentation) => ( presentation?[pre
 
 
 
-Future<bool?> accessUltraStatus({final bool toggle = false}) async {
+Future<bool?> accessProStatus({final bool toggle = false}) async {
   final SharedPreferences _instance = await SharedPreferences.getInstance();
   if (toggle) {
-    _instance.setBool(_ultraStatusKey, !( await accessUltraStatus() ?? true ));
+    _instance.setBool(_ProStatusKey, !( await accessProStatus() ?? true ));
   }
-  return _instance.getBool(_ultraStatusKey);
+  return _instance.getBool(_ProStatusKey);
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:basic_utils/basic_utils.dart' as utils;
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:presentation_master_2/main.dart';
@@ -151,8 +152,12 @@ class AppTextButton extends StatelessWidget {
     super.key,
     required this.onPressed,
     this.secondary = false,
+    this.mini = false,
+    this.docked = false,
     this.isOnBackground = false,
-    this.isActive = true,
+    this.active = true,
+    this.loading = false,
+    this.customIcon,
     this.isLink = false,
     this.isNext = false,
     required this.label,
@@ -160,8 +165,12 @@ class AppTextButton extends StatelessWidget {
 
   final void Function() onPressed;
   final bool secondary;
+  final bool mini;
+  final bool docked;
   final bool isOnBackground;
-  final bool isActive;
+  final bool active;
+  final bool loading;
+  final IconData? customIcon;
   final bool isLink;
   final bool isNext;
   final String label;
@@ -169,22 +178,23 @@ class AppTextButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Opacity(
-      opacity:  isActive ? 1 : 0.2,
+      opacity: !active || loading ? 0.2 : 1,
       child: TextButton(
-        onPressed: isActive ? onPressed : () {},
+        onPressed: active ? onPressed : () {},
         style: ButtonStyle(
           shape: MaterialStateProperty.all(RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: secondary ? BorderSide(width: 2, color: colorScheme.onSurface.withOpacity(isActive ? 0.25 : 0.1)) : BorderSide.none,
+            borderRadius: BorderRadius.circular(mini ? 8 : docked ? 0 : 16),
+            side: secondary ? BorderSide(width: 2, color: colorScheme.onSurface.withOpacity(active ? 0.25 : 0.1)) : BorderSide.none,
           )),
           backgroundColor: secondary
           ? MaterialStateProperty.all(Colors.transparent)
-          : ( isOnBackground ? MaterialStateProperty.all(colorScheme.surface) : null ),
-          overlayColor: isActive ? null : MaterialStateProperty.all(Colors.transparent),
+          : ( isOnBackground || docked ? MaterialStateProperty.all(colorScheme.surface) : null ),
+          overlayColor: active ? null : MaterialStateProperty.all(Colors.transparent),
         ),
         child: Container(
-          height: 64,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          width: docked ? screenWidth(context) : null,
+          height: mini ? 32 : docked ? 80 : 64,
+          padding: EdgeInsets.symmetric(horizontal: mini ? 12 : 16),
           alignment: Alignment.center,
           child: AnimatedSwitcher(
             duration: const Duration(milliseconds: 100),
@@ -197,13 +207,23 @@ class AppTextButton extends StatelessWidget {
               );
             },
             child: SizedBox(
-              key: ValueKey<bool>(isActive),
-              child: Row(
+              key: ValueKey<bool>(active),
+              child: loading
+              ? SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  color: colorScheme.onSurface,
+                ),
+              )
+              : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ButtonLabel(label),
-                  const SizedBox(width: 16),
-                  if (isLink || isNext) Icon(isLink ? Icons.open_in_new_outlined : Icons.arrow_forward_outlined),
+                  mini ? SmallLabel(label) : ButtonLabel(label),
+                  if (utils.BooleanUtils.or([isLink, isNext, customIcon != null])) const SizedBox(width: 16),
+                  if (utils.BooleanUtils.or([isLink, isNext, customIcon != null])) Icon(
+                    customIcon ?? ( isLink ? Icons.open_in_new_outlined : Icons.arrow_forward_outlined ),
+                  ),
                 ],
               ),
             ),
@@ -226,7 +246,10 @@ void showFullscreenDialog({
     context: context,
     barrierColor: Colors.black.withOpacity(0.9),
     builder: (BuildContext context) => GestureDetector(
-      onTap: () => closeOnBackgroundTap ? Navigator.pop(context) : null,
+      onTap: () {
+        
+        closeOnBackgroundTap ? Navigator.pop(context) : null;
+      },
       child: Center(
         child: content,
       ),
@@ -270,6 +293,7 @@ void showBooleanDialog({
                   aspectRatio: 1/1,
                   child: IconButton(
                     onPressed: () {
+                      
                       Navigator.pop(context);
                       onYes();
                     },
@@ -285,4 +309,5 @@ void showBooleanDialog({
       ),
     ),
   );
+  
 }

@@ -27,9 +27,6 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
-  late AnimationController _scanAnimationController;
-
-  Map<String, dynamic>? _currentPresentation;
   bool _presentationsExpanded = false;
   String? _name;
   bool _isEditingTimer = false;
@@ -52,17 +49,17 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   });
 
   void _nudgeTimerMinutes({required bool decrease, int interval = 1}) async {
-    _currentPresentation = await store.mutatePresentation(
-      oldPresentation: _currentPresentation,
+    currentPresentation = await store.mutatePresentation(
+      oldPresentation: currentPresentation,
       timerMinutes: (() {
-        int _newMinutes = _currentPresentation?[store.presentationMinutesKey] + ( decrease ? -interval : interval );
-        if (_newMinutes < 0) {
+        int newMinutes = currentPresentation?[store.presentationMinutesKey] + ( decrease ? -interval : interval );
+        if (newMinutes < 0) {
           return 0;
         }
-        if (_newMinutes > 99) {
+        if (newMinutes > 99) {
           return 99;
         }
-        return _newMinutes;
+        return newMinutes;
       })(),
     );
     setState(() {});
@@ -73,13 +70,11 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   void initState() {
     super.initState();
 
-    _scanAnimationController = AnimationController(vsync: this, duration: const Duration(seconds: 5))..repeat();
-
     (() async {
-      hasUltra = await store.accessUltraStatus() ?? await store.accessUltraStatus(toggle: true) ?? false;
+      hasPro = await store.accessProStatus() ?? await store.accessProStatus(toggle: true) ?? false;
 
       await store.accessPresentations();
-      MyApp.setAppState(context, () => _currentPresentation ??= globalPresentations?.first);
+      MyApp.setAppState(context, () => currentPresentation ??= globalPresentations?.first);
     })();
     connect(context);
   }
@@ -114,16 +109,16 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           height: 80,
           child: TextButton(
             onPressed: () => widget.editing
-            ? hasUltra
+            ? hasPro
               ? launchUrlString(
                 "https://www.markdownguide.org/cheat-sheet/",
                 mode: LaunchMode.externalApplication,
               )
               : Navigator.push(context, MaterialPageRoute(
-                builder: (context) => const GetUltraScreen(),
+                builder: (context) => const GetProScreen(),
               ))
             : Navigator.push(context, MaterialPageRoute(
-              builder: (context) => HelpCenter(presentationData: _currentPresentation),
+              builder: (context) => HelpCenter(presentationData: currentPresentation),
             )),
             style: ButtonStyle(
               shape: MaterialStateProperty.all(const RoundedRectangleBorder()),
@@ -140,7 +135,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 );
               },
               child: widget.editing
-              ? hasUltra
+              ? hasPro
                 ? Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -200,7 +195,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Skeleton(
-                                isLoading: _currentPresentation?[store.presentationNameKey] == null || _currentPresentation?[store.presentationNotesKey] == null,
+                                isLoading: currentPresentation?[store.presentationNameKey] == null || currentPresentation?[store.presentationNotesKey] == null,
                                 skeleton: SkeletonLine(
                                   style: SkeletonLineStyle(
                                     alignment: Alignment.center,
@@ -214,7 +209,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                   height: 128,
                                   child: HugeLabel(
                                     (
-                                      _currentPresentation?[store.presentationMinutesKey]
+                                      currentPresentation?[store.presentationMinutesKey]
                                       ?? "Error loading speaker notes. This presentation does not seem to be initialized correctly. Please contact the developer."
                                     ).toString() + " min",
                                   ),
@@ -255,7 +250,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                         : SingleChildScrollView(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16 + 16 + 80),
                           child: Skeleton(
-                            isLoading: _currentPresentation?[store.presentationNameKey] == null || _currentPresentation?[store.presentationNotesKey] == null,
+                            isLoading: currentPresentation?[store.presentationNameKey] == null || currentPresentation?[store.presentationNotesKey] == null,
                             skeleton: Column(
                               children: [
                                 SkeletonLine(
@@ -320,8 +315,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                               ),
                               child: TextFormField(
                                 onChanged: (newNotes) async {
-                                  _currentPresentation = await store.mutatePresentation(
-                                    oldPresentation: _currentPresentation,
+                                  currentPresentation = await store.mutatePresentation(
+                                    oldPresentation: currentPresentation,
                                     speakerNotes: newNotes,
                                   );
                                   setState(() {});
@@ -335,10 +330,9 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                 style: MainText.textStyle,
                                 decoration: const InputDecoration(
                                   border: InputBorder.none,
-                                  hintText: "Speaker notes go here.",
+                                  hintText: "Enter speaker notes and information that you want to use during your presentation.",
                                 ),
-                                autofocus: widget.editing,
-                                initialValue: _currentPresentation?[store.presentationNotesKey] ?? "Error loading speaker notes. This presentation does not seem to be initialized correctly. Please contact the developer.",
+                                initialValue: currentPresentation?[store.presentationNotesKey] ?? "Error loading speaker notes. This presentation does not seem to be initialized correctly. Please contact the developer.",
                               ),
                             ),
                           ),
@@ -347,44 +341,38 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       : Padding(
                         padding: const EdgeInsets.only(top: 80 - 48),
                         child: GestureDetector(
-                          onTap: () => navigateToAvailablePresenter(context, _currentPresentation),
+                          onTap: () => navigateToAvailablePresenter(context, currentPresentation),
                           onLongPress: () => navigateToAvailablePresenter(
                             context,
-                            _currentPresentation,
+                            currentPresentation,
                             preferMinimalPresenter: true,
                           ),
-                          child: RotationTransition(
-                              turns: Tween(begin: 0.0, end: serverIP == null ? 1.0 : 0.0).animate(_scanAnimationController),
-                              child: ShaderMask(
-                              blendMode: BlendMode.srcIn,
-                              shaderCallback: (Rect bounds) => 
-                              SweepGradient(
-                                transform: const GradientRotation(math.pi),
-                                colors: [
-                                  (() {
-                                    final presentationsAvailable = store.presentationAvailable(_currentPresentation);
-                                    return serverIP != null
-                                    ? (
-                                        presentationsAvailable
-                                          ? Colors.blue.shade900
-                                          : Colors.green.shade900
-                                    )
-                                    : (
-                                        presentationsAvailable
-                                          ? Colors.yellow.shade900
-                                          : Colors.black
-                                    );
-                                  })(),
-                                  Colors.white,
-                                ],
-                              ).createShader(bounds),
-                              child: RotationTransition(
-                                turns: Tween(begin: 0.0, end: serverIP == null ? -1.0 : 0.0).animate(_scanAnimationController),
-                                child: const Icon(
-                                  Icons.play_arrow_outlined,
-                                  size: 128,
-                                ),
-                              ),
+                          child: ShaderMask(
+                            blendMode: BlendMode.srcIn,
+                            shaderCallback: (Rect bounds) => 
+                            SweepGradient(
+                              transform: const GradientRotation(math.pi),
+                              colors: [
+                                (() {
+                                  final presentationsAvailable = store.presentationAvailable(currentPresentation);
+                                  return serverIP != null
+                                  ? (
+                                      presentationsAvailable
+                                        ? Colors.blue.shade900
+                                        : Colors.green.shade900
+                                  )
+                                  : (
+                                      presentationsAvailable
+                                        ? Colors.yellow.shade900
+                                        : Colors.black
+                                  );
+                                })(),
+                                Colors.white,
+                              ],
+                            ).createShader(bounds),
+                              child: const Icon(
+                              Icons.play_arrow_outlined,
+                              size: 128,
                             ),
                           ),
                         ),
@@ -429,7 +417,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                               children: [
                                 Expanded(
                                   child: Skeleton(
-                                    isLoading: _currentPresentation?[store.presentationNameKey] == null,
+                                    isLoading: currentPresentation?[store.presentationNameKey] == null,
                                     skeleton: SkeletonLine(
                                       style: SkeletonLineStyle(
                                         width: 128,
@@ -448,10 +436,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                         );
                                       },
                                       child: SingleChildScrollView(
-                                        key: ValueKey<String?>(_currentPresentation?[store.presentationNameKey]),
+                                        key: ValueKey<String?>(currentPresentation?[store.presentationNameKey]),
                                         child: Row(
                                           children: [
-                                            SmallLabel(_currentPresentation?[store.presentationNameKey] ?? "Loading..."),
+                                            SmallLabel(currentPresentation?[store.presentationNameKey] ?? "Loading..."),
                                             const SizedBox(
                                               width: 8,
                                               height: 80,
@@ -472,10 +460,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                       width: 48,
                                       height: 48,
                                       child: IconButton(
-                                        onPressed: () => hasUltra
+                                        onPressed: () => hasPro
                                         ? _changeEditingMode(wasTimerButtonPressed: true)
                                         : Navigator.push(context, MaterialPageRoute(
-                                          builder: (context) => const GetUltraScreen(),
+                                          builder: (context) => const GetProScreen(),
                                         )),
                                         icon: AnimatedSwitcher(
                                           duration: const Duration(milliseconds: 100),
@@ -533,14 +521,14 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                           margin: const EdgeInsets.symmetric(horizontal: 16),
                           height: _presentationsExpanded
                           ? (() {
-                            double _defaultHeight = 80 + ( globalPresentations?.length ?? 2 ) * 72 - 72 + 16;
-                            return _defaultHeight < screenHeight(context) - 192 ? _defaultHeight : screenHeight(context) - 256;
+                            double defaultHeight = 80 + ( globalPresentations?.length ?? 2 ) * 72 - 72 + 16;
+                            return defaultHeight < screenHeight(context) - 192 ? defaultHeight : screenHeight(context) - 256;
                           })()
                           : 0,
                           child: ListView(
                             children: [
                               for (Map<String, dynamic> p in globalPresentations ?? List.generate(2, (index) => {})) globalPresentations != null
-                              ? p[store.presentationNameKey] == ( _currentPresentation ?? {} )[store.presentationNameKey]
+                              ? p[store.presentationNameKey] == ( currentPresentation ?? {} )[store.presentationNameKey]
                                 ? const SizedBox()
                                 : AppAnimatedSwitcher(
                                   value: !_presentationsExpanded,
@@ -552,7 +540,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                     onPressed: () async {
                                       setState(() => _presentationsExpanded = false);
                                       await Future.delayed(const Duration(milliseconds: 300));
-                                      setState(() => _currentPresentation = p);
+                                      setState(() => currentPresentation = p);
                                     },
                                     style: ButtonStyle(
                                       shape: MaterialStateProperty.all(RoundedRectangleBorder(
@@ -598,9 +586,9 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                 height: 96,
                                 alignment: Alignment.center,
                                 child: AppTextButton(
-                                  onPressed: () => !hasUltra
+                                  onPressed: () => !hasPro
                                   ? Navigator.push(context, MaterialPageRoute(
-                                    builder: (context) => const GetUltraScreen(),
+                                    builder: (context) => const GetProScreen(),
                                   ))
                                   : showFullscreenDialog(
                                     context: context,
@@ -660,10 +648,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                                       }
                                                       return currentName;
                                                     }
-                                                    String _finalName = checkForName(_name ?? "Presentation");
+                                                    String finalName = checkForName(_name ?? "Presentation");
                                                     await store.mutatePresentation(
                                                       oldPresentation: null,
-                                                      name: _finalName,
+                                                      name: finalName,
                                                     );
                                                     Navigator.pop(context);
                                                     setState(() => _name = null);

@@ -1,8 +1,3 @@
-/*  TODO:
-      - Eliminate every presenter_2 after making safety copy of project
-      - Make vibration less strong
-*/
-
 import "package:flutter/services.dart";
 import 'package:flutter/material.dart';
 
@@ -32,7 +27,8 @@ const appDefaultCurve = Cubic(.4, 0, .2, 1);
 final logger = Logger(printer: PrettyPrinter());
 
 store.Presentations? globalPresentations;
-bool hasUltra = false;
+Map<String, dynamic>? currentPresentation;
+bool hasPro = false;
 String? serverIP;
 
 double screenHeight(BuildContext context) => MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
@@ -56,9 +52,10 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 
   static void setAppState(BuildContext context, [Function()? function]) {
-    _MyAppState? _ancestorState = context.findAncestorStateOfType<_MyAppState>();
+    _MyAppState? ancestorState = context.findAncestorStateOfType<_MyAppState>();
     // ignore: invalid_use_of_protected_member
-    _ancestorState?.setState(function ?? () {});
+    ancestorState?.setState(function ?? () {});
+    
   }
 }
 
@@ -87,6 +84,7 @@ class _MyAppState extends State<MyApp> {
         ),
         textButtonTheme: TextButtonThemeData(
           style: ButtonStyle(
+            shape: MaterialStateProperty.all(const RoundedRectangleBorder()),
             padding: MaterialStateProperty.all(EdgeInsets.zero),
             backgroundColor: MaterialStateProperty.all(colorScheme.background),
             overlayColor: MaterialStateProperty.all(colorScheme.onSurface.withOpacity(0.1)),

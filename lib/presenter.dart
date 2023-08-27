@@ -4,8 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 
-//import 'package:wakelock_plus/wakelock_plus.dart';
-//import 'package:flutter_vibrate/flutter_vibrate.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
+import 'package:flutter_vibrate/flutter_vibrate.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
 import 'package:presentation_master_2/store.dart' as store;
@@ -44,7 +44,7 @@ void navigateToAvailablePresenter(BuildContext context, Map<String, dynamic>? pr
 bool _showClosingDialog(BuildContext context, {bool navigateToNoteEditor = false}) {
   showBooleanDialog(
     context: context,
-    title: "End presentation?",
+    title: navigateToNoteEditor ? "Exit to edit speaker notes?" : "End presentation?",
     onYes: () {
       Navigator.pop(context);
       if (navigateToNoteEditor) {
@@ -90,7 +90,7 @@ class _NotePresenterState extends State<NotePresenter> {
   void initState() {
     super.initState();
 
-    //WakelockPlus.enable();
+    WakelockPlus.enable();
 
     _timerMinutes = widget.presentationData[store.presentationMinutesKey];
     _isTimerActive = _timerMinutes > 0;
@@ -100,7 +100,7 @@ class _NotePresenterState extends State<NotePresenter> {
         setState(() {
           if (_timerSeconds <= 0) {
             if (_timerMinutes <= 0) {
-              //TODOVibrate.vibrate();
+              Vibrate.feedback(FeedbackType.warning);
               _visibleTimer.cancel();
               return;
             }
@@ -128,13 +128,14 @@ class _NotePresenterState extends State<NotePresenter> {
   @override
   void dispose() {
     super.dispose();
-    //WakelockPlus.disable();
+    WakelockPlus.disable();
     _visibleTimer.cancel();
     _connectionStatusTimer?.cancel();
   }
 
   @override
   Widget build(BuildContext context) {
+    
     return WillPopScope(
       onWillPop: () async => _showClosingDialog(context),
       child: Scaffold(
@@ -151,30 +152,33 @@ class _NotePresenterState extends State<NotePresenter> {
           child: Stack(
             alignment: Alignment.bottomCenter,
             children: [
-              Container(
-                height: screenHeight(context),
-                padding: const EdgeInsets.all(16).copyWith(top: 32),
-                child: Markdown(
-                  styleSheet: MarkdownStyleSheet(
-                    textScaleFactor: _notesTextScaleFactor,
-                    blockSpacing: 16,
-                    p: MainText.textStyle.copyWith(fontSize: 22),
-                    pPadding: const EdgeInsets.only(bottom: 10),
-                    h1: MainText.textStyle.copyWith(fontSize: 40),
-                    h1Padding: const EdgeInsets.only(bottom: 20),
-                    h2: MainText.textStyle.copyWith(fontSize: 36),
-                    h2Padding: const EdgeInsets.only(bottom: 12),
-                    h3: MainText.textStyle.copyWith(fontSize: 32),
-                    h3Padding: const EdgeInsets.only(bottom: 16),
-                    h4: MainText.textStyle.copyWith(fontSize: 30),
-                    h4Padding: const EdgeInsets.only(bottom: 15),
-                    h5: MainText.textStyle.copyWith(fontSize: 28),
-                    h5Padding: const EdgeInsets.only(bottom: 14),
-                    h6: MainText.textStyle.copyWith(fontSize: 24),
-                    h6Padding: const EdgeInsets.only(bottom: 12),
-                    code: MainText.textStyle.copyWith(fontFamily: "IBM Plex Mono"),
+              GestureDetector(
+                onTap: () => _showClosingDialog(context, navigateToNoteEditor: true),
+                child: Container(
+                  height: screenHeight(context),
+                  padding: const EdgeInsets.all(16).copyWith(top: 32),
+                  child: Markdown(
+                    styleSheet: MarkdownStyleSheet(
+                      textScaleFactor: _notesTextScaleFactor,
+                      blockSpacing: 16,
+                      p: MainText.textStyle.copyWith(fontSize: 22),
+                      pPadding: const EdgeInsets.only(bottom: 10),
+                      h1: MainText.textStyle.copyWith(fontSize: 40),
+                      h1Padding: const EdgeInsets.only(bottom: 20),
+                      h2: MainText.textStyle.copyWith(fontSize: 36),
+                      h2Padding: const EdgeInsets.only(bottom: 12),
+                      h3: MainText.textStyle.copyWith(fontSize: 32),
+                      h3Padding: const EdgeInsets.only(bottom: 16),
+                      h4: MainText.textStyle.copyWith(fontSize: 30),
+                      h4Padding: const EdgeInsets.only(bottom: 15),
+                      h5: MainText.textStyle.copyWith(fontSize: 28),
+                      h5Padding: const EdgeInsets.only(bottom: 14),
+                      h6: MainText.textStyle.copyWith(fontSize: 24),
+                      h6Padding: const EdgeInsets.only(bottom: 12),
+                      code: MainText.textStyle.copyWith(fontFamily: "IBM Plex Mono"),
+                    ),
+                    data: widget.presentationData[store.presentationNotesKey] ?? "Error loading notes. Please contact the developer.",
                   ),
-                  data: widget.presentationData[store.presentationNotesKey] ?? "Error loading notes. Please contact the developer.",
                 ),
               ),
               AnimatedPositioned(
@@ -191,7 +195,7 @@ class _NotePresenterState extends State<NotePresenter> {
                         context: context,
                         readOnly: true,
                         onYes: () {},
-                        title: "Drag to control your PC's cursor.",
+                        title: "Move your PC's cursor by using this field like a touchpad.",
                       ),
                       onPanUpdate: (details) {
                         if (_mouseReady) {
@@ -223,7 +227,7 @@ class _NotePresenterState extends State<NotePresenter> {
                         ? Icon(
                           Icons.mouse_outlined,
                           size: 32,
-                          color: colorScheme.onSurface.withOpacity(0.1),
+                          color: colorScheme.onSurface.withOpacity(0.25),
                         )
                         : const SizedBox(),
                       ),
@@ -264,26 +268,16 @@ class _NotePresenterState extends State<NotePresenter> {
                                   ),
                                 ],
                               ),
-                              // If this can be used anywhere else, move into design.dart
                               AppAnimatedSwitcher(
                                 value: serverIP != null,
                                 trueChild: const SizedBox(),
-                                falseChild: TextButton(
+                                falseChild: AppTextButton(
                                   onPressed: () => setState(() {
                                     _wasCancelled = true;
                                   }),
-                                  style: ButtonStyle(
-                                    shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    )),
-                                    backgroundColor: MaterialStateProperty.all(colorScheme.surface),
-                                  ),
-                                  child: Container(
-                                    height: 32,
-                                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                                    alignment: Alignment.center,
-                                    child: SmallLabel("Cancel"),
-                                  ),
+                                  mini: true,
+                                  isOnBackground: true,
+                                  label: "Cancel",
                                 ),
                               ),
                             ],
@@ -293,13 +287,13 @@ class _NotePresenterState extends State<NotePresenter> {
                     ),
                     Divider(
                       height: 0,
-                      color: colorScheme.surface,
+                      color: colorScheme.onSurface.withOpacity(0.5),
                     ),
                     SizedBox(
                       height: 64,
                       child: Row(
                         children: [
-                          hasUltra && _isTimerActive
+                          hasPro && _isTimerActive
                           ? SizedBox(
                             width: 64,
                             height: 64,
@@ -329,12 +323,12 @@ class _NotePresenterState extends State<NotePresenter> {
                             children: [
                               VerticalDivider(
                                 width: 1,
-                                color: colorScheme.surface,
+                                color: colorScheme.onSurface.withOpacity(0.5),
                               ),
                               TextButton(
                                 onPressed: () => setState(() => _notesTextScaleFactor /= 1.1),
                                 child: SizedBox(
-                                  width: serverIP != null || ( hasUltra && _isTimerActive ) ? 64 : screenWidth(context) / 3,
+                                  width: serverIP != null || ( hasPro && _isTimerActive ) ? 64 : screenWidth(context) / 3,
                                   height: 64,
                                   child: Icon(
                                     Icons.text_decrease_outlined,
@@ -344,12 +338,12 @@ class _NotePresenterState extends State<NotePresenter> {
                               ),
                               VerticalDivider(
                                 width: 1,
-                                color: colorScheme.surface,
+                                color: colorScheme.onSurface.withOpacity(0.5),
                               ),
                               TextButton(
                                 onPressed: () => setState(() => _notesTextScaleFactor *= 1.1),
                                 child: SizedBox(
-                                  width: serverIP != null || ( hasUltra && _isTimerActive ) ? 64 : screenWidth(context) / 3,
+                                  width: serverIP != null || ( hasPro && _isTimerActive ) ? 64 : screenWidth(context) / 3,
                                   height: 64,
                                   child: Icon(
                                     Icons.text_increase_outlined,
@@ -359,7 +353,7 @@ class _NotePresenterState extends State<NotePresenter> {
                               ),
                               VerticalDivider(
                                 width: 1,
-                                color: colorScheme.surface,
+                                color: colorScheme.onSurface.withOpacity(0.5),
                               ),
                             ],
                           ),
@@ -398,12 +392,12 @@ class _NotePresenterState extends State<NotePresenter> {
                                       : Icons.mouse_outlined
                                     ),
                                     key: ValueKey<bool>(_isMousePadExpanded || serverIP != null),
-                                    color: colorScheme.onSurface.withOpacity(serverIP != null ? 0.5 : 0.1),
+                                    color: colorScheme.onSurface.withOpacity(serverIP != null ? 0.5 : 0.25),
                                   ),
                                 ),
                               );
 
-                              return hasUltra && _isTimerActive
+                              return hasPro && _isTimerActive
                               ? SizedBox(
                                 width: 64,
                                 height: 64,
@@ -417,11 +411,11 @@ class _NotePresenterState extends State<NotePresenter> {
                               );
                             }
                           ),
-                          if (hasUltra && _isTimerActive) VerticalDivider(
+                          if (hasPro && _isTimerActive) VerticalDivider(
                             width: 1,
-                            color: colorScheme.surface,
+                            color: colorScheme.onSurface.withOpacity(0.5),
                           ),
-                          if (hasUltra && _isTimerActive) Expanded(
+                          if (hasPro && _isTimerActive) Expanded(
                             child: Container(
                               height: 64,
                               decoration: BoxDecoration(
@@ -443,7 +437,7 @@ class _NotePresenterState extends State<NotePresenter> {
                     ),
                     Divider(
                       height: 0,
-                      color: colorScheme.surface,
+                      color: colorScheme.onSurface.withOpacity(0.5),
                     ),
                     AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
@@ -457,7 +451,7 @@ class _NotePresenterState extends State<NotePresenter> {
                               shape: MaterialStateProperty.all(const RoundedRectangleBorder()),
                               fixedSize: MaterialStateProperty.all(Size(screenWidth(context) / 2 - 0.5, 256)),
                             ),
-                            child: hasUltra
+                            child: hasPro
                             ? Icon(
                               Icons.arrow_back_ios_new_outlined,
                               size: 32,
@@ -470,7 +464,7 @@ class _NotePresenterState extends State<NotePresenter> {
                           ),
                           VerticalDivider(
                             width: 1,
-                            color: colorScheme.surface,
+                            color: colorScheme.onSurface.withOpacity(0.5),
                           ),
                           TextButton(
                             onPressed: () => control(context: context, action: ControlAction.forward),
@@ -478,7 +472,7 @@ class _NotePresenterState extends State<NotePresenter> {
                               shape: MaterialStateProperty.all(const RoundedRectangleBorder()),
                               fixedSize: MaterialStateProperty.all(Size(screenWidth(context) / 2 - 0.5, 256)),
                             ),
-                            child: hasUltra
+                            child: hasPro
                             ? Icon(
                               Icons.arrow_forward_ios_outlined,
                               size: 32,
@@ -531,7 +525,7 @@ class _MinimalPresenterState extends State<MinimalPresenter> {
   void initState() {
     super.initState();
 
-    //WakelockPlus.enable();
+    WakelockPlus.enable();
 
     _timerMinutes = widget.presentationData[store.presentationMinutesKey] ?? 0;
     _isTimerActive = _timerMinutes > 0;
@@ -540,7 +534,7 @@ class _MinimalPresenterState extends State<MinimalPresenter> {
         setState(() {
           if (_timerSeconds <= 0) {
             if (_timerMinutes <= 0) {
-              //TODOVibrate.vibrate();
+              Vibrate.feedback(FeedbackType.warning);;
               _timer.cancel();
               return;
             }
@@ -557,12 +551,13 @@ class _MinimalPresenterState extends State<MinimalPresenter> {
   @override
   void dispose() {
     super.dispose();
-    //WakelockPlus.disable();
+    WakelockPlus.disable();
     _timer.cancel();
   }
 
   @override
   Widget build(BuildContext context) {
+    
     return WillPopScope(
       onWillPop: () async => _showClosingDialog(context),
       child: Scaffold(
@@ -611,7 +606,7 @@ class _MinimalPresenterState extends State<MinimalPresenter> {
                             _leftHanded ? nextButton : previousButton,
                             VerticalDivider(
                               width: 1,
-                              color: colorScheme.onSurface.withOpacity(0.25),
+                              color: colorScheme.onSurface.withOpacity(0.5),
                             ),
                             _leftHanded ? previousButton : nextButton,
                           ],
@@ -626,14 +621,14 @@ class _MinimalPresenterState extends State<MinimalPresenter> {
                         decoration: BoxDecoration(
                           border: Border(
                             top: BorderSide(
-                              color: colorScheme.onBackground.withOpacity(0.25),
+                              color: colorScheme.onBackground.withOpacity(0.5),
                             ),
                           ),
                         ),
                         child: Icon(
                           Icons.swap_horiz_outlined,
                           size: 32,
-                          color: colorScheme.onSurface.withOpacity(0.25),
+                          color: colorScheme.onSurface.withOpacity(0.5),
                         ),
                       ),
                     ),
@@ -642,14 +637,14 @@ class _MinimalPresenterState extends State<MinimalPresenter> {
               ),
               Divider(
                 height: 0,
-                color: colorScheme.onSurface.withOpacity(0.25),
+                color: colorScheme.onSurface.withOpacity(0.5),
               ),
               GestureDetector(
                 onTap: () => showBooleanDialog(
                   context: context,
                   readOnly: true,
                   onYes: () {},
-                  title: "Drag to control your PC's cursor.",
+                  title: "Move your PC's cursor by using this field like a touchpad.",
                 ),
                 onPanUpdate: (details) {
                   if (_mouseReady) {
@@ -674,13 +669,13 @@ class _MinimalPresenterState extends State<MinimalPresenter> {
                   child: Icon(
                     Icons.mouse_outlined,
                     size: 32,
-                    color: colorScheme.onSurface.withOpacity(0.1),
+                    color: colorScheme.onSurface.withOpacity(0.25),
                   ),
                 ),
               ),
               Divider(
-                height: 1,
-                color: colorScheme.onSurface.withOpacity(0.25),
+                height: 0,
+                color: colorScheme.onSurface.withOpacity(0.5),
               ),
               SizedBox(
                 height: 128,
@@ -695,7 +690,7 @@ class _MinimalPresenterState extends State<MinimalPresenter> {
                         child: Icon(
                           Icons.close_outlined,
                           size: 32,
-                          color: colorScheme.onSurface.withOpacity(0.25),
+                          color: colorScheme.onSurface.withOpacity(0.5),
                         ),
                       ),
                     );
@@ -704,7 +699,7 @@ class _MinimalPresenterState extends State<MinimalPresenter> {
                       child: Container(
                         height: 128,
                         alignment: Alignment.center,
-                        child: hasUltra && _isTimerActive
+                        child: hasPro && !_isTimerActive
                         ? Text(
                           ( _timerMinutes < 10 ? "0$_timerMinutes" : _timerMinutes.toString() ) + ":" +
                           ( _timerSeconds < 10 ? "0$_timerSeconds" : _timerSeconds.toString() ),
@@ -727,9 +722,9 @@ class _MinimalPresenterState extends State<MinimalPresenter> {
                     return Row(
                       children: [
                         _leftHanded ? otherButton : closeButton,
-                        if (hasUltra && _isTimerActive) VerticalDivider(
+                        if (hasPro && _isTimerActive) VerticalDivider(
                           width: 1,
-                          color: colorScheme.onSurface.withOpacity(0.25),
+                          color: colorScheme.onSurface.withOpacity(0.5),
                         ),
                         _leftHanded ? closeButton : otherButton,
                       ],
@@ -737,11 +732,12 @@ class _MinimalPresenterState extends State<MinimalPresenter> {
                   }
                 ),
               ),
-              if (!hasUltra && !_isTimerActive) Divider(
+              if (!hasPro && _isTimerActive) Divider(
                 height: 0,
-                color: colorScheme.onSurface.withOpacity(0.25),
+                thickness: 1,
+                color: colorScheme.onSurface.withOpacity(0.5),
               ),
-              if (!hasUltra && !_isTimerActive) SizedBox(
+              if (!hasPro && _isTimerActive) SizedBox(
                 height: 96,
                 child: TextButton(
                   onPressed: () => _showClosingDialog(context, navigateToNoteEditor: true),

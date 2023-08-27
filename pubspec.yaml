@@ -11,27 +11,28 @@ environment:
 
 
 
-
+# TODO: Reorder 
 dependencies:
   flutter:
     sdk: flutter
 
   logger: ^1.1.0
+  basic_utils: ^5.6.1
 
   shared_preferences: ^2.1.1
 
-  # TODO: Uncomment for android, comment to build iOS
-  #wakelock_plus: ^1.1.1
-  #flutter_vibrate: ^1.3.0
+  wakelock_plus: ^1.1.1
+  flutter_vibrate: ^1.3.0
 
   http: ^1.1.0
-  # TODO: Uncomment for android, comment to build iOS
-  #network_info_plus: ^4.0.1
-  #ping_discover_network_forked: ^0.0.1
+  network_info_plus: ^4.0.1
+  ping_discover_network_forked: ^0.0.1
   url_launcher: ^6.0.18
+  in_app_review: ^2.0.6
+  #flutter_credit_card: ^3.0.7 TODO: R
+  in_app_purchase: ^3.1.8
 
-  # Uncomment to use, comment to build iOS
-  #flutter_native_splash: ^2.2.0
+  flutter_native_splash: ^2.2.0
 
   google_fonts: ^5.1.0
   flutter_markdown: ^0.6.10+2
@@ -55,30 +56,19 @@ flutter_launcher_icons:
   android: true
   ios: true
   remove_alpha_ios: true
-  image_path: "launcher_icon.png"
+  image_path: "assets/images/launcher_icon.png"
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/images/abstract_art.jpg
 
 
 
 
-# Uncomment to use, comment to build iOS
-#flutter_native_splash:
-
-#  color: "#000000"
-  #background_image: "assets/background.png"
-
-  # Optional parameters are listed below.  To enable a parameter, uncomment the line by removing
-  # the leading # character.
-
-##  image: ./splash_screen_icon.png
-
-  # https://developer.android.com/guide/topics/ui/splash-screen
-#  android_12:
-  
-#    image: ./splash_screen_icon.png
-
-#    color: "#000000"
-
-    #icon_background_color: "#111111"
+flutter_native_splash:
+  color: "#000000"
+  image: assets/images/splash_screen_icon.png
+  android_12:
+    color: "#000000"
+    image: assets/images/splash_screen_icon.png
