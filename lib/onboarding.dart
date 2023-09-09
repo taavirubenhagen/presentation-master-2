@@ -83,7 +83,11 @@ class OnboardingSlides extends StatelessWidget {
               Column(
                 children: [
                   AppTextButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () {
+                      onboardingTooltipController.start();
+                      onboarding = true;
+                      Navigator.pop(context);
+                    },
                     next: true,
                     label: "Take tour",
                   ),
