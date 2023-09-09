@@ -1,8 +1,3 @@
-/// THIS FILE IS CRITICAL FOR STORING USER-GENERATED DATA.
-/// ANY CHANGES MAY LEAD TO BACKWARDS COMPATIBILITY ISSUES.
-/// IMPORT ONLY WITH THE ALIAS ```store```.
-// Use lowercase for JSON keys.
-
 import 'dart:convert';
 
 import 'package:presentation_master_2/main.dart';
@@ -18,42 +13,38 @@ const presentationNotesKey = "speakernotes";
 const presentationMinutesKey = "timerminutes";
 
 const _presentationsKey = "presentations";
-const _ProStatusKey = "Prostatus";
+const _proStatusKey = "prostatus";
 
 
 
 
 Future<Presentations> accessPresentations({Presentations add = const [], Presentations remove = const []}) async {
 
-  final SharedPreferences _instance = await SharedPreferences.getInstance();
+  final SharedPreferences instance = await SharedPreferences.getInstance();
 
-  Presentations _presentations = [
+  Presentations presentations = [
     {
-      presentationNameKey: "Presentation",
+      presentationNameKey: "Presentation 1",
       presentationNotesKey: "",
       presentationMinutesKey: 0,
     },
   ];
-  final _rawData = json.decode(_instance.getString(_presentationsKey) ?? json.encode(_presentations));
-  if (_rawData.runtimeType == List) {
-    _presentations = Presentations.from(_rawData);
+  final rawData = json.decode(instance.getString(_presentationsKey) ?? json.encode(presentations));
+  if (rawData.runtimeType == List) {
+    presentations = Presentations.from(rawData);
   }
 
   for (Map<String, dynamic> p in remove + add) {
-    _presentations.removeWhere((Map<String, dynamic> e) => e[presentationNameKey] == p[presentationNameKey]);
+    presentations.removeWhere((Map<String, dynamic> e) => e[presentationNameKey] == p[presentationNameKey]);
   }
-  for (Map<String, dynamic> p in add) {
-    _presentations.add(p);
-  }
-  await _instance.setString(
+  for (Map<String, dynamic> p in add) { presentations.add(p); }
+  await instance.setString(
     _presentationsKey,
-    json.encode(
-      _presentations,
-    )
+    json.encode(presentations),
   );
 
-  globalPresentations = _presentations;
-  return globalPresentations ?? _presentations;
+  globalPresentations = presentations;
+  return globalPresentations ?? presentations;
 }
 
 Future<Map<String, dynamic>> mutatePresentation({
@@ -61,18 +52,16 @@ Future<Map<String, dynamic>> mutatePresentation({
   String? name,
   bool isDeleting = false,
   String? speakerNotes,
-  bool? isTimerActive,
   int? timerMinutes,
-  List<int>? vibratingMinutes,
 }) async {
-  Map<String, dynamic> _newPresentation = {
-    presentationNameKey: oldPresentation?[presentationNameKey] ?? name ?? "Presentation",
+  Map<String, dynamic> newPresentation = {
+    presentationNameKey: oldPresentation?[presentationNameKey] ?? name ?? "Presentation 1",
     presentationNotesKey: speakerNotes ?? oldPresentation?[presentationNotesKey] ?? "",
     presentationMinutesKey: timerMinutes ?? oldPresentation?[presentationMinutesKey] ?? 0,
   };
   return isDeleting
-  ? ( await accessPresentations(add: [], remove: [_newPresentation]) ).first
-  : ( await accessPresentations(add: [_newPresentation], remove: []) ).firstWhere((Map<String, dynamic> e) => e[presentationNameKey] == _newPresentation[presentationNameKey]);
+  ? ( await accessPresentations(add: [], remove: [newPresentation]) ).first
+  : ( await accessPresentations(add: [newPresentation], remove: []) ).firstWhere((Map<String, dynamic> e) => e[presentationNameKey] == newPresentation[presentationNameKey]);
 }
 
 presentationAvailable(Map<String, dynamic>? presentation) => ( presentation?[presentationNotesKey] ?? "" ) != "" || ( presentation?[presentationMinutesKey] ?? 0 ) != 0;
@@ -81,9 +70,13 @@ presentationAvailable(Map<String, dynamic>? presentation) => ( presentation?[pre
 
 
 Future<bool?> accessProStatus({final bool toggle = false}) async {
-  final SharedPreferences _instance = await SharedPreferences.getInstance();
+  final SharedPreferences instance = await SharedPreferences.getInstance();
   if (toggle) {
-    _instance.setBool(_ProStatusKey, !( await accessProStatus() ?? true ));
+    instance.setBool(_proStatusKey, !( await accessProStatus() ?? true ));
   }
-  return _instance.getBool(_ProStatusKey);
+  try {
+    return instance.getBool(_proStatusKey);
+  } catch (e) {
+    return null;
+  }
 }

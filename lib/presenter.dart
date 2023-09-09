@@ -19,24 +19,23 @@ import 'package:presentation_master_2/help.dart';
 
 
 
-void navigateToAvailablePresenter(BuildContext context, Map<String, dynamic>? presentation, {bool preferMinimalPresenter = false}) {
-  if (presentation == null || ( presentation[store.presentationNotesKey] ?? "" ) == "") {
+void navigateToAvailablePresenter(BuildContext context, {bool preferMinimalPresenter = false}) {
+  if (currentPresentation == null || ( currentPresentation?[store.presentationNotesKey] ?? "" ) == "") {
     if (serverIP == null) {
       Navigator.push(context, MaterialPageRoute(
-        builder: (context) => WifiSetup(presentationData: presentation ?? {}),
+        builder: (context) => const WifiSetup(),
       ));
       return;
     }
     Navigator.push(context, MaterialPageRoute(
-      builder: (context) => MinimalPresenter(
-        presentationData: ( presentation?[store.presentationMinutesKey] ?? 0 ) == 0 ? {} : presentation!),
+      builder: (context) => const MinimalPresenter(),
     ));
     return;
   }
   Navigator.push(context, MaterialPageRoute(
     builder: (context) => preferMinimalPresenter
-    ? MinimalPresenter(presentationData: presentation)
-    : NotePresenter(presentationData: presentation),
+    ? const MinimalPresenter()
+    : const NotePresenter(),
   ));
 }
 
@@ -61,9 +60,7 @@ bool _showClosingDialog(BuildContext context, {bool navigateToNoteEditor = false
 
 
 class NotePresenter extends StatefulWidget {
-  const NotePresenter({required this.presentationData, super.key});
-
-  final Map<String, dynamic> presentationData;
+  const NotePresenter({super.key});
 
   @override
   State<NotePresenter> createState() => _NotePresenterState();
@@ -92,7 +89,7 @@ class _NotePresenterState extends State<NotePresenter> {
 
     WakelockPlus.enable();
 
-    _timerMinutes = widget.presentationData[store.presentationMinutesKey];
+    _timerMinutes = currentPresentation?[store.presentationMinutesKey];
     _isTimerActive = _timerMinutes > 0;
 
     _visibleTimer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
@@ -177,7 +174,7 @@ class _NotePresenterState extends State<NotePresenter> {
                       h6Padding: const EdgeInsets.only(bottom: 12),
                       code: MainText.textStyle.copyWith(fontFamily: "IBM Plex Mono"),
                     ),
-                    data: widget.presentationData[store.presentationNotesKey] ?? "Error loading notes. Please contact the developer.",
+                    data: currentPresentation?[store.presentationNotesKey] ?? "Error loading notes. Please contact the developer.",
                   ),
                 ),
               ),
@@ -193,8 +190,6 @@ class _NotePresenterState extends State<NotePresenter> {
                     GestureDetector(
                       onTap: () => showBooleanDialog(
                         context: context,
-                        readOnly: true,
-                        onYes: () {},
                         title: "Move your PC's cursor by using this field like a touchpad.",
                       ),
                       onPanUpdate: (details) {
@@ -276,7 +271,7 @@ class _NotePresenterState extends State<NotePresenter> {
                                     _wasCancelled = true;
                                   }),
                                   mini: true,
-                                  isOnBackground: true,
+                                  onBackground: true,
                                   label: "Cancel",
                                 ),
                               ),
@@ -360,11 +355,15 @@ class _NotePresenterState extends State<NotePresenter> {
                           Builder(
                             builder: (context) {
 
-                              final Widget _child = TextButton(
+                              final Widget child = TextButton(
                                 onPressed: () {
-                                  if (serverIP != null) {
-                                    setState(() => _isMousePadExpanded = !_isMousePadExpanded);
+                                  if (serverIP == null) {
+                                    Navigator.push(context, MaterialPageRoute(
+                                      builder: (context) => const WifiSetup(),
+                                    ));
+                                    return;
                                   }
+                                  setState(() => _isMousePadExpanded = !_isMousePadExpanded);
                                 },
                                 style: serverIP != null
                                 ? null
@@ -401,12 +400,12 @@ class _NotePresenterState extends State<NotePresenter> {
                               ? SizedBox(
                                 width: 64,
                                 height: 64,
-                                child: _child,
+                                child: child,
                               )
                               : Expanded(
                                 child: SizedBox(
                                   height: 64,
-                                  child: _child,
+                                  child: child,
                                 ),
                               );
                             }
@@ -423,8 +422,7 @@ class _NotePresenterState extends State<NotePresenter> {
                               ),
                               alignment: Alignment.center,
                               child: Text(
-                                ( _timerMinutes < 10 ? "0$_timerMinutes" : _timerMinutes.toString() ) + ":" +
-                                ( _timerSeconds < 10 ? "0$_timerSeconds" : _timerSeconds.toString() ),
+                                "${_timerMinutes < 10 ? "0$_timerMinutes" : _timerMinutes}:${_timerSeconds < 10 ? "0$_timerSeconds" : _timerSeconds}",
                                 style: GoogleFonts.lexend(
                                   fontSize: 32,
                                   fontWeight: FontWeight.bold,
@@ -501,9 +499,7 @@ class _NotePresenterState extends State<NotePresenter> {
 
 
 class MinimalPresenter extends StatefulWidget {
-  const MinimalPresenter({required this.presentationData, super.key});
-
-  final Map<String, dynamic> presentationData;
+  const MinimalPresenter({super.key});
 
   @override
   State<MinimalPresenter> createState() => _MinimalPresenterState();
@@ -527,14 +523,15 @@ class _MinimalPresenterState extends State<MinimalPresenter> {
 
     WakelockPlus.enable();
 
-    _timerMinutes = widget.presentationData[store.presentationMinutesKey] ?? 0;
+    _timerMinutes = currentPresentation?[store.presentationMinutesKey] ?? 0;
     _isTimerActive = _timerMinutes > 0;
-    _timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
-      if (_isTimerActive) {
-        setState(() {
+    _timer = Timer.periodic(
+      const Duration(seconds: 1),
+      (Timer timer) => setState(() {
+        if (_isTimerActive) {
           if (_timerSeconds <= 0) {
             if (_timerMinutes <= 0) {
-              Vibrate.feedback(FeedbackType.warning);;
+              Vibrate.feedback(FeedbackType.warning);
               _timer.cancel();
               return;
             }
@@ -543,9 +540,9 @@ class _MinimalPresenterState extends State<MinimalPresenter> {
             return;
           }
           _timerSeconds--;
-        });
-      }
-    });
+        }
+      }),
+    );
   }
 
   @override
@@ -571,183 +568,215 @@ class _MinimalPresenterState extends State<MinimalPresenter> {
           ),
         ),
         body: SafeArea(
-          child: Column(
-            children: [
-              Expanded(
-                child: Stack(
-                  alignment: _leftHanded ? Alignment.bottomRight : Alignment.bottomLeft,
-                  children: [
-                    Builder(
-                      builder: (context) {
-                        final Widget previousButton = TextButton(
-                          onPressed: () => control(context: context, action: ControlAction.back),
-                          child: SizedBox(
-                            width: 128,
-                            child: Opacity(
-                              opacity: 0.75,
-                              child: ButtonLabel("Previous"),
-                            ),
-                          ),
-                        );
-
-                        final Widget nextButton = Expanded(
-                          child: TextButton(
-                            onPressed: () => control(context: context, action: ControlAction.forward),
-                            child: Opacity(
-                              opacity: 0.75,
-                              child: ButtonLabel("Next\nSlide"),
-                            ),
-                          ),
-                        );
-
-                        return Row(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            _leftHanded ? nextButton : previousButton,
-                            VerticalDivider(
-                              width: 1,
-                              color: colorScheme.onSurface.withOpacity(0.5),
-                            ),
-                            _leftHanded ? previousButton : nextButton,
-                          ],
-                        );
-                      }
+          child: AppAnimatedSwitcher(
+            fading: true,
+            milliseconds: 200,
+            switchInCurve: appDefaultCurve,
+            switchOutCurve: appDefaultCurve,
+            value: serverIP == null,
+            trueChild: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 64,
+                    height: 64,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 4,
+                      color: colorScheme.error,
                     ),
-                    TextButton(
-                      onPressed: () => setState(() => _leftHanded = !_leftHanded),
-                      child: Container(
+                  ),
+                  const SizedBox(height: 64),
+                  SmallHeading("Reconnecting..."),
+                  const SizedBox(height: 64),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      AppTextButton(
+                        onPressed: () => Navigator.pop(context),
+                        onBackground: true,
+                        label: "Exit presentation",
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            falseChild: Column(
+              children: [
+                Expanded(
+                  child: Stack(
+                    alignment: _leftHanded ? Alignment.bottomRight : Alignment.bottomLeft,
+                    children: [
+                      Builder(
+                        builder: (context) {
+                          final Widget previousButton = TextButton(
+                            onPressed: () => control(context: context, action: ControlAction.back),
+                            child: SizedBox(
+                              width: 128,
+                              child: Opacity(
+                                opacity: 0.75,
+                                child: ButtonLabel("Previous"),
+                              ),
+                            ),
+                          );
+          
+                          final Widget nextButton = Expanded(
+                            child: TextButton(
+                              onPressed: () => control(context: context, action: ControlAction.forward),
+                              child: Opacity(
+                                opacity: 0.75,
+                                child: ButtonLabel("Next\nSlide"),
+                              ),
+                            ),
+                          );
+          
+                          return Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              _leftHanded ? nextButton : previousButton,
+                              VerticalDivider(
+                                width: 1,
+                                color: colorScheme.onSurface.withOpacity(0.5),
+                              ),
+                              _leftHanded ? previousButton : nextButton,
+                            ],
+                          );
+                        }
+                      ),
+                      TextButton(
+                        onPressed: () => setState(() => _leftHanded = !_leftHanded),
+                        child: Container(
+                          width: 128,
+                          height: 128,
+                          decoration: BoxDecoration(
+                            border: Border(
+                              top: BorderSide(
+                                color: colorScheme.onBackground.withOpacity(0.5),
+                              ),
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.swap_horiz_outlined,
+                            size: 32,
+                            color: colorScheme.onSurface.withOpacity(0.5),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Divider(
+                  height: 0,
+                  color: colorScheme.onSurface.withOpacity(0.5),
+                ),
+                GestureDetector(
+                  onTap: () => showBooleanDialog(
+                    context: context,
+                    title: "Move your PC's cursor by using this field like a touchpad.",
+                  ),
+                  onPanUpdate: (details) {
+                    if (_mouseReady) {
+                      _mouseReady = false;
+                      control(
+                        context: context,
+                        action: ControlAction.mousemove,
+                        mouseXY: [
+                          ( details.delta.dx / screenWidth(context) * 1920 ).toInt(),
+                          ( details.delta.dy / ( screenWidth(context) * 9/16 ) * 1080 ).toInt(),
+                        ],
+                      );
+                      Timer(const Duration(milliseconds: 0), () => _mouseReady = true);
+                    }
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    curve: appDefaultCurve,
+                    height: screenWidth(context) * 9/16,
+                    color: colorScheme.surface,
+                    alignment: Alignment.center,
+                    child: Icon(
+                      Icons.mouse_outlined,
+                      size: 32,
+                      color: colorScheme.onSurface.withOpacity(0.25),
+                    ),
+                  ),
+                ),
+                Divider(
+                  height: 0,
+                  color: colorScheme.onSurface.withOpacity(0.5),
+                ),
+                SizedBox(
+                  height: 128,
+                  child: Builder(
+                    builder: (context) {
+          
+                      final Widget closeButton = SizedBox(
                         width: 128,
                         height: 128,
-                        decoration: BoxDecoration(
-                          border: Border(
-                            top: BorderSide(
-                              color: colorScheme.onBackground.withOpacity(0.5),
+                        child: TextButton(
+                          onPressed: () => _showClosingDialog(context),
+                          child: Icon(
+                            Icons.close_outlined,
+                            size: 32,
+                            color: colorScheme.onSurface.withOpacity(0.5),
+                          ),
+                        ),
+                      );
+          
+                      final Widget otherButton = Expanded(
+                        child: Container(
+                          height: 128,
+                          alignment: Alignment.center,
+                          child: hasPro && _isTimerActive
+                          ? Text(
+                            "${_timerMinutes < 10 ? "0$_timerMinutes" : _timerMinutes}:${_timerSeconds < 10 ? "0$_timerSeconds" : _timerSeconds}",
+                            style: GoogleFonts.lexend(
+                              fontSize: 48,
+                              fontWeight: FontWeight.bold,
+                              color: colorScheme.onBackground.withOpacity(0.75),
+                            ),
+                          )
+                          : TextButton(
+                            onPressed: () => _showClosingDialog(context, navigateToNoteEditor: true),
+                            child: Opacity(
+                              opacity: 0.25,
+                              child: ButtonLabel("Add speaker notes"),
                             ),
                           ),
                         ),
-                        child: Icon(
-                          Icons.swap_horiz_outlined,
-                          size: 32,
-                          color: colorScheme.onSurface.withOpacity(0.5),
-                        ),
-                      ),
+                      );
+          
+                      return Row(
+                        children: [
+                          _leftHanded ? otherButton : closeButton,
+                          VerticalDivider(
+                            width: 1,
+                            color: colorScheme.onSurface.withOpacity(0.5),
+                          ),
+                          _leftHanded ? closeButton : otherButton,
+                        ],
+                      );
+                    }
+                  ),
+                ),
+                if (!hasPro && _isTimerActive) Divider(
+                  height: 0,
+                  thickness: 1,
+                  color: colorScheme.onSurface.withOpacity(0.5),
+                ),
+                if (!hasPro && _isTimerActive) SizedBox(
+                  height: 96,
+                  child: TextButton(
+                    onPressed: () => _showClosingDialog(context, navigateToNoteEditor: true),
+                    child: Opacity(
+                      opacity: 0.25,
+                      child: ButtonLabel("Add speaker notes"),
                     ),
-                  ],
-                ),
-              ),
-              Divider(
-                height: 0,
-                color: colorScheme.onSurface.withOpacity(0.5),
-              ),
-              GestureDetector(
-                onTap: () => showBooleanDialog(
-                  context: context,
-                  readOnly: true,
-                  onYes: () {},
-                  title: "Move your PC's cursor by using this field like a touchpad.",
-                ),
-                onPanUpdate: (details) {
-                  if (_mouseReady) {
-                    _mouseReady = false;
-                    control(
-                      context: context,
-                      action: ControlAction.mousemove,
-                      mouseXY: [
-                        ( details.delta.dx / screenWidth(context) * 1920 ).toInt(),
-                        ( details.delta.dy / ( screenWidth(context) * 9/16 ) * 1080 ).toInt(),
-                      ],
-                    );
-                    Timer(const Duration(milliseconds: 0), () => _mouseReady = true);
-                  }
-                },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  curve: appDefaultCurve,
-                  height: screenWidth(context) * 9/16,
-                  color: colorScheme.surface,
-                  alignment: Alignment.center,
-                  child: Icon(
-                    Icons.mouse_outlined,
-                    size: 32,
-                    color: colorScheme.onSurface.withOpacity(0.25),
                   ),
                 ),
-              ),
-              Divider(
-                height: 0,
-                color: colorScheme.onSurface.withOpacity(0.5),
-              ),
-              SizedBox(
-                height: 128,
-                child: Builder(
-                  builder: (context) {
-
-                    final Widget closeButton = SizedBox(
-                      width: 128,
-                      height: 128,
-                      child: TextButton(
-                        onPressed: () => _showClosingDialog(context),
-                        child: Icon(
-                          Icons.close_outlined,
-                          size: 32,
-                          color: colorScheme.onSurface.withOpacity(0.5),
-                        ),
-                      ),
-                    );
-
-                    final Widget otherButton = Expanded(
-                      child: Container(
-                        height: 128,
-                        alignment: Alignment.center,
-                        child: hasPro && !_isTimerActive
-                        ? Text(
-                          ( _timerMinutes < 10 ? "0$_timerMinutes" : _timerMinutes.toString() ) + ":" +
-                          ( _timerSeconds < 10 ? "0$_timerSeconds" : _timerSeconds.toString() ),
-                          style: GoogleFonts.lexend(
-                            fontSize: 48,
-                            fontWeight: FontWeight.bold,
-                            color: colorScheme.onBackground.withOpacity(0.75),
-                          ),
-                        )
-                        : TextButton(
-                          onPressed: () => _showClosingDialog(context, navigateToNoteEditor: true),
-                          child: Opacity(
-                            opacity: 0.25,
-                            child: ButtonLabel("Add speaker notes"),
-                          ),
-                        ),
-                      ),
-                    );
-
-                    return Row(
-                      children: [
-                        _leftHanded ? otherButton : closeButton,
-                        if (hasPro && _isTimerActive) VerticalDivider(
-                          width: 1,
-                          color: colorScheme.onSurface.withOpacity(0.5),
-                        ),
-                        _leftHanded ? closeButton : otherButton,
-                      ],
-                    );
-                  }
-                ),
-              ),
-              if (!hasPro && _isTimerActive) Divider(
-                height: 0,
-                thickness: 1,
-                color: colorScheme.onSurface.withOpacity(0.5),
-              ),
-              if (!hasPro && _isTimerActive) SizedBox(
-                height: 96,
-                child: TextButton(
-                  onPressed: () => _showClosingDialog(context, navigateToNoteEditor: true),
-                  child: Opacity(
-                    opacity: 0.25,
-                    child: ButtonLabel("Add speaker notes"),
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

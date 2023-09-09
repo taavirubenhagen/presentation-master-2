@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:network_info_plus/network_info_plus.dart';
 
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:in_app_review/in_app_review.dart';
@@ -90,13 +93,13 @@ class AppHelpTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 24),
+      padding: EdgeInsets.only(left: 16, right: 16, bottom: content == null ? 24 : 16),
       child: TextButton(
         onPressed: onButtonPressed,
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all(colorScheme.surface),
           shape: MaterialStateProperty.all(RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(content == null ? 16 : 32),
           )),
         ),
         child: Padding(
@@ -137,16 +140,14 @@ class AppHelpTile extends StatelessWidget {
 
 
 class HelpCenter extends StatelessWidget {
-  const HelpCenter({super.key, required this.presentationData});
-
-  final Map<String, dynamic>? presentationData;
+  const HelpCenter({super.key});
 
   @override
   Widget build(BuildContext context) {
     return HelpScaffold(
       tiles: [
         for (List e in [
-          ["Remote Control", (context) => WifiSetup(presentationData: presentationData)],
+          ["Remote Control", (context) => const WifiSetup()],
           [hasPro ? "Manage Pro" : "Get Pro", (context) => const GetProScreen()],
           ["Support me", (context) => const SupportMeScreen()],
           ["Contact", (context) => const ContactCenter()],
@@ -165,17 +166,33 @@ class HelpCenter extends StatelessWidget {
 
 
 class WifiSetup extends StatefulWidget {
-  const WifiSetup({super.key,  required this.presentationData});
-
-  final Map<String, dynamic>? presentationData;
+  const WifiSetup({super.key});
 
   @override
   State<WifiSetup> createState() => _WifiSetupState();
 }
 
 class _WifiSetupState extends State<WifiSetup> {
+  
+  Timer? _connectionStatusTimer;
 
   final _wifiSetupPageController = PageController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    _connectionStatusTimer = Timer.periodic(
+      const Duration(seconds: 1),
+      (Timer timer) => setState(() {}),
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _connectionStatusTimer?.cancel();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -212,43 +229,42 @@ class _WifiSetupState extends State<WifiSetup> {
                     children: [
                       MediumLabel(
                         i == 1
-                        ? '1. Whenever you want to present, connect both devices to the same WiFi.\n\n2. Open both apps. Tap the big play button in the mobile app to turn on presentation mode.\n\n3. Open a PowerPoint on your PC and wait for the mobile app to connect.'
-                        : "To make this app work as a remote control for your PowerPoint/Google Slides/Keynote presentation, open the link",
+                        ? '1. Whenever you want to present, connect both devices to the same WiFi.\n\n2. Open both apps. Tap the big play button in the mobile app to turn on presentation mode.\n\n3. Open a PowerPoint presentation on your PC and wait for the mobile app to connect.'
+                        : "To make this app work as a remote control for your PowerPoint presentation, open the link",
                       ),
                       if (i == 0) Container(
-                        margin: const EdgeInsets.symmetric(vertical: 32),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          color: Colors.blueGrey,
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        margin: const EdgeInsets.symmetric(vertical: 48),
                         alignment: Alignment.center,
                         child: LargeLabel("presenter.onrender.com"),
                       ),
                       if (i == 0) MediumLabel(
-                        "in your PC's browser and follow the instructions exactly to install the PC app that receives the controlling signals.\n\nAlternatively, you can just add speaker notes and use the app only as note card/timer replacement.",
+                        "in your PC's (!) browser and follow the instructions exactly to install the PC app that receives the controlling signals.\n\nAlternatively, you can just add speaker notes and use the app only as note card/timer replacement.",
                       ),
                     ],
                   ),
                 ),
                 Column(
                   children: [
-                    AppTextButton(
-                      onPressed: () => i == 1
-                      ? serverIP == null
-                        ? showBooleanDialog(
-                          context: context,
-                          readOnly: true,
-                          onYes: () {},
-                          title: "Wait for your devices to connect, or go back and add speaker notes.",
-                        )
-                        : navigateToAvailablePresenter(context, widget.presentationData)
-                      : _wifiSetupPageController.nextPage(duration: const Duration(milliseconds: 400), curve: appDefaultCurve),
-                      loading: i != 0 && serverIP == null,
-                      isNext: i == 0,
-                      label: i == 1
-                      ? serverIP == null ? "Scanning..." : "Try presenting"
-                      : "Next",
+                    GestureDetector(
+                      onDoubleTap: () async => showBooleanDialog(
+                        context: context,
+                        title: "Detected IP address: $serverIP\nIP address of this device: ${await NetworkInfo().getWifiIP()}",
+                      ),
+                      child: AppTextButton(
+                        onPressed: () => i == 1
+                        ? serverIP == null
+                          ? showBooleanDialog(
+                            context: context,
+                            title: "Wait for your devices to connect, or go back and add speaker notes.",
+                          )
+                          : navigateToAvailablePresenter(context)
+                        : _wifiSetupPageController.nextPage(duration: const Duration(milliseconds: 400), curve: appDefaultCurve),
+                        loading: i != 0 && serverIP == null,
+                        next: i == 0,
+                        label: i == 1
+                        ? serverIP == null ? "Scanning..." : "Try presenting"
+                        : "Next",
+                      ),
                     ),
                     const SizedBox(height: 16),
                     AppTextButton(
@@ -422,12 +438,10 @@ class FeedbackScreen extends StatelessWidget {
           Navigator.pop(context);
           showBooleanDialog(
             context: context,
-            readOnly: true,
             title: "Your feedback has been processed.",
-            onYes: () {},
           );
         },
-        isOnBackground: true,
+        onBackground: true,
         label: "Send",
         isLink: true,
       ),

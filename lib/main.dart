@@ -2,6 +2,7 @@ import "package:flutter/services.dart";
 import 'package:flutter/material.dart';
 
 import "package:logger/logger.dart";
+import 'package:overlay_tooltip/overlay_tooltip.dart';
 
 import 'package:presentation_master_2/store.dart' as store;
 import 'package:presentation_master_2/home.dart';
@@ -9,7 +10,14 @@ import 'package:presentation_master_2/home.dart';
 
 
 
-ColorScheme colorScheme = ColorScheme(
+final logger = Logger(
+  printer: PrettyPrinter(
+    noBoxingByDefault: true,
+    methodCount: 0,
+  ),
+);
+
+final colorScheme = ColorScheme(
   brightness: Brightness.dark,
   primary: Colors.white,
   onPrimary: Colors.black,
@@ -24,7 +32,9 @@ ColorScheme colorScheme = ColorScheme(
 );
 
 const appDefaultCurve = Cubic(.4, 0, .2, 1);
-final logger = Logger(printer: PrettyPrinter());
+
+final TooltipController onboardingTooltipController = TooltipController();
+bool onboarding = true;
 
 store.Presentations? globalPresentations;
 Map<String, dynamic>? currentPresentation;
@@ -39,27 +49,31 @@ double screenWidth(BuildContext context) => MediaQuery.of(context).size.width;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp());
+  runApp(const PresentationMaster2());
 }
 
 
 
 
-class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+class PresentationMaster2 extends StatefulWidget {
+  const PresentationMaster2({Key? key}) : super(key: key);
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  State<PresentationMaster2> createState() => _PresentationMaster2State();
 
   static void setAppState(BuildContext context, [Function()? function]) {
-    _MyAppState? ancestorState = context.findAncestorStateOfType<_MyAppState>();
+    _PresentationMaster2State? ancestorState = context.findAncestorStateOfType<_PresentationMaster2State>();
+    if (ancestorState == null) {
+      logger.e("ancestorState == null in setAppState()");
+      return;
+    }
+    // TODO: R?
     // ignore: invalid_use_of_protected_member
-    ancestorState?.setState(function ?? () {});
-    
+    ancestorState.setState(function ?? () {});
   }
 }
 
-class _MyAppState extends State<MyApp> {
+class _PresentationMaster2State extends State<PresentationMaster2> {
 
   @override
   Widget build(BuildContext context) {
@@ -67,49 +81,47 @@ class _MyAppState extends State<MyApp> {
       DeviceOrientation.portraitUp,
     ]);
 
-    return Builder(builder: (context) {
-      ThemeData materialAppTheme = ThemeData(
-        useMaterial3: true,
-        colorScheme: colorScheme,
-        scaffoldBackgroundColor: colorScheme.background,
-        iconTheme: IconThemeData(
-          color: colorScheme.onSurface,
-          size: 24,
-        ),
-        iconButtonTheme: IconButtonThemeData(
-          style: ButtonStyle(
-            padding: MaterialStateProperty.all(EdgeInsets.zero),
-            iconColor: MaterialStateProperty.all(colorScheme.onSurface),
-          ),
-        ),
-        textButtonTheme: TextButtonThemeData(
-          style: ButtonStyle(
-            shape: MaterialStateProperty.all(const RoundedRectangleBorder()),
-            padding: MaterialStateProperty.all(EdgeInsets.zero),
-            backgroundColor: MaterialStateProperty.all(colorScheme.background),
-            overlayColor: MaterialStateProperty.all(colorScheme.onSurface.withOpacity(0.1)),
-          ),
-        ),
-        inputDecorationTheme: const InputDecorationTheme(
-          contentPadding: EdgeInsets.zero,
-        ),
-        appBarTheme: AppBarTheme(
-          toolbarHeight: 0,
-          systemOverlayStyle: SystemUiOverlayStyle(
-            statusBarColor: colorScheme.background,
-            statusBarIconBrightness: Brightness.light,
-            systemNavigationBarColor: colorScheme.background,
-          ),
-        )
-      );
-
-      return MaterialApp(
+    return Builder(
+      builder: (context) => MaterialApp(
         title: "Presentation Master 2",
-        theme: materialAppTheme,
+        theme: ThemeData(
+          useMaterial3: true,
+          colorScheme: colorScheme,
+          scaffoldBackgroundColor: colorScheme.background,
+          iconTheme: IconThemeData(
+            color: colorScheme.onSurface,
+            size: 24,
+          ),
+          iconButtonTheme: IconButtonThemeData(
+            style: ButtonStyle(
+              padding: MaterialStateProperty.all(EdgeInsets.zero),
+              iconColor: MaterialStateProperty.all(colorScheme.onSurface),
+            ),
+          ),
+          textButtonTheme: TextButtonThemeData(
+            style: ButtonStyle(
+              shape: MaterialStateProperty.all(const RoundedRectangleBorder()),
+              padding: MaterialStateProperty.all(EdgeInsets.zero),
+              backgroundColor: MaterialStateProperty.all(colorScheme.background),
+              overlayColor: MaterialStateProperty.all(colorScheme.onSurface.withOpacity(0.1)),
+            ),
+          ),
+          inputDecorationTheme: const InputDecorationTheme(
+            contentPadding: EdgeInsets.zero,
+          ),
+          appBarTheme: AppBarTheme(
+            toolbarHeight: 0,
+            systemOverlayStyle: SystemUiOverlayStyle(
+              statusBarColor: colorScheme.background,
+              statusBarIconBrightness: Brightness.light,
+              systemNavigationBarColor: colorScheme.background,
+            ),
+          )
+        ),
         themeMode: ThemeMode.dark,
         debugShowCheckedModeBanner: false,
         home: Home(),
-      );
-    });
+      ),
+    );
   }
 }

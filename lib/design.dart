@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:basic_utils/basic_utils.dart' as utils;
+import 'package:basic_utils/basic_utils.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:presentation_master_2/main.dart';
+
+// TODO: Statically type every parameter
 
 
 
@@ -37,7 +39,13 @@ class MainText extends BaseText {
 
 
 class SmallLabel extends BaseText {
-  SmallLabel(data, {isOnPrimary = false, isOnBackground = false, super.key})
+  SmallLabel(
+    String data,
+    {
+      bool isOnPrimary = false,
+      bool isOnBackground = false,
+      super.key
+    })
   : super(data, textStyle, textAlign: TextAlign.left, isOnPrimary: isOnPrimary, isOnBackground: isOnBackground);
 
   static final TextStyle textStyle = GoogleFonts.lexend(
@@ -88,7 +96,7 @@ class ButtonLabel extends BaseText {
 
 class SmallHeading extends BaseText {
   SmallHeading(data, {isOnPrimary = false, isOnBackground = false, super.key})
-  : super(data, textStyle, textAlign: TextAlign.center, isOnPrimary: isOnPrimary, isOnBackground: isOnBackground);
+  : super(data, textStyle, textAlign: TextAlign.left, isOnPrimary: isOnPrimary, isOnBackground: isOnBackground);
 
   static final TextStyle textStyle = GoogleFonts.lexend(
     fontSize: 28,
@@ -154,12 +162,12 @@ class AppTextButton extends StatelessWidget {
     this.secondary = false,
     this.mini = false,
     this.docked = false,
-    this.isOnBackground = false,
+    this.onBackground = false,
     this.active = true,
     this.loading = false,
     this.customIcon,
     this.isLink = false,
-    this.isNext = false,
+    this.next = false,
     required this.label,
   });
 
@@ -167,12 +175,12 @@ class AppTextButton extends StatelessWidget {
   final bool secondary;
   final bool mini;
   final bool docked;
-  final bool isOnBackground;
+  final bool onBackground;
   final bool active;
   final bool loading;
   final IconData? customIcon;
   final bool isLink;
-  final bool isNext;
+  final bool next;
   final String label;
 
   @override
@@ -188,13 +196,13 @@ class AppTextButton extends StatelessWidget {
           )),
           backgroundColor: secondary
           ? MaterialStateProperty.all(Colors.transparent)
-          : ( isOnBackground || docked ? MaterialStateProperty.all(colorScheme.surface) : null ),
+          : ( onBackground || docked ? MaterialStateProperty.all(colorScheme.surface) : null ),
           overlayColor: active ? null : MaterialStateProperty.all(Colors.transparent),
         ),
         child: Container(
           width: docked ? screenWidth(context) : null,
           height: mini ? 32 : docked ? 80 : 64,
-          padding: EdgeInsets.symmetric(horizontal: mini ? 12 : 16),
+          padding: EdgeInsets.symmetric(horizontal: mini ? 12 : 32),
           alignment: Alignment.center,
           child: AnimatedSwitcher(
             duration: const Duration(milliseconds: 100),
@@ -220,8 +228,8 @@ class AppTextButton extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   mini ? SmallLabel(label) : ButtonLabel(label),
-                  if (utils.BooleanUtils.or([isLink, isNext, customIcon != null])) const SizedBox(width: 16),
-                  if (utils.BooleanUtils.or([isLink, isNext, customIcon != null])) Icon(
+                  if (BooleanUtils.or([isLink, next, customIcon != null])) const SizedBox(width: 16),
+                  if (BooleanUtils.or([isLink, next, customIcon != null])) Icon(
                     customIcon ?? ( isLink ? Icons.open_in_new_outlined : Icons.arrow_forward_outlined ),
                   ),
                 ],
@@ -262,9 +270,9 @@ void showFullscreenDialog({
 
 void showBooleanDialog({
   required BuildContext context,
-  bool readOnly = false,
   required String title,
-  required Function() onYes,
+  String? bodyText,
+  Function()? onYes,
 }) {
   showFullscreenDialog(
     context: context,
@@ -274,21 +282,27 @@ void showBooleanDialog({
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Material(
-            child: SmallHeading(title),
+            child: Column(
+              children: [
+                SmallHeading(title),
+                if (bodyText != null) const SizedBox(height: 32),
+                if (bodyText != null) MediumLabel(bodyText),
+              ],
+            ),
           ),
           const SizedBox(height: 64),
           Row(
             children: [
               SizedBox(
-                width: readOnly ? screenWidth(context) - 64 : screenWidth(context) / 2,
+                width: onYes == null ? screenWidth(context) - 64 : screenWidth(context) / 2,
                 height: screenWidth(context) / 4,
                 child: Icon(
-                  readOnly ? Icons.check_outlined : Icons.close_outlined,
+                  onYes == null ? Icons.check_outlined : Icons.close_outlined,
                   size: 32,
                   color: colorScheme.onSurface,
                 ),
               ),
-              if (!readOnly) Expanded(
+              if (onYes != null) Expanded(
                 child: AspectRatio(
                   aspectRatio: 1/1,
                   child: IconButton(
