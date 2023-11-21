@@ -5,17 +5,17 @@ import 'package:overlay_tooltip/overlay_tooltip.dart';
 
 import 'package:presentation_master_2/main.dart';
 import 'package:presentation_master_2/design.dart';
+import 'package:presentation_master_2/mockups.dart';
 
 
 
 
 class OnboardingSlides extends StatelessWidget {
-  const OnboardingSlides({
-    super.key,
-  });
+  const OnboardingSlides({super.key});
 
   @override
   Widget build(BuildContext context) {
+
     return WillPopScope(
       onWillPop: () async {
         showBooleanDialog(
@@ -40,52 +40,15 @@ class OnboardingSlides extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              SmallHeading("Thank you for using Presentation Master 2."),
-              // TODO: Add illustration animation
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: colorScheme.onSurface),
-                    ),
-                    width: screenWidth(context) * 0.1,
-                    height: screenWidth(context) * 0.1 * 1.8,
-                  ),
-                  const Icon(
-                    Icons.arrow_forward_rounded,
-                    size: 48,
-                  ),
-                  Column(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: colorScheme.onSurface),
-                        ),
-                        width: screenWidth(context) * 0.3,
-                        height: screenWidth(context) * 0.3 * 10/16,
-                      ),
-                      const SizedBox(height: 4),
-                      Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          color: colorScheme.onSurface,
-                        ),
-                        width: screenWidth(context) * 0.3,
-                        height: 4,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+              const SizedBox(),
+              const SizedBox(),
+              const OnboardingMockupIllustration(),
+              LargeLabel("Thank you for using Presentation Master 2, the remote control for your PowerPoint presentations."),
               Column(
                 children: [
                   AppTextButton(
                     onPressed: () {
                       onboardingTooltipController.start();
-                      onboarding = true;
                       Navigator.pop(context);
                     },
                     next: true,
@@ -93,7 +56,10 @@ class OnboardingSlides extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   AppTextButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () {
+                      PresentationMaster2.setAppState(context, () => onboarding = false);
+                      Navigator.pop(context);
+                    },
                     secondary: true,
                     label: "Skip",
                   ),
@@ -108,6 +74,8 @@ class OnboardingSlides extends StatelessWidget {
 }
 
 
+
+
 class AppOverlayTooltip extends StatelessWidget {
   const AppOverlayTooltip({
     super.key,
@@ -115,6 +83,8 @@ class AppOverlayTooltip extends StatelessWidget {
     this.horizontalPosition = TooltipHorizontalPosition.WITH_WIDGET,
     this.verticalPosition = TooltipVerticalPosition.BOTTOM,
     required this.message,
+    /// If true, the 'Next' button will be labeled 'Skip'	instead
+    this.skipButton = false,
     this.onAdditionalButtonPressed,
     this.additionalButtonLabel,
     required this.child,
@@ -124,6 +94,7 @@ class AppOverlayTooltip extends StatelessWidget {
   final TooltipHorizontalPosition horizontalPosition;
   final TooltipVerticalPosition verticalPosition;
   final String message;
+  final bool skipButton;
   final Function()? onAdditionalButtonPressed;
   final String? additionalButtonLabel;
   final Widget child;
@@ -154,7 +125,7 @@ class AppOverlayTooltip extends StatelessWidget {
                     child: AppTextButton(
                       onPressed: controller.next,
                       mini: true,
-                      label: controller.nextPlayIndex < controller.playWidgetLength - 1 ? "Next" : "Got it",
+                      label: controller.nextPlayIndex < controller.playWidgetLength - 1 ? ( skipButton ? "Skip" : "Next" ) : "Got it",
                     ),
                   ),
                   if (onAdditionalButtonPressed != null && additionalButtonLabel != null) const SizedBox(width: 8),

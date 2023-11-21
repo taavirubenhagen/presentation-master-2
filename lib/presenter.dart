@@ -741,7 +741,11 @@ class _MinimalPresenterState extends State<MinimalPresenter> {
                             onPressed: () => _showClosingDialog(context, navigateToNoteEditor: true),
                             child: Opacity(
                               opacity: 0.25,
-                              child: ButtonLabel("Add speaker notes"),
+                              child: SizedBox.expand(
+                                child: Center(
+                                  child: ButtonLabel("Add speaker notes"),
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -771,7 +775,11 @@ class _MinimalPresenterState extends State<MinimalPresenter> {
                     onPressed: () => _showClosingDialog(context, navigateToNoteEditor: true),
                     child: Opacity(
                       opacity: 0.25,
-                      child: ButtonLabel("Add speaker notes"),
+                      child: SizedBox.expand(
+                        child: Center(
+                          child: ButtonLabel("Add speaker notes"),
+                        ),
+                      ),
                     ),
                   ),
                 ),

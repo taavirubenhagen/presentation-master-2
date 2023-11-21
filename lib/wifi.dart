@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import "package:http/http.dart" as http;
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:ping_discover_network_forked/ping_discover_network_forked.dart';
@@ -67,15 +66,17 @@ void _resetScanningSubscription(context) async {
 
 void _initReconnecting(context) async {
   PresentationMaster2.setAppState(context, () => serverIP = null);
+  serverIP = null;
   await Future.delayed(const Duration(seconds: 1));
   connect(context);
 }
 
-// TODO: Rename; R deprecated functions
 Future<void> connect(context) async {
   logger.i("Starting network scan");
   final String? deviceIP = await NetworkInfo().getWifiIP();
+  logger.v('Device IP: $deviceIP');
   final String? subnet = deviceIP?.substring(0, deviceIP.lastIndexOf('.'));
+  logger.v('Subnet: $subnet');
   if (subnet == null) {
     showBooleanDialog(
       context: context,
@@ -84,17 +85,23 @@ Future<void> connect(context) async {
     PresentationMaster2.setAppState(context, () => serverIP = null);
     return;
   }
+  logger.v('Adding subscription');
+  bool loggedInsideStreamHandler = false;
   _scanningSubscription = NetworkAnalyzer.discover2(
     subnet,
     1138,
     timeout: const Duration(seconds: 9),
   ).listen(
     (NetworkAddress addr) async {
+      if (!loggedInsideStreamHandler) {
+        logger.v('Assessing addresses');
+        loggedInsideStreamHandler = true;
+      }
       if (addr.exists) {
+        logger.v('Address found: ${addr.ip}');
         if (await control(context: context, ip: addr.ip, action: ControlAction.ping) == "ok") {
           logger.i("Server found: ${addr.ip}");
           serverIP = addr.ip;
-          // TODO: R?
           PresentationMaster2.setAppState(context);
         }
       }
@@ -105,14 +112,14 @@ Future<void> connect(context) async {
       _initReconnecting(context);
     },
     onDone: () async {
+      logger.v('Stream done');
       _resetScanningSubscription(context);
-      // TODO: Doesn't reset when WiFi is turned off. F
       while (await control(context: context, action: ControlAction.ping) == "ok" && await NetworkInfo().getWifiIP() != null) {
         await Future.delayed(const Duration(seconds: 1));
-        logger.v("Connection test successful");
       }
       logger.e("Lost connection");
       _initReconnecting(context);
+      logger.v('Started reconnecting');
     },
   );
 }

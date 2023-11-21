@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -17,6 +19,11 @@ import 'package:presentation_master_2/presenter.dart';
 
 
 
+String? _name;
+
+
+
+
 // ignore: must_be_immutable
 class Home extends StatefulWidget {
   Home({super.key, this.editing = false});
@@ -30,7 +37,6 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   bool _presentationsExpanded = false;
-  String? _name;
   bool _isEditingTimer = false;
 
 
@@ -75,17 +81,15 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     (() async {
       onboardingTooltipController.onDone(() => setState(() {}));
       if (await store.accessProStatus() == null) {
-        // ignore: use_build_context_synchronously
         Navigator.push(context, MaterialPageRoute(
           builder: (context) => const OnboardingSlides(),
         ));
       } else {
-        onboarding = false;
+        PresentationMaster2.setAppState(context, () => onboarding = false);
       }
       hasPro = await store.accessProStatus() ?? await store.accessProStatus(toggle: true) ?? false;
 
       await store.accessPresentations();
-      // ignore: use_build_context_synchronously
       PresentationMaster2.setAppState(context, () => currentPresentation ??= globalPresentations?.first);
     })();
     connect(context);
@@ -364,6 +368,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                   style: MainText.textStyle,
                                   decoration: const InputDecoration(
                                     border: InputBorder.none,
+                                    hintMaxLines: 3,
                                     hintText: "Enter speaker notes and information that you want to use during your presentation.",
                                   ),
                                   initialValue: currentPresentation?[store.presentationNotesKey] ?? "Error loading speaker notes. This presentation does not seem to be initialized correctly. Please contact the developer.",
@@ -381,10 +386,11 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                 displayIndex: 0,
                                 horizontalPosition: TooltipHorizontalPosition.CENTER,
                                 message: "When you have connected a PC, this button will start the remote control.",
+                                skipButton: true,
                                 onAdditionalButtonPressed: () => Navigator.push(context, MaterialPageRoute(
                                   builder: (context) => const WifiSetup(),
                                 )),
-                                additionalButtonLabel: "Connect",
+                                additionalButtonLabel: 'Connect',
                                 child: GestureDetector(
                                   onTap: () => navigateToAvailablePresenter(context),
                                   onLongPress: () => navigateToAvailablePresenter(
@@ -666,82 +672,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                     ))
                                     : showFullscreenDialog(
                                       context: context,
-                                      closeOnBackgroundTap: false,
-                                      content: SizedBox(
-                                        height: screenHeight(context) / 2,
-                                        child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Material(
-                                              child: SmallHeading("Add a presentation"),
-                                            ),
-                                            const SizedBox(height: 64),
-                                            Material(
-                                              child: Container(
-                                                margin: const EdgeInsets.symmetric(horizontal: 64),
-                                                decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius.circular(16),
-                                                  border: Border.all(color: colorScheme.onSurface),
-                                                ),
-                                                height: 64,
-                                                alignment: Alignment.center,
-                                                child: TextField(
-                                                  onChanged: (value) => setState(() => _name = value),
-                                                  decoration: const InputDecoration.collapsed(hintText: "Enter a project name"),
-                                                  textAlign: TextAlign.center,
-                                                  style: MainText.textStyle.copyWith(),
-                                                ),
-                                              ),
-                                            ),
-                                            Row(
-                                              children: [
-                                                SizedBox(
-                                                  width: screenWidth(context) / 2,
-                                                  child: IconButton(
-                                                    onPressed: () => Navigator.pop(context),
-                                                    iconSize: 32,
-                                                    color: colorScheme.onSurface,
-                                                    icon: const Icon(Icons.close_outlined),
-                                                  ),
-                                                ),
-                                                SizedBox(
-                                                  width: screenWidth(context) / 2,
-                                                  child: IconButton(
-                                                    onPressed: () async {
-                                                      checkForName(String currentName) {
-                                                        if (currentName.length > 16 && !currentName.contains(" 2")) {
-                                                          return checkForName(currentName.substring(0, 15));
-                                                        }
-                                                        for (
-                                                          Map<String, dynamic> p in
-                                                          globalPresentations ?? [{store.presentationNameKey: _name}]
-                                                        ) {
-                                                          if (p[store.presentationNameKey] == currentName) {
-                                                            return checkForName("$currentName 2");
-                                                          }
-                                                        }
-                                                        return currentName;
-                                                      }
-                                                      String finalName = checkForName(_name ?? "Presentation 1");
-                                                      await store.mutatePresentation(
-                                                        oldPresentation: null,
-                                                        name: finalName,
-                                                      );
-                                                      // ignore: use_build_context_synchronously
-                                                      Navigator.pop(context);
-                                                      setState(() => _name = null);
-                                                    },
-                                                    padding: EdgeInsets.all(( ( screenWidth(context) / 2 ) - 32 ) / 2),
-                                                    iconSize: 32,
-                                                    color: colorScheme.onSurface,
-                                                    icon: const Icon(Icons.check_outlined),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
+                                      content: PresentationCreationScreen(),
                                     ),
                                     label: hasPro ? "Add a presentation" : "Add more presentations",
                                   ),
@@ -758,6 +689,121 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             }
           ),
         ),
+      ),
+    );
+  }
+}
+
+
+
+
+class PresentationCreationScreen extends StatefulWidget {
+  const PresentationCreationScreen({super.key});
+
+  @override
+  State<PresentationCreationScreen> createState() => _PresentationCreationScreenState();
+}
+
+class _PresentationCreationScreenState extends State<PresentationCreationScreen> {
+
+  int _invalidNameFeedbackState = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: screenHeight(context) / 2,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Material(
+            child: SmallHeading("Add a presentation"),
+          ),
+          const SizedBox(height: 64),
+          Material(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 50),
+              curve: Curves.easeInOutCirc,
+              margin: const [
+                EdgeInsets.symmetric(horizontal: 64),
+                EdgeInsets.only(left: 60, right: 68),
+                EdgeInsets.only(left: 68, right: 60),
+              ][_invalidNameFeedbackState],
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: _invalidNameFeedbackState == 0 ? colorScheme.onSurface : colorScheme.error,
+                ),
+              ),
+              height: 64,
+              alignment: Alignment.center,
+              child: TextField(
+                onChanged: (value) => setState(() => _name = value),
+                decoration: const InputDecoration.collapsed(hintText: "Enter a project name"),
+                textAlign: TextAlign.center,
+                style: MainText.textStyle,
+              ),
+            ),
+          ),
+          Row(
+            children: [
+              SizedBox(
+                width: screenWidth(context) / 2,
+                child: IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  iconSize: 32,
+                  color: colorScheme.onSurface,
+                  icon: const Icon(Icons.close_outlined),
+                ),
+              ),
+              SizedBox(
+                width: screenWidth(context) / 2,
+                child: IconButton(
+                  onPressed: () async {
+                    if (_name == null || _name == '') {
+                      setState(() => _invalidNameFeedbackState = 1);
+                      await Future.delayed(const Duration(milliseconds: 50));
+                      setState(() => _invalidNameFeedbackState = 2);
+                      await Future.delayed(const Duration(milliseconds: 50));
+                      setState(() => _invalidNameFeedbackState = 1);
+                      await Future.delayed(const Duration(milliseconds: 50));
+                      setState(() => _invalidNameFeedbackState = 2);
+                      await Future.delayed(const Duration(milliseconds: 50));
+                      setState(() => _invalidNameFeedbackState = 1);
+                      await Future.delayed(const Duration(milliseconds: 50));
+                      setState(() => _invalidNameFeedbackState = 0);
+                      return;
+                    }
+                    checkForName(String currentName) {
+                      if (currentName.length > 16 && !currentName.contains(" 2")) {
+                        return checkForName(currentName.substring(0, 15));
+                      }
+                      for (
+                        Map<String, dynamic> p in
+                        globalPresentations ?? [{store.presentationNameKey: _name}]
+                      ) {
+                        if (p[store.presentationNameKey] == currentName) {
+                          return checkForName("$currentName 2");
+                        }
+                      }
+                      return currentName;
+                    }
+                    String finalName = checkForName(_name ?? "Presentation 1");
+                    await store.mutatePresentation(
+                      oldPresentation: null,
+                      name: finalName,
+                    );
+                    Navigator.pop(context);
+                    PresentationMaster2.setAppState(context, () => _name = null);
+                  },
+                  padding: EdgeInsets.all(( ( screenWidth(context) / 2 ) - 32 ) / 2),
+                  iconSize: 32,
+                  color: colorScheme.onSurface,
+                  icon: const Icon(Icons.check_outlined),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

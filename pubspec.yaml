@@ -17,7 +17,7 @@ dependencies:
     sdk: flutter
 
   logger: ^1.1.0
-  basic_utils: ^5.6.1
+  debug_console: ^0.0.1
 
   shared_preferences: ^2.1.1
 
@@ -27,6 +27,7 @@ dependencies:
   http: ^1.1.0
   network_info_plus: ^4.0.1
   ping_discover_network_forked: ^0.0.1
+  regexed_validator: ^2.0.0+1
   url_launcher: ^6.0.18
   in_app_review: ^2.0.6
   in_app_purchase: ^3.1.8
@@ -35,6 +36,7 @@ dependencies:
 
   google_fonts: ^5.1.0
   flutter_markdown: ^0.6.10+2
+  zwidget: ^0.0.2
   overlay_tooltip: ^0.2.3
   skeletons: ^0.0.3
 
@@ -60,6 +62,29 @@ flutter_launcher_icons:
 
 flutter:
   uses-material-design: true
+  # TODO: R unused assets
+  fonts:
+    - family: Trap
+      fonts:
+        - asset: assets/fonts/Trap_V1.1/Trap-Regular.otf
+        - asset: assets/fonts/Trap_V1.1/Trap-Light.otf
+          weight: 100
+        - asset: assets/fonts/Trap_V1.1/Trap-Light.otf
+          weight: 200
+        - asset: assets/fonts/Trap_V1.1/Trap-Light.otf
+          weight: 300
+        - asset: assets/fonts/Trap_V1.1/Trap-Regular.otf
+          weight: 400
+        - asset: assets/fonts/Trap_V1.1/Trap-Medium.otf
+          weight: 500
+        - asset: assets/fonts/Trap_V1.1/Trap-Bold.otf
+          weight: 600
+        - asset: assets/fonts/Trap_V1.1/Trap-Bold.otf
+          weight: 700
+        - asset: assets/fonts/Trap_V1.1/Trap-ExtraBold.otf
+          weight: 800
+        - asset: assets/fonts/Trap_V1.1/Trap-Black.otf
+          weight: 900
 
 
 

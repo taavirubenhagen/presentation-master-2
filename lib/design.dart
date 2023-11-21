@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:basic_utils/basic_utils.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:presentation_master_2/main.dart';
-
-// TODO: Statically type every parameter
 
 
 
@@ -14,21 +11,31 @@ class BaseText extends Text {
     String data,
     style,
     {
-      required textAlign,
-      required isOnPrimary,
-      required isOnBackground,
+      required TextAlign textAlign,
+      required bool isOnPrimary,
+      required bool isOnBackground,
       super.key
     }
   ) : super(
     data,
     textAlign: textAlign,
-    style: style.copyWith(color: isOnPrimary ? colorScheme.onPrimary : ( isOnBackground ? colorScheme.onSurface : colorScheme.onSurface )),
+    style: style.copyWith(
+      fontFamily: 'Trap',
+      fontWeight: FontWeight.w500,
+      color: isOnPrimary ? colorScheme.onPrimary : ( isOnBackground ? colorScheme.onSurface : colorScheme.onSurface ),
+    ),
   );
 }
 
 
 class MainText extends BaseText {
-  MainText(data, {isOnPrimary = false, isOnBackground = false, super.key})
+  MainText(
+    String data,
+    {
+      bool isOnPrimary = false,
+      bool isOnBackground = false,
+      super.key,
+    })
   : super(data, textStyle, textAlign: TextAlign.left, isOnPrimary: isOnPrimary, isOnBackground: isOnBackground);
 
   static final TextStyle textStyle = GoogleFonts.lexend(
@@ -44,7 +51,7 @@ class SmallLabel extends BaseText {
     {
       bool isOnPrimary = false,
       bool isOnBackground = false,
-      super.key
+      super.key,
     })
   : super(data, textStyle, textAlign: TextAlign.left, isOnPrimary: isOnPrimary, isOnBackground: isOnBackground);
 
@@ -55,8 +62,14 @@ class SmallLabel extends BaseText {
 
 
 class MediumLabel extends BaseText {
-  MediumLabel(data, {isOnPrimary = false, isOnBackground = false, super.key})
-  : super(data, textStyle, textAlign: TextAlign.left, isOnPrimary: isOnPrimary, isOnBackground: isOnBackground);
+  MediumLabel(
+    String data,
+    {
+      bool isOnPrimary = false,
+      bool isOnBackground = false,
+      super.key,
+    })
+  : super(data, textStyle, textAlign: TextAlign.justify, isOnPrimary: isOnPrimary, isOnBackground: isOnBackground);
 
   static final TextStyle textStyle = GoogleFonts.lexend(
     fontSize: 20,
@@ -65,7 +78,13 @@ class MediumLabel extends BaseText {
 
 
 class LargeLabel extends BaseText {
-  LargeLabel(data, {isOnPrimary = false, isOnBackground = false, super.key})
+  LargeLabel(
+    String data,
+    {
+      bool isOnPrimary = false,
+      bool isOnBackground = false,
+      super.key,
+    })
   : super(data, textStyle, textAlign: TextAlign.left, isOnPrimary: isOnPrimary, isOnBackground: isOnBackground);
 
   static final TextStyle textStyle = GoogleFonts.lexend(
@@ -75,7 +94,13 @@ class LargeLabel extends BaseText {
 
 
 class HugeLabel extends BaseText {
-  HugeLabel(data, {isOnPrimary = false, isOnBackground = false, super.key})
+  HugeLabel(
+    String data,
+    {
+      bool isOnPrimary = false,
+      bool isOnBackground = false,
+      super.key,
+    })
   : super(data, textStyle, textAlign: TextAlign.left, isOnPrimary: isOnPrimary, isOnBackground: isOnBackground);
 
   static final TextStyle textStyle = GoogleFonts.lexend(
@@ -85,7 +110,13 @@ class HugeLabel extends BaseText {
 
 
 class ButtonLabel extends BaseText {
-  ButtonLabel(data, {isOnPrimary = false, isOnBackground = false, super.key})
+  ButtonLabel(
+    String data,
+    {
+      bool isOnPrimary = false,
+      bool isOnBackground = false,
+      super.key,
+    })
   : super(data, textStyle, textAlign: TextAlign.center, isOnPrimary: isOnPrimary, isOnBackground: isOnBackground);
 
   static final TextStyle textStyle = GoogleFonts.lexend(
@@ -95,7 +126,13 @@ class ButtonLabel extends BaseText {
 
 
 class SmallHeading extends BaseText {
-  SmallHeading(data, {isOnPrimary = false, isOnBackground = false, super.key})
+  SmallHeading(
+    String data,
+    {
+      bool isOnPrimary = false,
+      bool isOnBackground = false,
+      super.key,
+    })
   : super(data, textStyle, textAlign: TextAlign.left, isOnPrimary: isOnPrimary, isOnBackground: isOnBackground);
 
   static final TextStyle textStyle = GoogleFonts.lexend(
@@ -228,8 +265,8 @@ class AppTextButton extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   mini ? SmallLabel(label) : ButtonLabel(label),
-                  if (BooleanUtils.or([isLink, next, customIcon != null])) const SizedBox(width: 16),
-                  if (BooleanUtils.or([isLink, next, customIcon != null])) Icon(
+                  if (isLink || next || customIcon != null) const SizedBox(width: 16),
+                  if (isLink || next || customIcon != null) Icon(
                     customIcon ?? ( isLink ? Icons.open_in_new_outlined : Icons.arrow_forward_outlined ),
                   ),
                 ],
@@ -254,10 +291,7 @@ void showFullscreenDialog({
     context: context,
     barrierColor: Colors.black.withOpacity(0.9),
     builder: (BuildContext context) => GestureDetector(
-      onTap: () {
-        
-        closeOnBackgroundTap ? Navigator.pop(context) : null;
-      },
+      onTap: () => closeOnBackgroundTap ? Navigator.pop(context) : null,
       child: Center(
         child: content,
       ),
@@ -271,7 +305,6 @@ void showFullscreenDialog({
 void showBooleanDialog({
   required BuildContext context,
   required String title,
-  String? bodyText,
   Function()? onYes,
 }) {
   showFullscreenDialog(
@@ -282,13 +315,7 @@ void showBooleanDialog({
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Material(
-            child: Column(
-              children: [
-                SmallHeading(title),
-                if (bodyText != null) const SizedBox(height: 32),
-                if (bodyText != null) MediumLabel(bodyText),
-              ],
-            ),
+            child: SmallHeading(title),
           ),
           const SizedBox(height: 64),
           Row(
