@@ -48,6 +48,7 @@ class _OnboardingMockupIllustrationState extends State<OnboardingMockupIllustrat
           return;
         }
         _phoneButtonState = ( _slideController.page?.round() ?? 0 ) == 1 ? 0 : 1;
+        await Future.delayed(const Duration(milliseconds: 50));
         ( _slideController.page?.round() ?? 0 ) == 1
         ? _slideController.previousPage(
           duration: const Duration(milliseconds: 400),
@@ -57,7 +58,7 @@ class _OnboardingMockupIllustrationState extends State<OnboardingMockupIllustrat
           duration: const Duration(milliseconds: 400),
           curve: appDefaultCurve,
         );
-        await Future.delayed(const Duration(milliseconds: 200));
+        await Future.delayed(const Duration(milliseconds: 150));
         _phoneButtonState = null;
       },
     );

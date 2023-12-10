@@ -20,15 +20,16 @@ import 'package:presentation_master_2/presenter.dart';
 
 
 String? _name;
+bool _editingMode = false;
 
 
 
 
 // ignore: must_be_immutable
 class Home extends StatefulWidget {
-  Home({super.key, this.editing = false});
+  const Home({super.key, this.editing = false});
 
-  bool editing;
+  final bool editing;
 
   @override
   State<Home> createState() => _HomeState();
@@ -43,16 +44,16 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   void _changeEditingMode({bool wasTimerButtonPressed = false, bool allToFalse = false}) => setState(() {
     _presentationsExpanded = false;
     if (allToFalse) {
-      widget.editing = false;
+      _editingMode = false;
       _isEditingTimer = false;
       return;
     }
     if (!wasTimerButtonPressed) {
-      widget.editing = !widget.editing;
+      _editingMode = !_editingMode;
       _isEditingTimer = false;
       return;
     }
-    widget.editing = true;
+    _editingMode = true;
     _isEditingTimer = !_isEditingTimer;
   });
 
@@ -93,22 +94,22 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       PresentationMaster2.setAppState(context, () => currentPresentation ??= globalPresentations?.first);
     })();
     connect(context);
+    _editingMode = widget.editing;
   }
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        if (widget.editing) {
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (_) async {
+        if (_editingMode) {
           _changeEditingMode(allToFalse: true);
-          return false;
         }
         showBooleanDialog(
           context: context,
           title: "Exit app?",
           onYes: () => SystemNavigator.pop(),
         );
-        return false;
       },
       child: OverlayTooltipScaffold(
         tooltipAnimationCurve: appDefaultCurve,
@@ -127,7 +128,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           appBar: AppBar(
             toolbarHeight: 0,
             systemOverlayStyle: SystemUiOverlayStyle(
-              statusBarColor: widget.editing ? colorScheme.surface : colorScheme.background,
+              statusBarColor: _editingMode ? colorScheme.surface : colorScheme.background,
               statusBarIconBrightness: onboarding && onboardingTooltipController.nextPlayIndex < onboardingTooltipController.playWidgetLength
               ? Brightness.dark
               : Brightness.light,
@@ -145,7 +146,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
               width: screenWidth(context),
               height: 80,
               child: TextButton(
-                onPressed: () => widget.editing
+                onPressed: () => _editingMode
                 ? hasPro
                   ? launchUrlString(
                     "https://www.markdownguide.org/cheat-sheet/",
@@ -171,7 +172,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       child: child,
                     );
                   },
-                  child: widget.editing
+                  child: _editingMode
                   ? hasPro
                     ? Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -212,10 +213,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                         );
                       },
                       child: SizedBox(
-                        key: ValueKey<bool>(widget.editing && _isEditingTimer),
+                        key: ValueKey<bool>(_editingMode && _isEditingTimer),
                         width: screenWidth(context),
                         height: screenHeight(context),
-                        child: widget.editing
+                        child: _editingMode
                         ? AnimatedSwitcher(
                           duration: const Duration(milliseconds: 100),
                           switchInCurve: appDefaultCurve,
@@ -439,14 +440,14 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       curve: appDefaultCurve,
-                      margin: EdgeInsets.all(widget.editing ? 0 : 16),
+                      margin: EdgeInsets.all(_editingMode ? 0 : 16),
                       decoration: BoxDecoration(
                         borderRadius: _presentationsExpanded
                         ? BorderRadius.vertical(
-                          top: Radius.circular(widget.editing ? 0 : 40),
-                          bottom: Radius.circular(widget.editing && !_presentationsExpanded ? 0 : 24),
+                          top: Radius.circular(_editingMode ? 0 : 40),
+                          bottom: Radius.circular(_editingMode && !_presentationsExpanded ? 0 : 24),
                         )
-                        : BorderRadius.circular(widget.editing ? 0 : 40),
+                        : BorderRadius.circular(_editingMode ? 0 : 40),
                         color: colorScheme.surface,
                       ),
                       child: Column(
@@ -458,7 +459,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                               overlayColor: MaterialStateProperty.all(Colors.transparent),
                               splashFactory: NoSplash.splashFactory,
                               shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(widget.editing ? 0 : 40),
+                                borderRadius: BorderRadius.circular(_editingMode ? 0 : 40),
                               )),
                             ),
                             child: Container(
@@ -566,7 +567,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                           ),
                                           child: IconButton(
                                             onPressed: () {
-                                              if (widget.editing) {
+                                              if (_editingMode) {
                                                 FocusManager.instance.primaryFocus?.unfocus();
                                               }
                                               _changeEditingMode();
@@ -582,8 +583,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                                 );
                                               },
                                               child: Icon(
-                                                widget.editing ? Icons.check_outlined : Icons.edit_outlined,
-                                                key: ValueKey<bool>(widget.editing),
+                                                _editingMode ? Icons.check_outlined : Icons.edit_outlined,
+                                                key: ValueKey<bool>(_editingMode),
                                               ),
                                             ),
                                           ),

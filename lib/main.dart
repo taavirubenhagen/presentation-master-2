@@ -2,7 +2,6 @@ import "package:flutter/services.dart";
 import 'package:flutter/material.dart';
 
 import "package:logger/logger.dart";
-import 'package:debug_console/debug_console.dart';
 import 'package:overlay_tooltip/overlay_tooltip.dart';
 
 import 'package:presentation_master_2/store.dart' as store;
@@ -49,10 +48,8 @@ double screenWidth(BuildContext context) => MediaQuery.of(context).size.width;
 
 
 void main() async {
-  DebugConsole.listen(() {
-    WidgetsFlutterBinding.ensureInitialized();
-    runApp(const PresentationMaster2());
-  });
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const PresentationMaster2());
 }
 
 

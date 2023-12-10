@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:debug_console/debug_console.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:in_app_review/in_app_review.dart';
@@ -18,10 +17,18 @@ import 'package:presentation_master_2/mockups.dart';
 
 
 class HelpScaffold extends StatelessWidget {
-  const HelpScaffold({super.key, this.actionButton, this.onBottomButtonPressed, this.bottomButtonLabel, required this.tiles});
+  const HelpScaffold({
+    super.key,
+    this.actionButton,
+    this.onBottomButtonPressed,
+    this.bottomButtonIsLink = false,
+    this.bottomButtonLabel,
+    required this.tiles,
+  });
 
   final Widget? actionButton;
   final Function()? onBottomButtonPressed;
+  final bool bottomButtonIsLink;
   final String? bottomButtonLabel;
   final List<Widget> tiles;
 
@@ -63,6 +70,7 @@ class HelpScaffold extends StatelessWidget {
             child: AppTextButton(
               onPressed: onBottomButtonPressed!,
               docked: true,
+              isLink: bottomButtonIsLink,
               label: bottomButtonLabel!,
             ),
           ),
@@ -197,263 +205,260 @@ class _WifiSetupState extends State<WifiSetup> {
 
   @override
   Widget build(BuildContext context) {
-    return DebugConsolePopup(
-      showButton: true,
-      child: Scaffold(
-        backgroundColor: colorScheme.surface,
-        appBar: AppBar(
-          systemOverlayStyle: SystemUiOverlayStyle(
-            statusBarColor: colorScheme.surface,
-            statusBarIconBrightness: Brightness.light,
-            systemNavigationBarColor: colorScheme.surface,
-          ),
-          toolbarHeight: 96,
-          leadingWidth: 96,
-          leading: IconButton(
-            onPressed: () => Navigator.pop(context),
-            padding: const EdgeInsets.all(16),
-            iconSize: 32,
-            color: colorScheme.onSurface,
-            icon: const Icon(Icons.arrow_back_outlined),
-          ),
+    return Scaffold(
+      backgroundColor: colorScheme.surface,
+      appBar: AppBar(
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: colorScheme.surface,
+          statusBarIconBrightness: Brightness.light,
+          systemNavigationBarColor: colorScheme.surface,
         ),
-        body: PageView.builder(
-          controller: _wifiSetupPageController,
-          itemCount: 4,
-          itemBuilder: (context, i) {
-            return Padding(
-              padding: const EdgeInsets.only(left: 32, right: 32, bottom: 64),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 64),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                [
-                                  const OnboardingMockupIllustration(),
-
-                                  GestureDetector(
-                                    onTap: () => showBooleanDialog(
-                                      title: "Type this URL in the browser on your PC, then read the instructions there.",
-                                      context: context,
-                                    ),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(32),
-                                        border: Border.all(color: colorScheme.onSurface),
-                                      ),
-                                      height: 64,
-                                      alignment: Alignment.center,
-                                      child: LargeLabel("presenter.onrender.com"),
-                                    ),
+        toolbarHeight: 96,
+        leadingWidth: 96,
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          padding: const EdgeInsets.all(16),
+          iconSize: 32,
+          color: colorScheme.onSurface,
+          icon: const Icon(Icons.arrow_back_outlined),
+        ),
+      ),
+      body: PageView.builder(
+        controller: _wifiSetupPageController,
+        itemCount: 4,
+        itemBuilder: (context, i) {
+          return Padding(
+            padding: const EdgeInsets.only(left: 32, right: 32, bottom: 64),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 64),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              [
+                                const OnboardingMockupIllustration(),
+    
+                                GestureDetector(
+                                  onTap: () => showBooleanDialog(
+                                    title: "Type this URL in the browser on your PC, then read the instructions there.",
+                                    context: context,
                                   ),
-
-                                  Column(
-                                    children: [
-                                      Row(
-                                        crossAxisAlignment: CrossAxisAlignment.end,
-                                        children: [
-                                          SizedBox(width: laptopWidth(context) / 3),
-                                          Expanded(
-                                            child: Container(
-                                              height: 64,
-                                              decoration: BoxDecoration(
-                                                border: Border(
-                                                  left: BorderSide(color: colorScheme.onSurface),
-                                                  top: BorderSide(color: colorScheme.onSurface),
-                                                ),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(32),
+                                      border: Border.all(color: colorScheme.onSurface),
+                                    ),
+                                    height: 64,
+                                    alignment: Alignment.center,
+                                    child: LargeLabel("presenter.onrender.com"),
+                                  ),
+                                ),
+    
+                                Column(
+                                  children: [
+                                    Row(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        SizedBox(width: laptopWidth(context) / 3),
+                                        Expanded(
+                                          child: Container(
+                                            height: 64,
+                                            decoration: BoxDecoration(
+                                              border: Border(
+                                                left: BorderSide(color: colorScheme.onSurface),
+                                                top: BorderSide(color: colorScheme.onSurface),
                                               ),
                                             ),
                                           ),
-                                          const Padding(
-                                            padding: EdgeInsets.only(bottom: 64 - 48 / 2),
-                                            child: Icon(
-                                              Icons.wifi_outlined,
-                                              size: 48,
-                                            ),
+                                        ),
+                                        const Padding(
+                                          padding: EdgeInsets.only(bottom: 64 - 48 / 2),
+                                          child: Icon(
+                                            Icons.wifi_outlined,
+                                            size: 48,
                                           ),
-                                          Expanded(
-                                            child: Container(
-                                              height: 64,
-                                              decoration: BoxDecoration(
-                                                border: Border(
-                                                  right: BorderSide(color: colorScheme.onSurface),
-                                                  top: BorderSide(color: colorScheme.onSurface),
-                                                ),
+                                        ),
+                                        Expanded(
+                                          child: Container(
+                                            height: 64,
+                                            decoration: BoxDecoration(
+                                              border: Border(
+                                                right: BorderSide(color: colorScheme.onSurface),
+                                                top: BorderSide(color: colorScheme.onSurface),
                                               ),
                                             ),
                                           ),
-                                          SizedBox(width: laptopWidth(context) / 3),
-                                        ],
-                                      ),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Padding(
-                                            padding: EdgeInsets.only(left: laptopWidth(context) / 3 - phoneWidth(context) / 2),
-                                            child: Transform.scale(
-                                              scale: 0.75,
-                                              child: const PhoneFrame(
-                                                laptopPadding: false,
-                                                child: NotePresenterMockup(),
-                                              ),
-                                            ),
-                                          ),
-                                          Transform.scale(
+                                        ),
+                                        SizedBox(width: laptopWidth(context) / 3),
+                                      ],
+                                    ),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Padding(
+                                          padding: EdgeInsets.only(left: laptopWidth(context) / 3 - phoneWidth(context) / 2),
+                                          child: Transform.scale(
                                             scale: 0.75,
-                                            child: LaptopFrame(
-                                              phonePadding: false,
-                                              child: Stack(
-                                                children: [
-                                                  Positioned(
-                                                    left: laptopWidth(context) / 8,
-                                                    top: laptopWidth(context) / 12,
+                                            child: const PhoneFrame(
+                                              laptopPadding: false,
+                                              child: NotePresenterMockup(),
+                                            ),
+                                          ),
+                                        ),
+                                        Transform.scale(
+                                          scale: 0.75,
+                                          child: LaptopFrame(
+                                            phonePadding: false,
+                                            child: Stack(
+                                              children: [
+                                                Positioned(
+                                                  left: laptopWidth(context) / 8,
+                                                  top: laptopWidth(context) / 12,
+                                                  child: Container(
+                                                    width: laptopWidth(context) / 3,
+                                                    height: laptopWidth(context) * 9/16 / 3,
+                                                    decoration: BoxDecoration(
+                                                      borderRadius: BorderRadius.circular(2),
+                                                      border: Border(
+                                                        left: BorderSide(color: colorScheme.onBackground),
+                                                        right: BorderSide(color: colorScheme.onBackground),
+                                                        top: BorderSide(
+                                                          width: 4,
+                                                          color: colorScheme.onBackground,
+                                                        ),
+                                                        bottom: BorderSide(color: colorScheme.onBackground),
+                                                      ),
+                                                      color: colorScheme.surface,
+                                                    ),
+                                                    child: const PresentationMaster2ForPCMockup(),
+                                                  ),
+                                                ),
+                                                Positioned(
+                                                  right: laptopWidth(context) / 12,
+                                                  bottom: laptopWidth(context) / 16,
+                                                  child: Transform.scale(
+                                                    scale: 1/2,
+                                                    alignment: Alignment.bottomRight,
                                                     child: Container(
-                                                      width: laptopWidth(context) / 3,
-                                                      height: laptopWidth(context) * 9/16 / 3,
+                                                      width: laptopWidth(context),
+                                                      height: laptopWidth(context) * 9/16,
                                                       decoration: BoxDecoration(
-                                                        borderRadius: BorderRadius.circular(2),
+                                                        borderRadius: BorderRadius.circular(4),
                                                         border: Border(
-                                                          left: BorderSide(color: colorScheme.onBackground),
-                                                          right: BorderSide(color: colorScheme.onBackground),
-                                                          top: BorderSide(
-                                                            width: 4,
+                                                          left: BorderSide(
+                                                            width: 2,
                                                             color: colorScheme.onBackground,
                                                           ),
-                                                          bottom: BorderSide(color: colorScheme.onBackground),
+                                                          right: BorderSide(
+                                                            width: 2,
+                                                            color: colorScheme.onBackground,
+                                                          ),
+                                                          top: BorderSide(
+                                                            width: 8,
+                                                            color: colorScheme.onBackground,
+                                                          ),
+                                                          bottom: BorderSide(
+                                                            width: 2,
+                                                            color: colorScheme.onBackground,
+                                                          ),
                                                         ),
                                                         color: colorScheme.surface,
                                                       ),
-                                                      child: const PresentationMaster2ForPCMockup(),
+                                                      child: const ExamplePresentationMockup(),
                                                     ),
                                                   ),
-                                                  Positioned(
-                                                    right: laptopWidth(context) / 12,
-                                                    bottom: laptopWidth(context) / 16,
-                                                    child: Transform.scale(
-                                                      scale: 1/2,
-                                                      alignment: Alignment.bottomRight,
-                                                      child: Container(
-                                                        width: laptopWidth(context),
-                                                        height: laptopWidth(context) * 9/16,
-                                                        decoration: BoxDecoration(
-                                                          borderRadius: BorderRadius.circular(4),
-                                                          border: Border(
-                                                            left: BorderSide(
-                                                              width: 2,
-                                                              color: colorScheme.onBackground,
-                                                            ),
-                                                            right: BorderSide(
-                                                              width: 2,
-                                                              color: colorScheme.onBackground,
-                                                            ),
-                                                            top: BorderSide(
-                                                              width: 8,
-                                                              color: colorScheme.onBackground,
-                                                            ),
-                                                            bottom: BorderSide(
-                                                              width: 2,
-                                                              color: colorScheme.onBackground,
-                                                            ),
-                                                          ),
-                                                          color: colorScheme.surface,
-                                                        ),
-                                                        child: const ExamplePresentationMockup(),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
+                                                ),
+                                              ],
                                             ),
                                           ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-
-                                  Transform.scale(
-                                    scale: 2,
-                                    child: const PhoneFrame(
-                                      laptopPadding: false,
-                                      child: HomeMockup(),
+                                        ),
+                                      ],
                                     ),
+                                  ],
+                                ),
+    
+                                Transform.scale(
+                                  scale: 2,
+                                  child: const PhoneFrame(
+                                    laptopPadding: false,
+                                    child: HomeMockup(),
                                   ),
-                                ][i],
-                              ],
-                            ),
+                                ),
+                              ][i],
+                            ],
                           ),
-                          MediumLabel(
-                            [
-                              'Turn your phone into a remote control for presentations '
-                              'on your Windows PC (tablet is not supported). Alternatively, keep using this app as a note card replacement.',
-                    
-                              'You need an additional app on your PC to receive the controlling signals.\n\n'
-                              "Open the link above in your PC's (!) browser and follow the instructions exactly.",
-                    
-                              'Whenever you want to present, connect both devices to the same WiFi, start the PC app and open a presentation on your PC.',
-                    
-                              'Tap the big play button in the mobile app. As soon as a connection is established, you can control the presentation with your phone.',
-                            ][i],
-                          ),
-                        ],
-                      ),
+                        ),
+                        MediumLabel(
+                          [
+                            'Turn your phone into a remote control for presentations '
+                            'on your Windows PC (tablet is not supported). Alternatively, keep using this app as a note card replacement.',
+                  
+                            'You need an additional app on your PC to receive the controlling signals.\n\n'
+                            "Open the link above in your PC's (!) browser and follow the instructions exactly.",
+                  
+                            'Whenever you want to present, connect both devices to the same WiFi, start the PC app and open a presentation on your PC.',
+                  
+                            'Tap the big play button in the mobile app. As soon as a connection is established, you can control the presentation with your phone.',
+                          ][i],
+                        ),
+                      ],
                     ),
                   ),
-                  Column(
-                    children: [
-                      GestureDetector(
-                        onDoubleTap: () async => showBooleanDialog(
-                          context: context,
-                          title: "Detected IP address: $serverIP\nIP address of this device: ${await NetworkInfo().getWifiIP()}",
-                        ),
-                        child: AppTextButton(
-                          onPressed: () => i == 3
-                          ? serverIP == null
-                            ? showBooleanDialog(
-                              context: context,
-                              title: "Wait for your devices to connect, or go back and add speaker notes.",
-                            )
-                            : navigateToAvailablePresenter(context)
-                          : _wifiSetupPageController.nextPage(duration: const Duration(milliseconds: 400), curve: appDefaultCurve),
-                          loading: i == 3 && serverIP == null,
-                          next: i != 3,
-                          label: i == 3
-                          ? serverIP == null ? "Scanning..." : "Try presenting"
-                          : "Next",
-                        ),
+                ),
+                Column(
+                  children: [
+                    GestureDetector(
+                      onDoubleTap: () async => showBooleanDialog(
+                        context: context,
+                        title: "Detected IP address: $serverIP\nIP address of this device: ${await NetworkInfo().getWifiIP()}",
                       ),
-                      const SizedBox(height: 16),
-                      AppTextButton(
-                        onPressed: () {
-                          if (i != 0) {
+                      child: AppTextButton(
+                        onPressed: () => i == 3
+                        ? serverIP == null
+                          ? showBooleanDialog(
+                            context: context,
+                            title: "Wait for your devices to connect, or go back and add speaker notes.",
+                          )
+                          : navigateToAvailablePresenter(context)
+                        : _wifiSetupPageController.nextPage(duration: const Duration(milliseconds: 400), curve: appDefaultCurve),
+                        loading: i == 3 && serverIP == null,
+                        next: i != 3,
+                        label: i == 3
+                        ? serverIP == null ? "Scanning..." : "Try presenting"
+                        : "Next",
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    AppTextButton(
+                      onPressed: () {
+                        if (i != 0) {
+                          Navigator.pop(context);
+                          if (!onboarding) {
                             Navigator.pop(context);
-                            if (!onboarding) {
-                              Navigator.pop(context);
-                            }
-                            return;
                           }
-                          Navigator.push(context, MaterialPageRoute(
-                            builder: (context) => Home(editing: true),
-                          ));
-                        },
-                        secondary: true,
-                        label: i != 0 ? ( i == 3 ? 'Close' : 'Cancel' ) : 'Edit notes',
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          }
-        ),
+                          return;
+                        }
+                        Navigator.push(context, MaterialPageRoute(
+                          builder: (context) => Home(editing: true),
+                        ));
+                      },
+                      secondary: true,
+                      label: i != 0 ? ( i == 3 ? 'Close' : 'Cancel' ) : 'Edit notes',
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        }
       ),
     );
   }
@@ -578,7 +583,7 @@ class ContactCenter extends StatelessWidget {
         ),
         // TODO: 18: Change URL
         AppHelpTile(
-          onButtonPressed: () => launchUrlString("https://taavirubenhagen.netlify.app/main/presenter/privacy-policy", mode: LaunchMode.externalApplication),
+          onButtonPressed: () => launchUrlString("https://rubenhagen.com/presenter/privacy-policy", mode: LaunchMode.externalApplication),
           title: "Privacy Policy",
           link: true
         ),
@@ -645,16 +650,11 @@ class ContactScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return HelpScaffold(
-      onBottomButtonPressed: () => launchUrlString("mailto:tavyai.apps@gmail.com"),
+      onBottomButtonPressed: () => launchUrlString("mailto:taavi.ruebenhagen@gmail.com"),
+      bottomButtonIsLink: true,
       bottomButtonLabel: "E-Mail me",
       tiles: [
-        for (String line in true
-        ? [
-          "René Rübenhagen",
-          "Kastanienallee 22, 23562 Lübeck, Germany",
-          "tavyai.apps@gmail.com",
-        ]
-        : [
+        for (String line in [
           "Taavi Rübenhagen",
           "Pothof 9d, 38122 Braunschweig, Germany",
           "taavi.ruebenhagen@gmail.com",

@@ -259,7 +259,12 @@ class _NotePresenterState extends State<NotePresenter> {
                                   AppAnimatedSwitcher(
                                     value: serverIP != null,
                                     trueChild: SmallLabel("Connected"),
-                                    falseChild: SmallLabel("Connecting..."),
+                                    falseChild: GestureDetector(
+                                      onTap: () => Navigator.push(context, MaterialPageRoute(
+                                        builder: (context) => const WifiSetup(),
+                                      )),
+                                      child: SmallLabel("Connecting..."),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -587,6 +592,7 @@ class _MinimalPresenterState extends State<MinimalPresenter> {
                     ),
                   ),
                   const SizedBox(height: 64),
+                  // TODO: Navigate to WifiSetup?
                   SmallHeading("Reconnecting..."),
                   const SizedBox(height: 64),
                   Row(
