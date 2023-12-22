@@ -65,11 +65,12 @@ class MediumLabel extends BaseText {
   MediumLabel(
     String data,
     {
+      bool justify = true,
       bool isOnPrimary = false,
       bool isOnBackground = false,
       super.key,
     })
-  : super(data, textStyle, textAlign: TextAlign.justify, isOnPrimary: isOnPrimary, isOnBackground: isOnBackground);
+  : super(data, textStyle, textAlign: justify ? TextAlign.justify : TextAlign.left, isOnPrimary: isOnPrimary, isOnBackground: isOnBackground);
 
   static final TextStyle textStyle = GoogleFonts.lexend(
     fontSize: 20,
@@ -220,6 +221,9 @@ class AppTextButton extends StatelessWidget {
   final bool next;
   final String label;
 
+  static const double defaultHeight = 72;
+  static const double defaultBorderRadius = 16;
+
   @override
   Widget build(BuildContext context) {
     return Opacity(
@@ -228,7 +232,7 @@ class AppTextButton extends StatelessWidget {
         onPressed: active ? onPressed : () {},
         style: ButtonStyle(
           shape: MaterialStateProperty.all(RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(mini ? 8 : docked ? 0 : 16),
+            borderRadius: BorderRadius.circular(mini ? 8 : docked ? 0 : defaultBorderRadius),
             side: secondary ? BorderSide(width: 2, color: colorScheme.onSurface.withOpacity(active ? 0.25 : 0.1)) : BorderSide.none,
           )),
           backgroundColor: secondary
@@ -238,7 +242,7 @@ class AppTextButton extends StatelessWidget {
         ),
         child: Container(
           width: docked ? screenWidth(context) : null,
-          height: mini ? 32 : docked ? 80 : 64,
+          height: mini ? 32 : docked ? 80 : defaultHeight,
           padding: EdgeInsets.symmetric(horizontal: mini ? 12 : 32),
           alignment: Alignment.center,
           child: AnimatedSwitcher(

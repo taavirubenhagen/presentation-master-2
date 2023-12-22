@@ -386,7 +386,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                               AppOverlayTooltip(
                                 displayIndex: 0,
                                 horizontalPosition: TooltipHorizontalPosition.CENTER,
-                                message: "When you have connected a PC, this button will start the remote control.",
+                                message: "When you have connected a laptop, this button will start the remote control.",
                                 skipButton: true,
                                 onAdditionalButtonPressed: () => Navigator.push(context, MaterialPageRoute(
                                   builder: (context) => const WifiSetup(),

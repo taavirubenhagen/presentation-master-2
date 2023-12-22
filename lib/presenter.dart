@@ -190,7 +190,7 @@ class _NotePresenterState extends State<NotePresenter> {
                     GestureDetector(
                       onTap: () => showBooleanDialog(
                         context: context,
-                        title: "Move your PC's cursor by using this field like a touchpad.",
+                        title: "Move your laptops cursor by using this field like a touchpad.",
                       ),
                       onPanUpdate: (details) {
                         if (_mouseReady) {
@@ -679,7 +679,7 @@ class _MinimalPresenterState extends State<MinimalPresenter> {
                 GestureDetector(
                   onTap: () => showBooleanDialog(
                     context: context,
-                    title: "Move your PC's cursor by using this field like a touchpad.",
+                    title: "Move your laptops cursor by using this field like a touchpad.",
                   ),
                   onPanUpdate: (details) {
                     if (_mouseReady) {

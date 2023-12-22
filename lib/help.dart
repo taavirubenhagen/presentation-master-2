@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -227,28 +228,32 @@ class _WifiSetupState extends State<WifiSetup> {
         controller: _wifiSetupPageController,
         itemCount: 4,
         itemBuilder: (context, i) {
-          return Padding(
-            padding: const EdgeInsets.only(left: 32, right: 32, bottom: 64),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
+          return Stack(
+            alignment: Alignment.topCenter,
+            children: [
+              SizedBox(
+                height: screenHeight(context),
+                child: SingleChildScrollView(
                   child: Padding(
-                    padding: const EdgeInsets.only(bottom: 64),
+                    padding: const EdgeInsets.only(
+                      left: 32,
+                      right: 32,
+                      bottom: 64 + AppTextButton.defaultHeight + 16 + AppTextButton.defaultHeight + 16 + 56,
+                    ),
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Expanded(
+                        SizedBox(
+                          height: screenHeight(context) * ( i == 1 ? 0.3 : 0.35 ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               [
                                 const OnboardingMockupIllustration(),
-    
+                      
                                 GestureDetector(
                                   onTap: () => showBooleanDialog(
-                                    title: "Type this URL in the browser on your PC, then read the instructions there.",
+                                    title: "Type this URL in the browser on your laptop, then read the instructions there.",
                                     context: context,
                                   ),
                                   child: Container(
@@ -261,7 +266,7 @@ class _WifiSetupState extends State<WifiSetup> {
                                     child: LargeLabel("presenter.onrender.com"),
                                   ),
                                 ),
-    
+                      
                                 Column(
                                   children: [
                                     Row(
@@ -384,7 +389,7 @@ class _WifiSetupState extends State<WifiSetup> {
                                     ),
                                   ],
                                 ),
-    
+                      
                                 Transform.scale(
                                   scale: 2,
                                   child: const PhoneFrame(
@@ -399,12 +404,12 @@ class _WifiSetupState extends State<WifiSetup> {
                         MediumLabel(
                           [
                             'Turn your phone into a remote control for presentations '
-                            'on your Windows PC (tablet is not supported). Alternatively, keep using this app as a note card replacement.',
+                            'on your Windows laptop (tablet is not supported). Alternatively, keep using this app as a note card replacement.',
                   
-                            'You need an additional app on your PC to receive the controlling signals.\n\n'
-                            "Open the link above in your PC's (!) browser and follow the instructions exactly.",
+                            'You need an additional app on your laptop to receive the controlling signals.\n\n'
+                            "Open the link above in your laptops (!) browser and follow the instructions exactly.",
                   
-                            'Whenever you want to present, connect both devices to the same WiFi, start the PC app and open a presentation on your PC.',
+                            'Whenever you want to present, connect both devices to the same WiFi, start the Windows app and open a presentation on your laptop.',
                   
                             'Tap the big play button in the mobile app. As soon as a connection is established, you can control the presentation with your phone.',
                           ][i],
@@ -413,50 +418,66 @@ class _WifiSetupState extends State<WifiSetup> {
                     ),
                   ),
                 ),
-                Column(
-                  children: [
-                    GestureDetector(
-                      onDoubleTap: () async => showBooleanDialog(
-                        context: context,
-                        title: "Detected IP address: $serverIP\nIP address of this device: ${await NetworkInfo().getWifiIP()}",
+              ),
+              Positioned(
+                bottom: 0,
+                width: screenWidth(context) - 2 * 32 + 2 * 16,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(AppTextButton.defaultBorderRadius + 16 / 2),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16).copyWith(bottom: 64),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(
+                        sigmaX: 2,
+                        sigmaY: 2,
                       ),
-                      child: AppTextButton(
-                        onPressed: () => i == 3
-                        ? serverIP == null
-                          ? showBooleanDialog(
-                            context: context,
-                            title: "Wait for your devices to connect, or go back and add speaker notes.",
-                          )
-                          : navigateToAvailablePresenter(context)
-                        : _wifiSetupPageController.nextPage(duration: const Duration(milliseconds: 400), curve: appDefaultCurve),
-                        loading: i == 3 && serverIP == null,
-                        next: i != 3,
-                        label: i == 3
-                        ? serverIP == null ? "Scanning..." : "Try presenting"
-                        : "Next",
+                      child: Column(
+                        children: [
+                          GestureDetector(
+                            onDoubleTap: () async => showBooleanDialog(
+                              context: context,
+                              title: "Detected IP address: $serverIP\nIP address of this device: ${await NetworkInfo().getWifiIP()}",
+                            ),
+                            child: AppTextButton(
+                              onPressed: () => i == 3
+                              ? serverIP == null
+                                ? showBooleanDialog(
+                                  context: context,
+                                  title: "Wait for your devices to connect, or go back and add speaker notes.",
+                                )
+                                : navigateToAvailablePresenter(context)
+                              : _wifiSetupPageController.nextPage(duration: const Duration(milliseconds: 400), curve: appDefaultCurve),
+                              loading: i == 3 && serverIP == null,
+                              next: i != 3,
+                              label: i == 3
+                              ? serverIP == null ? "Scanning..." : "Try presenting"
+                              : "Next",
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          AppTextButton(
+                            onPressed: () {
+                              if (i != 0) {
+                                Navigator.pop(context);
+                                if (!onboarding) {
+                                  Navigator.pop(context);
+                                }
+                                return;
+                              }
+                              Navigator.push(context, MaterialPageRoute(
+                                builder: (context) => const Home(editing: true),
+                              ));
+                            },
+                            secondary: true,
+                            label: i != 0 ? ( i == 3 ? 'Close' : 'Cancel' ) : 'Edit notes',
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    AppTextButton(
-                      onPressed: () {
-                        if (i != 0) {
-                          Navigator.pop(context);
-                          if (!onboarding) {
-                            Navigator.pop(context);
-                          }
-                          return;
-                        }
-                        Navigator.push(context, MaterialPageRoute(
-                          builder: (context) => Home(editing: true),
-                        ));
-                      },
-                      secondary: true,
-                      label: i != 0 ? ( i == 3 ? 'Close' : 'Cancel' ) : 'Edit notes',
-                    ),
-                  ],
+                  ),
                 ),
-              ],
-            ),
+              ),
+            ],
           );
         }
       ),
@@ -508,7 +529,10 @@ class _GetProScreenState extends State<GetProScreen> {
                       ),
                       const SizedBox(width: 32),
                       Flexible(
-                        child: MediumLabel(featureData[1]),
+                        child: MediumLabel(
+                          featureData[1],
+                          justify: false,
+                        ),
                       ),
                     ],
                   ),
@@ -665,7 +689,10 @@ class ContactScreen extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             color: colorScheme.surface,
           ),
-          child: MediumLabel(line),
+          child: MediumLabel(
+            line,
+            justify: false,
+          ),
         ),
       ],
     );
