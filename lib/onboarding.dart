@@ -84,7 +84,7 @@ class AppOverlayTooltip extends StatelessWidget {
     this.verticalPosition = TooltipVerticalPosition.BOTTOM,
     required this.message,
     /// If true, the 'Next' button will be labeled 'Skip'	instead
-    this.skipButton = false,
+    this.laterButton = false,
     this.onAdditionalButtonPressed,
     this.additionalButtonLabel,
     required this.child,
@@ -94,7 +94,7 @@ class AppOverlayTooltip extends StatelessWidget {
   final TooltipHorizontalPosition horizontalPosition;
   final TooltipVerticalPosition verticalPosition;
   final String message;
-  final bool skipButton;
+  final bool laterButton;
   final Function()? onAdditionalButtonPressed;
   final String? additionalButtonLabel;
   final Widget child;
@@ -125,7 +125,7 @@ class AppOverlayTooltip extends StatelessWidget {
                     child: AppTextButton(
                       onPressed: controller.next,
                       mini: true,
-                      label: controller.nextPlayIndex < controller.playWidgetLength - 1 ? ( skipButton ? "Skip" : "Next" ) : "Got it",
+                      label: controller.nextPlayIndex < controller.playWidgetLength - 1 ? ( laterButton ? "Later" : "Next" ) : "Got it",
                     ),
                   ),
                   if (onAdditionalButtonPressed != null && additionalButtonLabel != null) const SizedBox(width: 8),

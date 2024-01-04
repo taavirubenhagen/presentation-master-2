@@ -190,7 +190,7 @@ class _NotePresenterState extends State<NotePresenter> {
                     GestureDetector(
                       onTap: () => showBooleanDialog(
                         context: context,
-                        title: "Move your laptops cursor by using this field like a touchpad.",
+                        title: "Move your PCs cursor by using this field like a touchpad.",
                       ),
                       onPanUpdate: (details) {
                         if (_mouseReady) {
@@ -592,7 +592,6 @@ class _MinimalPresenterState extends State<MinimalPresenter> {
                     ),
                   ),
                   const SizedBox(height: 64),
-                  // TODO: Navigate to WifiSetup?
                   SmallHeading("Reconnecting..."),
                   const SizedBox(height: 64),
                   Row(
@@ -679,7 +678,7 @@ class _MinimalPresenterState extends State<MinimalPresenter> {
                 GestureDetector(
                   onTap: () => showBooleanDialog(
                     context: context,
-                    title: "Move your laptops cursor by using this field like a touchpad.",
+                    title: "Move your PCs cursor by using this field like a touchpad.",
                   ),
                   onPanUpdate: (details) {
                     if (_mouseReady) {

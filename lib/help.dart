@@ -253,20 +253,26 @@ class _WifiSetupState extends State<WifiSetup> {
                       
                                 GestureDetector(
                                   onTap: () => showBooleanDialog(
-                                    title: "Type this URL in the browser on your laptop, then read the instructions there.",
+                                    title: "Type this URL in the browser on your PC, then read the instructions there.",
                                     context: context,
                                   ),
                                   child: Container(
                                     decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(32),
+                                      borderRadius: BorderRadius.circular(0),
                                       border: Border.all(color: colorScheme.onSurface),
+                                      color: colorScheme.primary,
                                     ),
                                     height: 64,
+                                    padding: const EdgeInsets.symmetric(horizontal: 8),
                                     alignment: Alignment.center,
-                                    child: LargeLabel("presenter.onrender.com"),
+                                    child: FittedBox(
+                                      child: LargeLabel(
+                                        "presenter.onrender.com",
+                                        onPrimary: true,
+                                      ),
+                                    ),
                                   ),
                                 ),
-                      
                                 Column(
                                   children: [
                                     Row(
@@ -404,12 +410,12 @@ class _WifiSetupState extends State<WifiSetup> {
                         MediumLabel(
                           [
                             'Turn your phone into a remote control for presentations '
-                            'on your Windows laptop (tablet is not supported). Alternatively, keep using this app as a note card replacement.',
+                            'on your Windows PC/laptop (tablet is not supported). Alternatively, keep using this app as a note card replacement.',
                   
-                            'You need an additional app on your laptop to receive the controlling signals.\n\n'
-                            "Open the link above in your laptops (!) browser and follow the instructions exactly.",
+                            'You need an additional app on your PC to receive the controlling signals.\n\n'
+                            "Open the link above in your PCs (!) browser and follow the instructions exactly.",
                   
-                            'Whenever you want to present, connect both devices to the same WiFi, start the Windows app and open a presentation on your laptop.',
+                            'Whenever you want to present, connect both devices to the same WiFi, start the Windows app and open a presentation on your PC.',
                   
                             'Tap the big play button in the mobile app. As soon as a connection is established, you can control the presentation with your phone.',
                           ][i],
@@ -447,7 +453,7 @@ class _WifiSetupState extends State<WifiSetup> {
                                 )
                                 : navigateToAvailablePresenter(context)
                               : _wifiSetupPageController.nextPage(duration: const Duration(milliseconds: 400), curve: appDefaultCurve),
-                              loading: i == 3 && serverIP == null,
+                              loadingLabel: i == 3 && serverIP == null ? '' : null,
                               next: i != 3,
                               label: i == 3
                               ? serverIP == null ? "Scanning..." : "Try presenting"

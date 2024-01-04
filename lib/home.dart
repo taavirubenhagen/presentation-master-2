@@ -386,8 +386,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                               AppOverlayTooltip(
                                 displayIndex: 0,
                                 horizontalPosition: TooltipHorizontalPosition.CENTER,
-                                message: "When you have connected a laptop, this button will start the remote control.",
-                                skipButton: true,
+                                message: "When you have connected a PC, this button will start the remote control.",
+                                laterButton: true,
                                 onAdditionalButtonPressed: () => Navigator.push(context, MaterialPageRoute(
                                   builder: (context) => const WifiSetup(),
                                 )),
@@ -507,9 +507,16 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                                 children: [
                                                   SmallLabel(currentPresentation?[store.presentationNameKey] ?? "Loading..."),
                                                   const SizedBox(width: 8),
-                                                  Icon(
-                                                    _presentationsExpanded ? Icons.arrow_drop_up_outlined : Icons.arrow_drop_down_outlined,
-                                                    size: 24,
+                                                  AppAnimatedSwitcher(
+                                                    value: _presentationsExpanded,
+                                                    trueChild: const Icon(
+                                                      Icons.arrow_drop_up_outlined,
+                                                      size: 24,
+                                                    ),
+                                                    falseChild: const Icon(
+                                                      Icons.arrow_drop_down_outlined,
+                                                      size: 24,
+                                                    ),
                                                   ),
                                                 ],
                                               ),

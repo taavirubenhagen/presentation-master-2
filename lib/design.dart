@@ -82,11 +82,11 @@ class LargeLabel extends BaseText {
   LargeLabel(
     String data,
     {
-      bool isOnPrimary = false,
+      bool onPrimary = false,
       bool isOnBackground = false,
       super.key,
     })
-  : super(data, textStyle, textAlign: TextAlign.left, isOnPrimary: isOnPrimary, isOnBackground: isOnBackground);
+  : super(data, textStyle, textAlign: TextAlign.left, isOnPrimary: onPrimary, isOnBackground: isOnBackground);
 
   static final TextStyle textStyle = GoogleFonts.lexend(
     fontSize: 24,
@@ -202,10 +202,10 @@ class AppTextButton extends StatelessWidget {
     this.docked = false,
     this.onBackground = false,
     this.active = true,
-    this.loading = false,
     this.customIcon,
     this.isLink = false,
     this.next = false,
+    this.loadingLabel,
     required this.label,
   });
 
@@ -215,10 +215,10 @@ class AppTextButton extends StatelessWidget {
   final bool docked;
   final bool onBackground;
   final bool active;
-  final bool loading;
   final IconData? customIcon;
   final bool isLink;
   final bool next;
+  final String? loadingLabel;
   final String label;
 
   static const double defaultHeight = 72;
@@ -227,7 +227,7 @@ class AppTextButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Opacity(
-      opacity: !active || loading ? 0.2 : 1,
+      opacity: !active || loadingLabel != null ? 0.2 : 1,
       child: TextButton(
         onPressed: active ? onPressed : () {},
         style: ButtonStyle(
@@ -257,13 +257,19 @@ class AppTextButton extends StatelessWidget {
             },
             child: SizedBox(
               key: ValueKey<bool>(active),
-              child: loading
-              ? SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  color: colorScheme.onSurface,
-                ),
+              child: loadingLabel != null
+              ? Row(
+                children: [
+                  mini ? SmallLabel(loadingLabel ?? 'ERROR') : ButtonLabel(loadingLabel ?? 'ERROR'),
+                  if (loadingLabel != null) const SizedBox(width: 16),
+                  SizedBox(
+                    width: mini ? 16 : 24,
+                    height: mini ? 16 : 24,
+                    child: CircularProgressIndicator(
+                      color: colorScheme.onSurface,
+                    ),
+                  ),
+                ],
               )
               : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
