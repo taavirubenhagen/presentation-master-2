@@ -680,7 +680,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                     ))
                                     : showFullscreenDialog(
                                       context: context,
-                                      content: PresentationCreationScreen(),
+                                      content: const PresentationCreationScreen(),
                                     ),
                                     label: hasPro ? "Add a presentation" : "Add more presentations",
                                   ),
