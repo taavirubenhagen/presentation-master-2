@@ -119,7 +119,7 @@ class _PresentationMaster2State extends State<PresentationMaster2> {
         ),
         themeMode: ThemeMode.dark,
         debugShowCheckedModeBanner: false,
-        home: Home(),
+        home: const Home(),
       ),
     );
   }
