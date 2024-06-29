@@ -3,7 +3,7 @@ description: All-in-one presentation remote and note taking app
 
 publish_to: 'none'
 
-version: 3.2.4+55
+version: 3.2.5+56
 
 environment:
   sdk: '>=2.19.2 <4.0.0'
@@ -11,7 +11,7 @@ environment:
 
 
 
-# TODO: Reorder 
+# TODO: Reorder
 dependencies:
   flutter:
     sdk: flutter
@@ -57,7 +57,7 @@ flutter_launcher_icons:
   android: true
   ios: true
   remove_alpha_ios: true
-  image_path: "assets/images/launcher_icon.png"
+  image_path: "assets/images/presenter.png"
 
 flutter:
   uses-material-design: true
