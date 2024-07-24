@@ -344,7 +344,6 @@ void showBooleanDialog({
                   aspectRatio: 1/1,
                   child: IconButton(
                     onPressed: () {
-                      
                       Navigator.pop(context);
                       onYes();
                     },

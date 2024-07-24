@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:overlay_tooltip/overlay_tooltip.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:skeletons/skeletons.dart';
 
 import 'package:presentation_master_2/store.dart' as store;
@@ -158,6 +159,13 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 : Navigator.push(context, MaterialPageRoute(
                   builder: (context) => const HelpCenter(),
                 )),
+                onLongPress: () async {
+                  final info = await PackageInfo.fromPlatform();
+                  showBooleanDialog(
+                    context: context,
+                    title: "Version: ${info.version}+${info.buildNumber}",
+                  );
+                }
                 style: ButtonStyle(
                   shape: MaterialStateProperty.all(const RoundedRectangleBorder()),
                   backgroundColor: MaterialStateProperty.all(colorScheme.surface),
@@ -197,7 +205,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           ),
           body: Builder(
             builder: (BuildContext context) {
-          
               return Stack(
                 alignment: Alignment.center,
                 children: [

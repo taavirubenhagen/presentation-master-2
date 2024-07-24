@@ -26,7 +26,6 @@ dependencies:
   http: ^1.1.0
   network_info_plus: ^4.0.1
   ping_discover_network_forked: ^0.0.1
-  regexed_validator: ^2.0.0+1
   url_launcher: ^6.0.18
   in_app_review: ^2.0.6
   in_app_purchase: ^3.1.8
@@ -38,6 +37,8 @@ dependencies:
   zwidget: ^0.0.2
   overlay_tooltip: ^0.2.3
   skeletons: ^0.0.3
+
+  package_info_plus: ^8.0.0
 
 
 

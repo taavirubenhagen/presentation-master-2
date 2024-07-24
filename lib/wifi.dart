@@ -80,7 +80,7 @@ Future<void> connect(context) async {
   if (subnet == null) {
     showBooleanDialog(
       context: context,
-      title: "Error connecting. Make sure you have WiFi activated, then close and restart the app.",
+      title: "Couldn't connect. Go to the Help Center for instructions or use the app without the remote control.",
     );
     PresentationMaster2.setAppState(context, () => serverIP = null);
     return;
