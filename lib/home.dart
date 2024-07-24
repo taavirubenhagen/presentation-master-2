@@ -165,7 +165,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     context: context,
                     title: "Version: ${info.version}+${info.buildNumber}",
                   );
-                }
+                },
                 style: ButtonStyle(
                   shape: MaterialStateProperty.all(const RoundedRectangleBorder()),
                   backgroundColor: MaterialStateProperty.all(colorScheme.surface),
