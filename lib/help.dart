@@ -1,4 +1,7 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -6,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:in_app_review/in_app_review.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:presentation_master_2/main.dart';
 import 'package:presentation_master_2/design.dart';
@@ -220,7 +224,7 @@ class _WifiSetupState extends State<WifiSetup> {
           onPressed: () => Navigator.pop(context),
           padding: const EdgeInsets.all(16),
           iconSize: 32,
-          color: colorScheme.onSurface,
+          color: colorScheme.onBackground,
           icon: const Icon(Icons.arrow_back_outlined),
         ),
       ),
@@ -250,7 +254,6 @@ class _WifiSetupState extends State<WifiSetup> {
                             children: [
                               [
                                 const OnboardingMockupIllustration(),
-                      
                                 GestureDetector(
                                   onTap: () => showBooleanDialog(
                                     title: "Type this URL in the browser on your PC, then read the instructions there.",
@@ -395,7 +398,6 @@ class _WifiSetupState extends State<WifiSetup> {
                                     ),
                                   ],
                                 ),
-                      
                                 Transform.scale(
                                   scale: 2,
                                   child: const PhoneFrame(
@@ -441,6 +443,7 @@ class _WifiSetupState extends State<WifiSetup> {
                         children: [
                           GestureDetector(
                             onDoubleTap: () async => showBooleanDialog(
+                              // ignore: use_build_context_synchronously
                               context: context,
                               title: "Detected IP address: $serverIP\nIP address of this device: ${await NetworkInfo().getWifiIP()}",
                             ),
@@ -579,10 +582,15 @@ class SupportMeScreen extends StatelessWidget {
           title: "Rate the app",
           link: true
         ),
-        AppHelpTile(
-          onButtonPressed: () => launchUrlString("https://www.buymeacoffee.com/taavirubenhagen", mode: LaunchMode.externalApplication),
-          title: "Buy me a coffee",
-          link: true
+        FutureBuilder(
+          future: (() async => ( await PackageInfo.fromPlatform() ).installerStore)(),
+          builder: (context, snapshot) => Platform.isAndroid
+          ? AppHelpTile(
+            onButtonPressed: () => launchUrlString("https://www.buymeacoffee.com/taavirubenhagen", mode: LaunchMode.externalApplication),
+            title: "Buy me a coffee",
+            link: true
+          )
+          : const SizedBox(),
         ),
       ],
     );
@@ -611,7 +619,7 @@ class ContactCenter extends StatelessWidget {
           )),
           title: "Contact",
         ),
-        // TODO: 18: Change URL
+        // TODO: Change URL
         AppHelpTile(
           onButtonPressed: () => launchUrlString("https://rubenhagen.com/presenter/privacy-policy", mode: LaunchMode.externalApplication),
           title: "Privacy Policy",

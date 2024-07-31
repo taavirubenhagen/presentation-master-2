@@ -50,7 +50,7 @@ android {
 
     defaultConfig {
         applicationId "tavy.presenter.presentation_master_2"
-        minSdkVersion 19//flutter.minSdkVersion
+        minSdkVersion flutter.minSdkVersion//flutter.minSdkVersion
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName

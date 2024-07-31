@@ -36,9 +36,9 @@ dependencies:
   flutter_markdown: ^0.6.10+2
   zwidget: ^0.0.2
   overlay_tooltip: ^0.2.3
-  skeletons: ^0.0.3
 
   package_info_plus: ^8.0.0
+  skeletonizer: ^1.4.1+1
 
 
 

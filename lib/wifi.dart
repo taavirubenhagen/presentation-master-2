@@ -65,6 +65,7 @@ void _resetScanningSubscription(context) async {
 }
 
 void _initReconnecting(context) async {
+  // TODO: Does it work?
   PresentationMaster2.setAppState(context, () => serverIP = null);
   serverIP = null;
   await Future.delayed(const Duration(seconds: 1));
@@ -82,6 +83,7 @@ Future<void> connect(context) async {
       context: context,
       title: "Couldn't connect. Go to the Help Center for instructions or use the app without the remote control.",
     );
+    // TODO: Does it work?
     PresentationMaster2.setAppState(context, () => serverIP = null);
     return;
   }

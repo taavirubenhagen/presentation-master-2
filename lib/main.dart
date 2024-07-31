@@ -1,3 +1,6 @@
+// ignore_for_file: deprecated_member_use
+// TODO: Splash screen icon
+
 import "package:flutter/services.dart";
 import 'package:flutter/material.dart';
 
@@ -93,16 +96,16 @@ class _PresentationMaster2State extends State<PresentationMaster2> {
           ),
           iconButtonTheme: IconButtonThemeData(
             style: ButtonStyle(
-              padding: MaterialStateProperty.all(EdgeInsets.zero),
-              iconColor: MaterialStateProperty.all(colorScheme.onSurface),
+              padding: WidgetStateProperty.all(EdgeInsets.zero),
+              iconColor: WidgetStateProperty.all(colorScheme.onSurface),
             ),
           ),
           textButtonTheme: TextButtonThemeData(
             style: ButtonStyle(
-              shape: MaterialStateProperty.all(const RoundedRectangleBorder()),
-              padding: MaterialStateProperty.all(EdgeInsets.zero),
-              backgroundColor: MaterialStateProperty.all(colorScheme.background),
-              overlayColor: MaterialStateProperty.all(colorScheme.onSurface.withOpacity(0.1)),
+              shape: WidgetStateProperty.all(const RoundedRectangleBorder()),
+              padding: WidgetStateProperty.all(EdgeInsets.zero),
+              backgroundColor: WidgetStateProperty.all(colorScheme.background),
+              overlayColor: WidgetStateProperty.all(colorScheme.onSurface.withOpacity(0.1)),
             ),
           ),
           inputDecorationTheme: const InputDecorationTheme(

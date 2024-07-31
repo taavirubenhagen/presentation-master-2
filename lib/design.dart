@@ -231,14 +231,14 @@ class AppTextButton extends StatelessWidget {
       child: TextButton(
         onPressed: active ? onPressed : () {},
         style: ButtonStyle(
-          shape: MaterialStateProperty.all(RoundedRectangleBorder(
+          shape: WidgetStateProperty.all(RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(mini ? 8 : docked ? 0 : defaultBorderRadius),
             side: secondary ? BorderSide(width: 2, color: colorScheme.onSurface.withOpacity(active ? 0.25 : 0.1)) : BorderSide.none,
           )),
           backgroundColor: secondary
-          ? MaterialStateProperty.all(Colors.transparent)
-          : ( onBackground || docked ? MaterialStateProperty.all(colorScheme.surface) : null ),
-          overlayColor: active ? null : MaterialStateProperty.all(Colors.transparent),
+          ? WidgetStateProperty.all(Colors.transparent)
+          : ( onBackground || docked ? WidgetStateProperty.all(colorScheme.surface) : null ),
+          overlayColor: active ? null : WidgetStateProperty.all(Colors.transparent),
         ),
         child: Container(
           width: docked ? screenWidth(context) : null,
@@ -257,9 +257,10 @@ class AppTextButton extends StatelessWidget {
             },
             child: SizedBox(
               key: ValueKey<bool>(active),
-              child: loadingLabel != null
-              ? Row(
-                children: [
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: loadingLabel != null
+                ? [
                   mini ? SmallLabel(loadingLabel ?? 'ERROR') : ButtonLabel(loadingLabel ?? 'ERROR'),
                   if (loadingLabel != null) const SizedBox(width: 16),
                   SizedBox(
@@ -269,11 +270,8 @@ class AppTextButton extends StatelessWidget {
                       color: colorScheme.onSurface,
                     ),
                   ),
-                ],
-              )
-              : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
+                ]
+                : [
                   mini ? SmallLabel(label) : ButtonLabel(label),
                   if (isLink || next || customIcon != null) const SizedBox(width: 16),
                   if (isLink || next || customIcon != null) Icon(

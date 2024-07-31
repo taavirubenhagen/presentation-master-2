@@ -1,13 +1,15 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use
 
-import 'dart:math' as math;
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:overlay_tooltip/overlay_tooltip.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:skeletons/skeletons.dart';
+//import 'package:skeletons/skeletons.dart';
 
 import 'package:presentation_master_2/store.dart' as store;
 import 'package:presentation_master_2/main.dart';
@@ -79,20 +81,22 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-
     (() async {
       onboardingTooltipController.onDone(() => setState(() {}));
+      logger.i("Calling store first time");
       if (await store.accessProStatus() == null) {
         Navigator.push(context, MaterialPageRoute(
           builder: (context) => const OnboardingSlides(),
         ));
       } else {
-        PresentationMaster2.setAppState(context, () => onboarding = false);
+        setState(() => onboarding = false);
       }
       hasPro = await store.accessProStatus() ?? await store.accessProStatus(toggle: true) ?? false;
-
+      logger.i("Pro status: $hasPro. Accessing presentations");
       await store.accessPresentations();
-      PresentationMaster2.setAppState(context, () => currentPresentation ??= globalPresentations?.first);
+      logger.i("Finished");
+      setState(() => currentPresentation ??= globalPresentations?.first);
+      logger.i("Called setAppState");
     })();
     connect(context);
     _editingMode = widget.editing;
@@ -163,12 +167,12 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   final info = await PackageInfo.fromPlatform();
                   showBooleanDialog(
                     context: context,
-                    title: "Version: ${info.version}+${info.buildNumber}",
+                    title: "Version: ${info.version}",
                   );
                 },
                 style: ButtonStyle(
-                  shape: MaterialStateProperty.all(const RoundedRectangleBorder()),
-                  backgroundColor: MaterialStateProperty.all(colorScheme.surface),
+                  shape: WidgetStateProperty.all(const RoundedRectangleBorder()),
+                  backgroundColor: WidgetStateProperty.all(colorScheme.surface),
                 ),
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 100),
@@ -209,6 +213,428 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 alignment: Alignment.center,
                 children: [
                   SizedBox(
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      switchInCurve: appDefaultCurve,
+                      switchOutCurve: appDefaultCurve,
+                      transitionBuilder: (Widget child, Animation<double> animation) {
+                        return FadeTransition(
+                          opacity: animation,
+                          child: child,
+                        );
+                      },
+                      child: SizedBox(
+                        key: ValueKey<bool>(_editingMode && _isEditingTimer),
+                        width: screenWidth(context),
+                        height: screenHeight(context),
+                        child: _editingMode
+                        ? AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 100),
+                          switchInCurve: appDefaultCurve,
+                          switchOutCurve: appDefaultCurve,
+                          transitionBuilder: (Widget child, Animation<double> animation) {
+                            return FadeTransition(
+                              opacity: animation,
+                              child: child,
+                            );
+                          },
+                          child: _isEditingTimer
+                          ? Container(
+                            padding: const EdgeInsets.all(16).copyWith(top: 16 + 80 + 16),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Skeletonizer(
+                                  enabled: currentPresentation?[store.presentationNameKey] == null || currentPresentation?[store.presentationNotesKey] == null,
+                                  child: SizedBox(
+                                    height: 128,
+                                    child: HugeLabel(
+                                      "${(
+                                        currentPresentation?[store.presentationMinutesKey]
+                                        ?? "Error loading speaker notes. This presentation does not seem to be initialized correctly. Please contact the developer."
+                                      )} min",
+                                    ),
+                                  ),
+                                ),
+                                Row(
+                                  children: [
+                                    for (int i = 0; i <= 1; i++) Expanded(
+                                      child: AspectRatio(
+                                        aspectRatio: 1/1,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(4),
+                                          child: TextButton(
+                                            onLongPress: () => _nudgeTimerMinutes(
+                                              decrease: i < 1,
+                                              interval: 10,
+                                            ),
+                                            onPressed: () => _nudgeTimerMinutes(decrease: i < 1),
+                                            style: ButtonStyle(
+                                              shape: WidgetStateProperty.all(RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(16),
+                                              )),
+                                              backgroundColor: WidgetStateProperty.all(colorScheme.surface),
+                                            ),
+                                            child: Icon(
+                                              [Icons.remove_outlined, Icons.add_outlined][i],
+                                              size: 48,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          )
+                          : SingleChildScrollView(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16 + 16 + 80),
+                            child: Skeletonizer(
+                              enabled: currentPresentation?[store.presentationNameKey] == null || currentPresentation?[store.presentationNotesKey] == null,
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  minHeight: screenHeight(context),
+                                ),
+                                child: TextFormField(
+                                  onChanged: (newNotes) async {
+                                    currentPresentation = await store.mutatePresentation(
+                                      oldPresentation: currentPresentation,
+                                      speakerNotes: newNotes,
+                                    );
+                                    setState(() {});
+                                  },
+                                  keyboardAppearance: Brightness.dark,
+                                  scrollPhysics: const NeverScrollableScrollPhysics(),
+                                  minLines: null,
+                                  maxLines: null,
+                                  cursorRadius: const Radius.circular(16),
+                                  cursorColor: colorScheme.onSurface,
+                                  style: MainText.textStyle,
+                                  decoration: const InputDecoration(
+                                    border: InputBorder.none,
+                                    hintMaxLines: 3,
+                                    hintText: "Enter speaker notes and information that you want to use during your presentation.",
+                                  ),
+                                  initialValue: currentPresentation?[store.presentationNotesKey] ?? "Error loading speaker notes. This presentation does not seem to be initialized correctly. Please contact the developer.",
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                        : Padding(
+                          padding: const EdgeInsets.only(top: 80 - 48),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              AppOverlayTooltip(
+                                displayIndex: 0,
+                                horizontalPosition: TooltipHorizontalPosition.CENTER,
+                                message: "When you have connected a PC, this button will start the remote control.",
+                                laterButton: true,
+                                onAdditionalButtonPressed: () => Navigator.push(context, MaterialPageRoute(
+                                  builder: (context) => const WifiSetup(),
+                                )),
+                                additionalButtonLabel: 'Connect',
+                                child: GestureDetector(
+                                  onTap: () => navigateToAvailablePresenter(context),
+                                  onLongPress: () => navigateToAvailablePresenter(
+                                    context,
+                                    preferMinimalPresenter: true,
+                                  ),
+                                  child: ShaderMask(
+                                    blendMode: BlendMode.srcIn,
+                                    shaderCallback: (Rect bounds) => 
+                                    SweepGradient(
+                                      transform: const GradientRotation(pi),
+                                      colors: [
+                                        Colors.white,
+                                        (() {
+                                          final presentationsAvailable = store.presentationAvailable(currentPresentation);
+                                          return serverIP != null
+                                          ? (
+                                            presentationsAvailable
+                                            ? Colors.blue.shade900
+                                            : Colors.green.shade900
+                                          )
+                                          : (
+                                            presentationsAvailable
+                                            ? Colors.red.shade900
+                                            : Colors.black
+                                          );
+                                        })(),
+                                      ],
+                                    ).createShader(bounds),
+                                    child: const Icon(
+                                      Icons.play_arrow_rounded,
+                                      size: 128,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 0,
+                    width: screenWidth(context),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      curve: appDefaultCurve,
+                      margin: EdgeInsets.all(_editingMode ? 0 : 16),
+                      decoration: BoxDecoration(
+                        borderRadius: _presentationsExpanded
+                        ? BorderRadius.vertical(
+                          top: Radius.circular(_editingMode ? 0 : 40),
+                          bottom: Radius.circular(_editingMode && !_presentationsExpanded ? 0 : 24),
+                        )
+                        : BorderRadius.circular(_editingMode ? 0 : 40),
+                        color: colorScheme.surface,
+                      ),
+                      child: Column(
+                        children: [
+                          TextButton(
+                            onPressed: () => setState(() => _presentationsExpanded = !_presentationsExpanded),
+                            style: ButtonStyle(
+                              backgroundColor: WidgetStateProperty.all(colorScheme.surface),
+                              overlayColor: WidgetStateProperty.all(Colors.transparent),
+                              splashFactory: NoSplash.splashFactory,
+                              shape: WidgetStateProperty.all(RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(_editingMode ? 0 : 40),
+                              )),
+                            ),
+                            child: Container(
+                              height: 80,
+                              padding: const EdgeInsets.only(left: 40 - 30, right: 16),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Expanded(
+                                    child: AppOverlayTooltip(
+                                      displayIndex: 3,
+                                      message: "Switch between different sets of speaker notes.",
+                                      child: Skeletonizer(
+                                        enabled: currentPresentation?[store.presentationNameKey] == null,
+                                        child: AnimatedSwitcher(
+                                          duration: const Duration(milliseconds: 200),
+                                          switchInCurve: Curves.easeInOut,
+                                          switchOutCurve: Curves.easeInOut,
+                                          transitionBuilder: (Widget child, Animation<double> animation) {
+                                            return FadeTransition(
+                                              opacity: animation,
+                                              child: child,
+                                            );
+                                          },
+                                          child: SingleChildScrollView(
+                                            key: ValueKey<String?>(currentPresentation?[store.presentationNameKey]),
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(30),
+                                                color: colorScheme.surface,
+                                              ),
+                                              height: 60,
+                                              padding: const EdgeInsets.symmetric(horizontal: 30),
+                                              alignment: Alignment.centerLeft,
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  SmallLabel(currentPresentation?[store.presentationNameKey] ?? "Loading..."),
+                                                  const SizedBox(width: 8),
+                                                  AppAnimatedSwitcher(
+                                                    value: _presentationsExpanded,
+                                                    trueChild: const Icon(
+                                                      Icons.arrow_drop_up_outlined,
+                                                      size: 24,
+                                                    ),
+                                                    falseChild: const Icon(
+                                                      Icons.arrow_drop_down_outlined,
+                                                      size: 24,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Row(
+                                    children: [
+                                      AppOverlayTooltip(
+                                        displayIndex: 2,
+                                        message: "Add a timer that vibrates when you exceed your time limit.",
+                                        child: Container(
+                                          width: 48,
+                                          height: 48,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: colorScheme.surface,
+                                          ),
+                                          child: IconButton(
+                                            onPressed: () => hasPro
+                                            ? _changeEditingMode(wasTimerButtonPressed: true)
+                                            : Navigator.push(context, MaterialPageRoute(
+                                              builder: (context) => const GetProScreen(),
+                                            )),
+                                            icon: AnimatedSwitcher(
+                                              duration: const Duration(milliseconds: 100),
+                                              switchInCurve: Curves.easeInOut,
+                                              switchOutCurve: Curves.easeInOut,
+                                              transitionBuilder: (Widget child, Animation<double> animation) {
+                                                return ScaleTransition(
+                                                  scale: animation,
+                                                  child: child,
+                                                );
+                                              },
+                                              child: Icon(
+                                                _isEditingTimer ? Icons.notes_outlined : Icons.timer_outlined,
+                                                key: ValueKey<bool>(_isEditingTimer),
+                                              ),
+                                            ),
+                                          )
+                                        ),
+                                      ),
+                                      AppOverlayTooltip(
+                                        displayIndex: 1,
+                                        message: "Write notes that you can use during your presentation.",
+                                        child: Container(
+                                          width: 48,
+                                          height: 48,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: colorScheme.surface,
+                                          ),
+                                          child: IconButton(
+                                            onPressed: () {
+                                              if (_editingMode) {
+                                                FocusManager.instance.primaryFocus?.unfocus();
+                                              }
+                                              _changeEditingMode();
+                                            },
+                                            icon: AnimatedSwitcher(
+                                              duration: const Duration(milliseconds: 100),
+                                              switchInCurve: Curves.easeInOut,
+                                              switchOutCurve: Curves.easeInOut,
+                                              transitionBuilder: (Widget child, Animation<double> animation) {
+                                                return ScaleTransition(
+                                                  scale: animation,
+                                                  child: child,
+                                                );
+                                              },
+                                              child: Icon(
+                                                _editingMode ? Icons.check_outlined : Icons.edit_outlined,
+                                                key: ValueKey<bool>(_editingMode),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 400),
+                            curve: appDefaultCurve,
+                            margin: const EdgeInsets.symmetric(horizontal: 16),
+                            height: _presentationsExpanded
+                            ? (() {
+                              double defaultHeight = 80 + ( globalPresentations?.length ?? 2 ) * 72 - 72 + 16;
+                              return defaultHeight < screenHeight(context) - 192 ? defaultHeight : screenHeight(context) - 256;
+                            })()
+                            : 0,
+                            child: ListView(
+                              children: [
+                                for (Map<String, dynamic> p in globalPresentations ?? List.generate(2, (index) => {})) globalPresentations != null
+                                ? p[store.presentationNameKey] == ( currentPresentation ?? {} )[store.presentationNameKey]
+                                  ? const SizedBox()
+                                  : AppAnimatedSwitcher(
+                                    value: !_presentationsExpanded,
+                                    fading: true,
+                                    trueChild: const SizedBox(
+                                      height: 72,
+                                    ),
+                                    falseChild: TextButton(
+                                      onPressed: () async {
+                                        setState(() => _presentationsExpanded = false);
+                                        await Future.delayed(const Duration(milliseconds: 300));
+                                        setState(() => currentPresentation = p);
+                                      },
+                                      style: ButtonStyle(
+                                        shape: WidgetStateProperty.all(RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(16),
+                                        )),
+                                        backgroundColor: WidgetStateProperty.all(colorScheme.surface),
+                                      ),
+                                      child: Container(
+                                        height: 72,
+                                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            SmallLabel(p[store.presentationNameKey] ?? "Error"),
+                                            IconButton(
+                                              onPressed: () => showBooleanDialog(
+                                                context: context,
+                                                onYes: () async {
+                                                  await store.mutatePresentation(oldPresentation: p, isDeleting: true);
+                                                  setState(() {});
+                                                },
+                                                title: "Delete ${p[store.presentationNameKey]}?",
+                                              ),
+                                              icon: Icon(
+                                                Icons.close_outlined,
+                                                color: colorScheme.onSurface.withOpacity(0.5),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    )
+                                  )
+                                : Skeletonizer(
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: Container(
+                                      padding: const EdgeInsets.only(bottom: 16),
+                                      width: screenWidth(context),
+                                      height: 72,
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  height: 96,
+                                  alignment: Alignment.center,
+                                  child: AppTextButton(
+                                    onPressed: () {
+                                      setState(() => _presentationsExpanded = false);
+                                      !hasPro
+                                      ? Navigator.push(context, MaterialPageRoute(
+                                        builder: (context) => const GetProScreen(),
+                                      ))
+                                      : showFullscreenDialog(
+                                        context: context,
+                                        content: const PresentationCreationScreen(),
+                                      );
+                                    },
+                                    label: hasPro ? "Add a presentation" : "Add more presentations",
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  /*SizedBox(
                     child: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 200),
                       switchInCurve: appDefaultCurve,
@@ -698,7 +1124,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                         ],
                       ),
                     ),
-                  ),
+                  ),*/
                 ],
               );
             }
@@ -712,6 +1138,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
 
 
+// TODO: [2] Move into giant Home widget to keep presentations expanded and directly show the newly created presentation
 class PresentationCreationScreen extends StatefulWidget {
   const PresentationCreationScreen({super.key});
 
@@ -808,7 +1235,7 @@ class _PresentationCreationScreenState extends State<PresentationCreationScreen>
                       name: finalName,
                     );
                     Navigator.pop(context);
-                    PresentationMaster2.setAppState(context, () => _name = null);
+                    //setState(() => _name = null);
                   },
                   padding: EdgeInsets.all(( ( screenWidth(context) / 2 ) - 32 ) / 2),
                   iconSize: 32,

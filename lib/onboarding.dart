@@ -16,15 +16,13 @@ class OnboardingSlides extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    return WillPopScope(
-      onWillPop: () async {
-        showBooleanDialog(
-          context: context,
-          title: "Exit app?",
-          onYes: () => SystemNavigator.pop(),
-        );
-        return false;
-      },
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (_) async => showBooleanDialog(
+        context: context,
+        title: "Exit app?",
+        onYes: () => SystemNavigator.pop(),
+      ),
       child: Scaffold(
         backgroundColor: colorScheme.surface,
         appBar: AppBar(
@@ -57,6 +55,7 @@ class OnboardingSlides extends StatelessWidget {
                   const SizedBox(height: 16),
                   AppTextButton(
                     onPressed: () {
+                      // TODO: Does it work?
                       PresentationMaster2.setAppState(context, () => onboarding = false);
                       Navigator.pop(context);
                     },
