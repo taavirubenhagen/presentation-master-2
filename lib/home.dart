@@ -1163,10 +1163,12 @@ class _PresentationCreationScreenState extends State<PresentationCreationScreen>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Material(
+            color: Colors.transparent,
             child: SmallHeading("Add a presentation"),
           ),
           const SizedBox(height: 64),
           Material(
+            color: Colors.transparent,
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 50),
               curve: Curves.easeInOutCirc,

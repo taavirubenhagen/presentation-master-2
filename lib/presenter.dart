@@ -150,7 +150,7 @@ class _NotePresenterState extends State<NotePresenter> {
             alignment: Alignment.bottomCenter,
             children: [
               GestureDetector(
-                onTap: () => _showClosingDialog(context, navigateToNoteEditor: true),
+                onDoubleTap: () => _showClosingDialog(context, navigateToNoteEditor: true),
                 child: Container(
                   height: screenHeight(context),
                   padding: const EdgeInsets.all(16).copyWith(top: 32),

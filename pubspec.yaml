@@ -58,40 +58,17 @@ flutter_launcher_icons:
   android: true
   ios: true
   remove_alpha_ios: true
-  image_path: "assets/images/presenter.png"
+  image_path: "assets/images/presenter_icon.png"
 
 flutter:
   uses-material-design: true
-  # TODO: R unused assets
-  fonts:
-    - family: Trap
-      fonts:
-        - asset: assets/fonts/Trap_V1.1/Trap-Regular.otf
-        - asset: assets/fonts/Trap_V1.1/Trap-Light.otf
-          weight: 100
-        - asset: assets/fonts/Trap_V1.1/Trap-Light.otf
-          weight: 200
-        - asset: assets/fonts/Trap_V1.1/Trap-Light.otf
-          weight: 300
-        - asset: assets/fonts/Trap_V1.1/Trap-Regular.otf
-          weight: 400
-        - asset: assets/fonts/Trap_V1.1/Trap-Medium.otf
-          weight: 500
-        - asset: assets/fonts/Trap_V1.1/Trap-Bold.otf
-          weight: 600
-        - asset: assets/fonts/Trap_V1.1/Trap-Bold.otf
-          weight: 700
-        - asset: assets/fonts/Trap_V1.1/Trap-ExtraBold.otf
-          weight: 800
-        - asset: assets/fonts/Trap_V1.1/Trap-Black.otf
-          weight: 900
 
 
 
 
 flutter_native_splash:
   color: "#000000"
-  image: assets/images/splash_screen_icon.png
+  image: assets/images/presenter_splash_screen.png
   android_12:
     color: "#000000"
-    image: assets/images/splash_screen_icon.png
+    image: assets/images/presenter_splash_screen.png

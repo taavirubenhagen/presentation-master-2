@@ -21,7 +21,7 @@ class BaseText extends Text {
     textAlign: textAlign,
     style: style.copyWith(
       //fontFamily: 'Trap',
-      fontWeight: FontWeight.w500,
+      //fontWeight: FontWeight.w500,
       color: isOnPrimary ? colorScheme.onPrimary : ( isOnBackground ? colorScheme.onSurface : colorScheme.onSurface ),
     ),
   );
