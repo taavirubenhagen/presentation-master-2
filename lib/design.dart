@@ -20,7 +20,7 @@ class BaseText extends Text {
     data,
     textAlign: textAlign,
     style: style.copyWith(
-      fontFamily: 'Trap',
+      //fontFamily: 'Trap',
       fontWeight: FontWeight.w500,
       color: isOnPrimary ? colorScheme.onPrimary : ( isOnBackground ? colorScheme.onSurface : colorScheme.onSurface ),
     ),
@@ -55,7 +55,7 @@ class SmallLabel extends BaseText {
     })
   : super(data, textStyle, textAlign: TextAlign.left, isOnPrimary: isOnPrimary, isOnBackground: isOnBackground);
 
-  static final TextStyle textStyle = GoogleFonts.lexend(
+  static final TextStyle textStyle = GoogleFonts.dmMono(
     fontSize: 16,
   );
 }
@@ -72,7 +72,7 @@ class MediumLabel extends BaseText {
     })
   : super(data, textStyle, textAlign: justify ? TextAlign.justify : TextAlign.left, isOnPrimary: isOnPrimary, isOnBackground: isOnBackground);
 
-  static final TextStyle textStyle = GoogleFonts.lexend(
+  static final TextStyle textStyle = GoogleFonts.dmMono(
     fontSize: 20,
   );
 }
@@ -88,7 +88,7 @@ class LargeLabel extends BaseText {
     })
   : super(data, textStyle, textAlign: TextAlign.left, isOnPrimary: onPrimary, isOnBackground: isOnBackground);
 
-  static final TextStyle textStyle = GoogleFonts.lexend(
+  static final TextStyle textStyle = GoogleFonts.dmMono(
     fontSize: 24,
   );
 }
@@ -104,7 +104,7 @@ class HugeLabel extends BaseText {
     })
   : super(data, textStyle, textAlign: TextAlign.left, isOnPrimary: isOnPrimary, isOnBackground: isOnBackground);
 
-  static final TextStyle textStyle = GoogleFonts.lexend(
+  static final TextStyle textStyle = GoogleFonts.dmMono(
     fontSize: 72,
   );
 }
@@ -120,7 +120,7 @@ class ButtonLabel extends BaseText {
     })
   : super(data, textStyle, textAlign: TextAlign.center, isOnPrimary: isOnPrimary, isOnBackground: isOnBackground);
 
-  static final TextStyle textStyle = GoogleFonts.lexend(
+  static final TextStyle textStyle = GoogleFonts.dmMono(
     fontSize: 20,
   );
 }
@@ -136,7 +136,7 @@ class SmallHeading extends BaseText {
     })
   : super(data, textStyle, textAlign: TextAlign.left, isOnPrimary: isOnPrimary, isOnBackground: isOnBackground);
 
-  static final TextStyle textStyle = GoogleFonts.lexend(
+  static final TextStyle textStyle = GoogleFonts.dmMono(
     fontSize: 28,
     wordSpacing: 2,
   );
@@ -297,7 +297,7 @@ void showFullscreenDialog({
 }) {
   showDialog(
     context: context,
-    barrierColor: Colors.black.withOpacity(0.9),
+    barrierColor: Colors.black,
     builder: (BuildContext context) => GestureDetector(
       onTap: () => closeOnBackgroundTap ? Navigator.pop(context) : null,
       child: Center(
@@ -323,6 +323,7 @@ void showBooleanDialog({
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Material(
+            color: Colors.transparent,
             child: SmallHeading(title),
           ),
           const SizedBox(height: 64),

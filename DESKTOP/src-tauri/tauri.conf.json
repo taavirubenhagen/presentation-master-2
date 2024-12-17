@@ -50,9 +50,7 @@
         "fullscreen": false,
         "resizable": false,
         "theme": "Dark",
-        "title": "Presenter",
-        "width": 256,
-        "height": 128
+        "title": "Presentation Master 2"
       }
     ]
   }

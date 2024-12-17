@@ -149,7 +149,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             message: "Connect the remote control, give feedback or support me.",
             child: SizedBox(
               width: screenWidth(context),
-              height: 80,
+              height: 80 + MediaQuery.paddingOf(context).bottom,
               child: TextButton(
                 onPressed: () => _editingMode
                 ? hasPro
@@ -174,35 +174,40 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   shape: WidgetStateProperty.all(const RoundedRectangleBorder()),
                   backgroundColor: WidgetStateProperty.all(colorScheme.surface),
                 ),
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 100),
-                  switchInCurve: Curves.easeInOut,
-                  switchOutCurve: Curves.easeInOut,
-                  transitionBuilder: (Widget child, Animation<double> animation) {
-                    return ScaleTransition(
-                      scale: animation,
-                      child: child,
-                    );
-                  },
-                  child: _editingMode
-                  ? hasPro
-                    ? Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ButtonLabel("How to format"),
-                        const SizedBox(width: 8),
-                        const Icon(Icons.open_in_new_outlined),
-                      ],
-                    )
-                    : Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ButtonLabel("Timer & Formatting"),
-                        const SizedBox(width: 8),
-                        const Icon(Icons.arrow_forward_outlined),
-                      ],
-                    )
-                  : ButtonLabel("Help Center"),
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.paddingOf(context).bottom,
+                  ),
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 100),
+                    switchInCurve: Curves.easeInOut,
+                    switchOutCurve: Curves.easeInOut,
+                    transitionBuilder: (Widget child, Animation<double> animation) {
+                      return ScaleTransition(
+                        scale: animation,
+                        child: child,
+                      );
+                    },
+                    child: _editingMode
+                    ? hasPro
+                      ? Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ButtonLabel("How to format"),
+                          const SizedBox(width: 8),
+                          const Icon(Icons.open_in_new_outlined),
+                        ],
+                      )
+                      : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ButtonLabel("Timer & Formatting"),
+                          const SizedBox(width: 8),
+                          const Icon(Icons.arrow_forward_outlined),
+                        ],
+                      )
+                    : ButtonLabel("Help Center"),
+                  ),
                 ),
               ),
             ),

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import "package:logger/logger.dart";
 import 'package:overlay_tooltip/overlay_tooltip.dart';
+import 'package:presentation_master_2/design.dart';
 
 import 'package:presentation_master_2/store.dart' as store;
 import 'package:presentation_master_2/home.dart';
@@ -108,8 +109,11 @@ class _PresentationMaster2State extends State<PresentationMaster2> {
               overlayColor: WidgetStateProperty.all(colorScheme.onSurface.withOpacity(0.1)),
             ),
           ),
-          inputDecorationTheme: const InputDecorationTheme(
+          inputDecorationTheme: InputDecorationTheme(
             contentPadding: EdgeInsets.zero,
+            hintStyle: MainText.textStyle.copyWith(
+                color: MainText.textStyle.color?.withOpacity(0.5),
+              ),
           ),
           appBarTheme: AppBarTheme(
             toolbarHeight: 0,
@@ -118,7 +122,7 @@ class _PresentationMaster2State extends State<PresentationMaster2> {
               statusBarIconBrightness: Brightness.light,
               systemNavigationBarColor: colorScheme.background,
             ),
-          )
+          ),
         ),
         themeMode: ThemeMode.dark,
         debugShowCheckedModeBanner: false,

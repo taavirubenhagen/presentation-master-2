@@ -621,7 +621,7 @@ class ContactCenter extends StatelessWidget {
         ),
         // TODO: Change URL
         AppHelpTile(
-          onButtonPressed: () => launchUrlString("https://rubenhagen.com/presenter/privacy-policy", mode: LaunchMode.externalApplication),
+          onButtonPressed: () => launchUrlString("https://rubenhagen.com/legal/presenter", mode: LaunchMode.externalApplication),
           title: "Privacy Policy",
           link: true
         ),
@@ -695,7 +695,7 @@ class ContactScreen extends StatelessWidget {
         for (String line in [
           "Taavi Rübenhagen",
           "Pothof 9d, 38122 Braunschweig, Germany",
-          "taavi.ruebenhagen@gmail.com",
+          "t.ruebenhagen@gmail.com",
         ]) Container(
           margin: const EdgeInsets.only(left: 16, right: 16, bottom: 24),
           padding: const EdgeInsets.all(32),
