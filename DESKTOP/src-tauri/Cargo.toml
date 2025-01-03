@@ -20,6 +20,7 @@ serde_json = "1.0"
 tiny_http = "0.11"
 enigo = "0.1.2"
 local-ip-address = "0.5.4"
+soup2-sys = "0.2.0"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem
