@@ -153,7 +153,7 @@ class _NotePresenterState extends State<NotePresenter> {
                 onDoubleTap: () => _showClosingDialog(context, navigateToNoteEditor: true),
                 child: Container(
                   height: screenHeight(context),
-                  padding: const EdgeInsets.all(16).copyWith(top: 32),
+                  padding: const EdgeInsets.all(16).copyWith(top: 32, bottom: 64 + 64 + (serverIP == null ? 0 : 256)),
                   child: Markdown(
                     styleSheet: MarkdownStyleSheet(
                       textScaleFactor: _notesTextScaleFactor,
