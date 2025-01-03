@@ -1,5 +1,4 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
-// TODO: Uncomment on release
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 
@@ -7,7 +6,9 @@ use async_recursion::async_recursion;
 
 use local_ip_address::local_ip;
 use tiny_http::{Server, Response};
+
 use enigo::*;
+use enigo::Direction::*;
 
 
 
@@ -21,7 +22,7 @@ async fn start_wifi_server() {
         Err(_) => return,
     };
 
-    let mut enigo = Enigo::new();
+    let mut enigo = Enigo::new(&Settings::default()).unwrap();
 
     let server = match Server::http(format!("{}:1138", local_ip.to_string())) {
         Ok(value) => value,
@@ -36,39 +37,39 @@ async fn start_wifi_server() {
         let response_message: String = match request.url().split('/').nth(1) {
             Some("") => String::from("ok"),
             Some("start") => {
-                enigo.key_down(Key::Control);
-                enigo.key_down(Key::Shift);
-                enigo.key_down(Key::F5);
-                enigo.key_up(Key::F5);
-                enigo.key_up(Key::Shift);
-                enigo.key_up(Key::Control);
+                enigo.key(Key::Control, Press);
+                enigo.key(Key::Shift, Press);
+                enigo.key(Key::F5, Press);
+                enigo.key(Key::F5, Release);
+                enigo.key(Key::Shift, Release);
+                enigo.key(Key::Control, Release);
                 String::from("start")
             },
             Some("stop") => {
-                enigo.key_click(Key::Escape);
+                enigo.key(Key::Escape, Click);
                 String::from("stop")
             },
             Some("back") => {
-                enigo.key_click(Key::LeftArrow);
+                enigo.key(Key::LeftArrow, Click);
                 String::from("back")
             },
             Some("forward") => {
-                enigo.key_click(Key::RightArrow);
+                enigo.key(Key::RightArrow, Click);
                 String::from("forward")
             },
             Some("mouse") => {
                 match request.url().split('/').nth(2) {
                     Some("get") => format!(
                         "{}&{}",
-                        enigo.mouse_location().0.to_string(),
-                        enigo.mouse_location().1.to_string(),
+                        enigo.location().unwrap().0.to_string(),
+                        enigo.location().unwrap().1.to_string(),
                     ),
                     Some("left") => {
-                        enigo.mouse_click(MouseButton::Left);
+                        enigo.button(Button::Left, Click);
                         String::from("mouse click left (ok)")
                     },
                     Some("right") => {
-                        enigo.mouse_click(MouseButton::Right);
+                        enigo.button(Button::Right, Click);
                         String::from("mouse click right (ok)")
                     },
                     Some(parameters) => {
@@ -81,7 +82,7 @@ async fn start_wifi_server() {
                                 Ok(value) => value,
                                 Err(_) => 0,
                             };
-                            enigo.mouse_move_relative(x, y);
+                            enigo.move_mouse(x, y, Coordinate::Rel);
                             String::from("mouse (ok)")
                         } else {
                             String::from("mouse (not formatted properly)")
