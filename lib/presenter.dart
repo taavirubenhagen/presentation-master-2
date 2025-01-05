@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -48,7 +50,7 @@ bool _showClosingDialog(BuildContext context, {bool navigateToNoteEditor = false
       Navigator.pop(context);
       if (navigateToNoteEditor) {
         Navigator.push(context, MaterialPageRoute(
-          builder: (context) => Home(editing: true),
+          builder: (context) => const Home(editing: true),
         ));
       }
     },
@@ -137,14 +139,6 @@ class _NotePresenterState extends State<NotePresenter> {
       onWillPop: () async => _showClosingDialog(context),
       child: Scaffold(
         backgroundColor: colorScheme.background,
-        appBar: AppBar(
-          toolbarHeight: 0,
-          systemOverlayStyle: SystemUiOverlayStyle(
-            statusBarColor: colorScheme.background,
-            statusBarIconBrightness: Brightness.dark,
-            systemNavigationBarColor: colorScheme.background,
-          ),
-        ),
         body: SafeArea(
           child: Stack(
             alignment: Alignment.bottomCenter,

@@ -9,7 +9,6 @@ import 'package:skeletonizer/skeletonizer.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:overlay_tooltip/overlay_tooltip.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-//import 'package:skeletons/skeletons.dart';
 
 import 'package:presentation_master_2/store.dart' as store;
 import 'package:presentation_master_2/main.dart';
@@ -130,18 +129,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         ),
         builder: (context) => Scaffold(
           backgroundColor: colorScheme.background,
-          appBar: AppBar(
-            toolbarHeight: 0,
-            systemOverlayStyle: SystemUiOverlayStyle(
-              statusBarColor: _editingMode ? colorScheme.surface : colorScheme.background,
-              statusBarIconBrightness: onboarding && onboardingTooltipController.nextPlayIndex < onboardingTooltipController.playWidgetLength
-              ? Brightness.dark
-              : Brightness.light,
-              systemNavigationBarColor: onboarding && onboardingTooltipController.nextPlayIndex < onboardingTooltipController.playWidgetLength - 1
-              ? colorScheme.background
-              : colorScheme.surface,
-            ),
-          ),
           bottomNavigationBar: AppOverlayTooltip(
             displayIndex: 4,
             horizontalPosition: TooltipHorizontalPosition.CENTER,
@@ -212,14 +199,29 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
               ),
             ),
           ),
-          body: Builder(
-            builder: (BuildContext context) {
-              return Stack(
-                alignment: Alignment.center,
-                children: [
-                  SizedBox(
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 200),
+          body: Stack(
+            alignment: Alignment.center,
+            children: [
+              SizedBox(
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  switchInCurve: appDefaultCurve,
+                  switchOutCurve: appDefaultCurve,
+                  transitionBuilder: (Widget child, Animation<double> animation) {
+                    return FadeTransition(
+                      opacity: animation,
+                      child: child,
+                    );
+                  },
+                  child: Container(
+                    key: ValueKey<bool>(_editingMode && _isEditingTimer),
+                    width: screenWidth(context),
+                    padding: EdgeInsets.only(
+                      top: MediaQuery.of(context).padding.top,
+                    ),
+                    child: _editingMode
+                    ? AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 100),
                       switchInCurve: appDefaultCurve,
                       switchOutCurve: appDefaultCurve,
                       transitionBuilder: (Widget child, Animation<double> animation) {
@@ -228,165 +230,160 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                           child: child,
                         );
                       },
-                      child: SizedBox(
-                        key: ValueKey<bool>(_editingMode && _isEditingTimer),
-                        width: screenWidth(context),
-                        height: screenHeight(context),
-                        child: _editingMode
-                        ? AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 100),
-                          switchInCurve: appDefaultCurve,
-                          switchOutCurve: appDefaultCurve,
-                          transitionBuilder: (Widget child, Animation<double> animation) {
-                            return FadeTransition(
-                              opacity: animation,
-                              child: child,
-                            );
-                          },
-                          child: _isEditingTimer
-                          ? Container(
-                            padding: const EdgeInsets.all(16).copyWith(top: 16 + 80 + 16),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Skeletonizer(
-                                  enabled: currentPresentation?[store.presentationNameKey] == null || currentPresentation?[store.presentationNotesKey] == null,
-                                  child: SizedBox(
-                                    height: 128,
-                                    child: HugeLabel(
-                                      "${(
-                                        currentPresentation?[store.presentationMinutesKey]
-                                        ?? "Error loading speaker notes. This presentation does not seem to be initialized correctly. Please contact the developer."
-                                      )} min",
-                                    ),
-                                  ),
+                      child: _isEditingTimer
+                      ? Container(
+                        padding: const EdgeInsets.all(16).copyWith(top: 16 + 80 + 16),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Skeletonizer(
+                              enabled: currentPresentation?[store.presentationNameKey] == null || currentPresentation?[store.presentationNotesKey] == null,
+                              child: SizedBox(
+                                height: 128,
+                                child: HugeLabel(
+                                  "${(
+                                    currentPresentation?[store.presentationMinutesKey]
+                                    ?? "Error loading speaker notes. This presentation does not seem to be initialized correctly. Please contact the developer."
+                                  )} min",
                                 ),
-                                Row(
-                                  children: [
-                                    for (int i = 0; i <= 1; i++) Expanded(
-                                      child: AspectRatio(
-                                        aspectRatio: 1/1,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(4),
-                                          child: TextButton(
-                                            onLongPress: () => _nudgeTimerMinutes(
-                                              decrease: i < 1,
-                                              interval: 10,
-                                            ),
-                                            onPressed: () => _nudgeTimerMinutes(decrease: i < 1),
-                                            style: ButtonStyle(
-                                              shape: WidgetStateProperty.all(RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(16),
-                                              )),
-                                              backgroundColor: WidgetStateProperty.all(colorScheme.surface),
-                                            ),
-                                            child: Icon(
-                                              [Icons.remove_outlined, Icons.add_outlined][i],
-                                              size: 48,
-                                            ),
-                                          ),
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                for (int i = 0; i <= 1; i++) Expanded(
+                                  child: AspectRatio(
+                                    aspectRatio: 1/1,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(4),
+                                      child: TextButton(
+                                        onLongPress: () => _nudgeTimerMinutes(
+                                          decrease: i < 1,
+                                          interval: 10,
+                                        ),
+                                        onPressed: () => _nudgeTimerMinutes(decrease: i < 1),
+                                        style: ButtonStyle(
+                                          shape: WidgetStateProperty.all(RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(16),
+                                          )),
+                                          backgroundColor: WidgetStateProperty.all(colorScheme.surface),
+                                        ),
+                                        child: Icon(
+                                          [Icons.remove_outlined, Icons.add_outlined][i],
+                                          size: 48,
                                         ),
                                       ),
                                     ),
-                                  ],
+                                  ),
                                 ),
                               ],
                             ),
-                          )
-                          : SingleChildScrollView(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16 + 16 + 80),
-                            child: Skeletonizer(
-                              enabled: currentPresentation?[store.presentationNameKey] == null || currentPresentation?[store.presentationNotesKey] == null,
-                              child: ConstrainedBox(
-                                constraints: BoxConstraints(
-                                  minHeight: screenHeight(context),
-                                ),
-                                child: TextFormField(
-                                  onChanged: (newNotes) async {
-                                    currentPresentation = await store.mutatePresentation(
-                                      oldPresentation: currentPresentation,
-                                      speakerNotes: newNotes,
-                                    );
-                                    setState(() {});
-                                  },
-                                  keyboardAppearance: Brightness.dark,
-                                  scrollPhysics: const NeverScrollableScrollPhysics(),
-                                  minLines: null,
-                                  maxLines: null,
-                                  cursorRadius: const Radius.circular(16),
-                                  cursorColor: colorScheme.onSurface,
-                                  style: MainText.textStyle,
-                                  decoration: const InputDecoration(
-                                    border: InputBorder.none,
-                                    hintMaxLines: 3,
-                                    hintText: "Enter speaker notes and information that you want to use during your presentation.",
-                                  ),
-                                  initialValue: currentPresentation?[store.presentationNotesKey] ?? "Error loading speaker notes. This presentation does not seem to be initialized correctly. Please contact the developer.",
+                          ],
+                        ),
+                      )
+                      : SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16 + 16 + 80),
+                        child: Skeletonizer(
+                          enabled: currentPresentation?[store.presentationNameKey] == null || currentPresentation?[store.presentationNotesKey] == null,
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minHeight: screenHeight(context),
+                            ),
+                            child: TextFormField(
+                              onChanged: (newNotes) async {
+                                currentPresentation = await store.mutatePresentation(
+                                  oldPresentation: currentPresentation,
+                                  speakerNotes: newNotes,
+                                );
+                                setState(() {});
+                              },
+                              keyboardAppearance: Brightness.dark,
+                              scrollPhysics: const NeverScrollableScrollPhysics(),
+                              minLines: null,
+                              maxLines: null,
+                              cursorRadius: const Radius.circular(16),
+                              cursorColor: colorScheme.onSurface,
+                              style: MainText.textStyle,
+                              decoration: const InputDecoration(
+                                border: InputBorder.none,
+                                hintMaxLines: 3,
+                                hintText: "Enter speaker notes and information that you want to use during your presentation.",
+                              ),
+                              initialValue: currentPresentation?[store.presentationNotesKey] ?? "Error loading speaker notes. This presentation does not seem to be initialized correctly. Please contact the developer.",
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                    : Padding(
+                      padding: const EdgeInsets.only(top: 80 - 48),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          AppOverlayTooltip(
+                            displayIndex: 0,
+                            horizontalPosition: TooltipHorizontalPosition.CENTER,
+                            message: "When you have connected a PC, this button will start the remote control.",
+                            laterButton: true,
+                            onAdditionalButtonPressed: () => Navigator.push(context, MaterialPageRoute(
+                              builder: (context) => const WifiSetup(),
+                            )),
+                            additionalButtonLabel: 'Connect',
+                            child: GestureDetector(
+                              onTap: () => navigateToAvailablePresenter(context),
+                              onLongPress: () => navigateToAvailablePresenter(
+                                context,
+                                preferMinimalPresenter: true,
+                              ),
+                              child: ShaderMask(
+                                blendMode: BlendMode.srcIn,
+                                shaderCallback: (Rect bounds) => 
+                                SweepGradient(
+                                  transform: const GradientRotation(pi),
+                                  colors: [
+                                    Colors.white,
+                                    (() {
+                                      final presentationsAvailable = store.presentationAvailable(currentPresentation);
+                                      return serverIP != null
+                                      ? (
+                                        presentationsAvailable
+                                        ? Colors.blue.shade900
+                                        : Colors.green.shade900
+                                      )
+                                      : (
+                                        presentationsAvailable
+                                        ? Colors.red.shade900
+                                        : Colors.black
+                                      );
+                                    })(),
+                                  ],
+                                ).createShader(bounds),
+                                child: const Icon(
+                                  Icons.play_arrow_rounded,
+                                  size: 128,
                                 ),
                               ),
                             ),
                           ),
-                        )
-                        : Padding(
-                          padding: const EdgeInsets.only(top: 80 - 48),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              AppOverlayTooltip(
-                                displayIndex: 0,
-                                horizontalPosition: TooltipHorizontalPosition.CENTER,
-                                message: "When you have connected a PC, this button will start the remote control.",
-                                laterButton: true,
-                                onAdditionalButtonPressed: () => Navigator.push(context, MaterialPageRoute(
-                                  builder: (context) => const WifiSetup(),
-                                )),
-                                additionalButtonLabel: 'Connect',
-                                child: GestureDetector(
-                                  onTap: () => navigateToAvailablePresenter(context),
-                                  onLongPress: () => navigateToAvailablePresenter(
-                                    context,
-                                    preferMinimalPresenter: true,
-                                  ),
-                                  child: ShaderMask(
-                                    blendMode: BlendMode.srcIn,
-                                    shaderCallback: (Rect bounds) => 
-                                    SweepGradient(
-                                      transform: const GradientRotation(pi),
-                                      colors: [
-                                        Colors.white,
-                                        (() {
-                                          final presentationsAvailable = store.presentationAvailable(currentPresentation);
-                                          return serverIP != null
-                                          ? (
-                                            presentationsAvailable
-                                            ? Colors.blue.shade900
-                                            : Colors.green.shade900
-                                          )
-                                          : (
-                                            presentationsAvailable
-                                            ? Colors.red.shade900
-                                            : Colors.black
-                                          );
-                                        })(),
-                                      ],
-                                    ).createShader(bounds),
-                                    child: const Icon(
-                                      Icons.play_arrow_rounded,
-                                      size: 128,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                        ],
                       ),
                     ),
                   ),
-                  Positioned(
-                    top: 0,
-                    width: screenWidth(context),
-                    child: AnimatedContainer(
+                ),
+              ),
+              Positioned(
+                top: 0,
+                width: screenWidth(context),
+                child: Column(
+                  children: [
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      curve: appDefaultCurve,
+                      padding: EdgeInsets.only(
+                        top: MediaQuery.of(context).padding.top,
+                      ),
+                      color: _editingMode ? colorScheme.surface : colorScheme.background,
+                    ),
+                    AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       curve: appDefaultCurve,
                       margin: EdgeInsets.all(_editingMode ? 0 : 16),
@@ -556,6 +553,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                             })()
                             : 0,
                             child: ListView(
+                              padding: EdgeInsets.zero,
                               children: [
                                 for (Map<String, dynamic> p in globalPresentations ?? List.generate(2, (index) => {})) globalPresentations != null
                                 ? p[store.presentationNameKey] == ( currentPresentation ?? {} )[store.presentationNameKey]
@@ -629,7 +627,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                         content: const PresentationCreationScreen(),
                                       );
                                     },
-                                    label: hasPro ? "Add a presentation" : "Add more presentations",
+                                    label: hasPro ? "Add a presentation" : "Add presentations",
                                   ),
                                 ),
                               ],
@@ -638,10 +636,27 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                         ],
                       ),
                     ),
-                  ),
-                  /*SizedBox(
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 200),
+                  ],
+                ),
+              ),
+              /*SizedBox(
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  switchInCurve: appDefaultCurve,
+                  switchOutCurve: appDefaultCurve,
+                  transitionBuilder: (Widget child, Animation<double> animation) {
+                    return FadeTransition(
+                      opacity: animation,
+                      child: child,
+                    );
+                  },
+                  child: SizedBox(
+                    key: ValueKey<bool>(_editingMode && _isEditingTimer),
+                    width: screenWidth(context),
+                    height: screenHeight(context),
+                    child: _editingMode
+                    ? AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 100),
                       switchInCurve: appDefaultCurve,
                       switchOutCurve: appDefaultCurve,
                       transitionBuilder: (Widget child, Animation<double> animation) {
@@ -650,489 +665,472 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                           child: child,
                         );
                       },
-                      child: SizedBox(
-                        key: ValueKey<bool>(_editingMode && _isEditingTimer),
-                        width: screenWidth(context),
-                        height: screenHeight(context),
-                        child: _editingMode
-                        ? AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 100),
-                          switchInCurve: appDefaultCurve,
-                          switchOutCurve: appDefaultCurve,
-                          transitionBuilder: (Widget child, Animation<double> animation) {
-                            return FadeTransition(
-                              opacity: animation,
-                              child: child,
-                            );
-                          },
-                          child: _isEditingTimer
-                          ? Container(
-                            padding: const EdgeInsets.all(16).copyWith(top: 16 + 80 + 16),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Skeleton(
-                                  isLoading: currentPresentation?[store.presentationNameKey] == null || currentPresentation?[store.presentationNotesKey] == null,
-                                  skeleton: SkeletonLine(
-                                    style: SkeletonLineStyle(
-                                      alignment: Alignment.center,
-                                      padding: const EdgeInsets.only(bottom: 16),
-                                      width: screenWidth(context) * 0.8,
-                                      height: 128,
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                  ),
-                                  child: SizedBox(
-                                    height: 128,
-                                    child: HugeLabel(
-                                      "${(
-                                        currentPresentation?[store.presentationMinutesKey]
-                                        ?? "Error loading speaker notes. This presentation does not seem to be initialized correctly. Please contact the developer."
-                                      )} min",
-                                    ),
-                                  ),
+                      child: _isEditingTimer
+                      ? Container(
+                        padding: const EdgeInsets.all(16).copyWith(top: 16 + 80 + 16),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Skeleton(
+                              isLoading: currentPresentation?[store.presentationNameKey] == null || currentPresentation?[store.presentationNotesKey] == null,
+                              skeleton: SkeletonLine(
+                                style: SkeletonLineStyle(
+                                  alignment: Alignment.center,
+                                  padding: const EdgeInsets.only(bottom: 16),
+                                  width: screenWidth(context) * 0.8,
+                                  height: 128,
+                                  borderRadius: BorderRadius.circular(16),
                                 ),
-                                Row(
-                                  children: [
-                                    for (int i = 0; i <= 1; i++) Expanded(
-                                      child: AspectRatio(
-                                        aspectRatio: 1/1,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(4),
-                                          child: TextButton(
-                                            onLongPress: () => _nudgeTimerMinutes(
-                                              decrease: i < 1,
-                                              interval: 10,
-                                            ),
-                                            onPressed: () => _nudgeTimerMinutes(decrease: i < 1),
-                                            style: ButtonStyle(
-                                              shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(16),
-                                              )),
-                                              backgroundColor: MaterialStateProperty.all(colorScheme.surface),
-                                            ),
-                                            child: Icon(
-                                              [Icons.remove_outlined, Icons.add_outlined][i],
-                                              size: 48,
-                                            ),
-                                          ),
+                              ),
+                              child: SizedBox(
+                                height: 128,
+                                child: HugeLabel(
+                                  "${(
+                                    currentPresentation?[store.presentationMinutesKey]
+                                    ?? "Error loading speaker notes. This presentation does not seem to be initialized correctly. Please contact the developer."
+                                  )} min",
+                                ),
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                for (int i = 0; i <= 1; i++) Expanded(
+                                  child: AspectRatio(
+                                    aspectRatio: 1/1,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(4),
+                                      child: TextButton(
+                                        onLongPress: () => _nudgeTimerMinutes(
+                                          decrease: i < 1,
+                                          interval: 10,
+                                        ),
+                                        onPressed: () => _nudgeTimerMinutes(decrease: i < 1),
+                                        style: ButtonStyle(
+                                          shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(16),
+                                          )),
+                                          backgroundColor: MaterialStateProperty.all(colorScheme.surface),
+                                        ),
+                                        child: Icon(
+                                          [Icons.remove_outlined, Icons.add_outlined][i],
+                                          size: 48,
                                         ),
                                       ),
                                     ),
-                                  ],
+                                  ),
                                 ),
                               ],
                             ),
-                          )
-                          : SingleChildScrollView(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16 + 16 + 80),
-                            child: Skeleton(
-                              isLoading: currentPresentation?[store.presentationNameKey] == null || currentPresentation?[store.presentationNotesKey] == null,
-                              skeleton: Column(
-                                children: [
-                                  SkeletonLine(
-                                    style: SkeletonLineStyle(
-                                      padding: EdgeInsets.zero,
-                                      width: screenWidth(context) * 0.8,
-                                      height: 48,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                  SkeletonParagraph(
-                                    style: SkeletonParagraphStyle(
-                                      padding: const EdgeInsets.only(top: 12 + 24 + 12),
-                                      lines: 3,
-                                      lineStyle: SkeletonLineStyle(
-                                        height: 24,
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                    ),
-                                  ),
-                                  SkeletonLine(
-                                    style: SkeletonLineStyle(
-                                      padding: const EdgeInsets.only(top: 12 + 24 + 12),
-                                      width: screenWidth(context) * 0.4,
-                                      height: 40,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                  SkeletonParagraph(
-                                    style: SkeletonParagraphStyle(
-                                      padding: const EdgeInsets.only(top: 12 + 24 + 12),
-                                      lines: 2,
-                                      lineStyle: SkeletonLineStyle(
-                                        height: 24,
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                    ),
-                                  ),
-                                  SkeletonParagraph(
-                                    style: SkeletonParagraphStyle(
-                                      padding: const EdgeInsets.only(top: 12 + 24 + 12),
-                                      lines: 2,
-                                      lineStyle: SkeletonLineStyle(
-                                        height: 24,
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                    ),
-                                  ),
-                                  SkeletonLine(
-                                    style: SkeletonLineStyle(
-                                      padding: const EdgeInsets.only(top: 12),
-                                      width: screenWidth(context) * 0.6,
-                                      height: 24,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              child: ConstrainedBox(
-                                constraints: BoxConstraints(
-                                  minHeight: screenHeight(context),
-                                ),
-                                child: TextFormField(
-                                  onChanged: (newNotes) async {
-                                    currentPresentation = await store.mutatePresentation(
-                                      oldPresentation: currentPresentation,
-                                      speakerNotes: newNotes,
-                                    );
-                                    setState(() {});
-                                  },
-                                  keyboardAppearance: Brightness.dark,
-                                  scrollPhysics: const NeverScrollableScrollPhysics(),
-                                  minLines: null,
-                                  maxLines: null,
-                                  cursorRadius: const Radius.circular(16),
-                                  cursorColor: colorScheme.onSurface,
-                                  style: MainText.textStyle,
-                                  decoration: const InputDecoration(
-                                    border: InputBorder.none,
-                                    hintMaxLines: 3,
-                                    hintText: "Enter speaker notes and information that you want to use during your presentation.",
-                                  ),
-                                  initialValue: currentPresentation?[store.presentationNotesKey] ?? "Error loading speaker notes. This presentation does not seem to be initialized correctly. Please contact the developer.",
-                                ),
-                              ),
-                            ),
-                          ),
-                        )
-                        : Padding(
-                          padding: const EdgeInsets.only(top: 80 - 48),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                          ],
+                        ),
+                      )
+                      : SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16 + 16 + 80),
+                        child: Skeleton(
+                          isLoading: currentPresentation?[store.presentationNameKey] == null || currentPresentation?[store.presentationNotesKey] == null,
+                          skeleton: Column(
                             children: [
-                              AppOverlayTooltip(
-                                displayIndex: 0,
-                                horizontalPosition: TooltipHorizontalPosition.CENTER,
-                                message: "When you have connected a PC, this button will start the remote control.",
-                                laterButton: true,
-                                onAdditionalButtonPressed: () => Navigator.push(context, MaterialPageRoute(
-                                  builder: (context) => const WifiSetup(),
-                                )),
-                                additionalButtonLabel: 'Connect',
-                                child: GestureDetector(
-                                  onTap: () => navigateToAvailablePresenter(context),
-                                  onLongPress: () => navigateToAvailablePresenter(
-                                    context,
-                                    preferMinimalPresenter: true,
+                              SkeletonLine(
+                                style: SkeletonLineStyle(
+                                  padding: EdgeInsets.zero,
+                                  width: screenWidth(context) * 0.8,
+                                  height: 48,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              SkeletonParagraph(
+                                style: SkeletonParagraphStyle(
+                                  padding: const EdgeInsets.only(top: 12 + 24 + 12),
+                                  lines: 3,
+                                  lineStyle: SkeletonLineStyle(
+                                    height: 24,
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: ShaderMask(
-                                    blendMode: BlendMode.srcIn,
-                                    shaderCallback: (Rect bounds) => 
-                                    SweepGradient(
-                                      transform: const GradientRotation(math.pi),
-                                      colors: [
-                                        Colors.white,
-                                        (() {
-                                          final presentationsAvailable = store.presentationAvailable(currentPresentation);
-                                          return serverIP != null
-                                          ? (
-                                            presentationsAvailable
-                                            ? Colors.blue.shade900
-                                            : Colors.green.shade900
-                                          )
-                                          : (
-                                            presentationsAvailable
-                                            ? Colors.red.shade900
-                                            : Colors.black
-                                          );
-                                        })(),
-                                      ],
-                                    ).createShader(bounds),
-                                    child: const Icon(
-                                      Icons.play_arrow_rounded,
-                                      size: 128,
-                                    ),
+                                ),
+                              ),
+                              SkeletonLine(
+                                style: SkeletonLineStyle(
+                                  padding: const EdgeInsets.only(top: 12 + 24 + 12),
+                                  width: screenWidth(context) * 0.4,
+                                  height: 40,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              SkeletonParagraph(
+                                style: SkeletonParagraphStyle(
+                                  padding: const EdgeInsets.only(top: 12 + 24 + 12),
+                                  lines: 2,
+                                  lineStyle: SkeletonLineStyle(
+                                    height: 24,
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
+                                ),
+                              ),
+                              SkeletonParagraph(
+                                style: SkeletonParagraphStyle(
+                                  padding: const EdgeInsets.only(top: 12 + 24 + 12),
+                                  lines: 2,
+                                  lineStyle: SkeletonLineStyle(
+                                    height: 24,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                              ),
+                              SkeletonLine(
+                                style: SkeletonLineStyle(
+                                  padding: const EdgeInsets.only(top: 12),
+                                  width: screenWidth(context) * 0.6,
+                                  height: 24,
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: 0,
-                    width: screenWidth(context),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      curve: appDefaultCurve,
-                      margin: EdgeInsets.all(_editingMode ? 0 : 16),
-                      decoration: BoxDecoration(
-                        borderRadius: _presentationsExpanded
-                        ? BorderRadius.vertical(
-                          top: Radius.circular(_editingMode ? 0 : 40),
-                          bottom: Radius.circular(_editingMode && !_presentationsExpanded ? 0 : 24),
-                        )
-                        : BorderRadius.circular(_editingMode ? 0 : 40),
-                        color: colorScheme.surface,
-                      ),
-                      child: Column(
-                        children: [
-                          TextButton(
-                            onPressed: () => setState(() => _presentationsExpanded = !_presentationsExpanded),
-                            style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all(colorScheme.surface),
-                              overlayColor: MaterialStateProperty.all(Colors.transparent),
-                              splashFactory: NoSplash.splashFactory,
-                              shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(_editingMode ? 0 : 40),
-                              )),
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minHeight: screenHeight(context),
                             ),
-                            child: Container(
-                              height: 80,
-                              padding: const EdgeInsets.only(left: 40 - 30, right: 16),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  Expanded(
-                                    child: AppOverlayTooltip(
-                                      displayIndex: 3,
-                                      message: "Switch between different sets of speaker notes.",
-                                      child: Skeleton(
-                                        isLoading: currentPresentation?[store.presentationNameKey] == null,
-                                        skeleton: SkeletonLine(
-                                          style: SkeletonLineStyle(
-                                            width: 128,
-                                            height: 32,
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                        ),
-                                        child: AnimatedSwitcher(
-                                          duration: const Duration(milliseconds: 200),
-                                          switchInCurve: Curves.easeInOut,
-                                          switchOutCurve: Curves.easeInOut,
-                                          transitionBuilder: (Widget child, Animation<double> animation) {
-                                            return FadeTransition(
-                                              opacity: animation,
-                                              child: child,
-                                            );
-                                          },
-                                          child: SingleChildScrollView(
-                                            key: ValueKey<String?>(currentPresentation?[store.presentationNameKey]),
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.circular(30),
-                                                color: colorScheme.surface,
-                                              ),
-                                              height: 60,
-                                              padding: const EdgeInsets.symmetric(horizontal: 30),
-                                              alignment: Alignment.centerLeft,
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  SmallLabel(currentPresentation?[store.presentationNameKey] ?? "Loading..."),
-                                                  const SizedBox(width: 8),
-                                                  AppAnimatedSwitcher(
-                                                    value: _presentationsExpanded,
-                                                    trueChild: const Icon(
-                                                      Icons.arrow_drop_up_outlined,
-                                                      size: 24,
-                                                    ),
-                                                    falseChild: const Icon(
-                                                      Icons.arrow_drop_down_outlined,
-                                                      size: 24,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Row(
-                                    children: [
-                                      AppOverlayTooltip(
-                                        displayIndex: 2,
-                                        message: "Add a timer that vibrates when you exceed your time limit.",
-                                        child: Container(
-                                          width: 48,
-                                          height: 48,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: colorScheme.surface,
-                                          ),
-                                          child: IconButton(
-                                            onPressed: () => hasPro
-                                            ? _changeEditingMode(wasTimerButtonPressed: true)
-                                            : Navigator.push(context, MaterialPageRoute(
-                                              builder: (context) => const GetProScreen(),
-                                            )),
-                                            icon: AnimatedSwitcher(
-                                              duration: const Duration(milliseconds: 100),
-                                              switchInCurve: Curves.easeInOut,
-                                              switchOutCurve: Curves.easeInOut,
-                                              transitionBuilder: (Widget child, Animation<double> animation) {
-                                                return ScaleTransition(
-                                                  scale: animation,
-                                                  child: child,
-                                                );
-                                              },
-                                              child: Icon(
-                                                _isEditingTimer ? Icons.notes_outlined : Icons.timer_outlined,
-                                                key: ValueKey<bool>(_isEditingTimer),
-                                              ),
-                                            ),
-                                          )
-                                        ),
-                                      ),
-                                      AppOverlayTooltip(
-                                        displayIndex: 1,
-                                        message: "Write notes that you can use during your presentation.",
-                                        child: Container(
-                                          width: 48,
-                                          height: 48,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: colorScheme.surface,
-                                          ),
-                                          child: IconButton(
-                                            onPressed: () {
-                                              if (_editingMode) {
-                                                FocusManager.instance.primaryFocus?.unfocus();
-                                              }
-                                              _changeEditingMode();
-                                            },
-                                            icon: AnimatedSwitcher(
-                                              duration: const Duration(milliseconds: 100),
-                                              switchInCurve: Curves.easeInOut,
-                                              switchOutCurve: Curves.easeInOut,
-                                              transitionBuilder: (Widget child, Animation<double> animation) {
-                                                return ScaleTransition(
-                                                  scale: animation,
-                                                  child: child,
-                                                );
-                                              },
-                                              child: Icon(
-                                                _editingMode ? Icons.check_outlined : Icons.edit_outlined,
-                                                key: ValueKey<bool>(_editingMode),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                            child: TextFormField(
+                              onChanged: (newNotes) async {
+                                currentPresentation = await store.mutatePresentation(
+                                  oldPresentation: currentPresentation,
+                                  speakerNotes: newNotes,
+                                );
+                                setState(() {});
+                              },
+                              keyboardAppearance: Brightness.dark,
+                              scrollPhysics: const NeverScrollableScrollPhysics(),
+                              minLines: null,
+                              maxLines: null,
+                              cursorRadius: const Radius.circular(16),
+                              cursorColor: colorScheme.onSurface,
+                              style: MainText.textStyle,
+                              decoration: const InputDecoration(
+                                border: InputBorder.none,
+                                hintMaxLines: 3,
+                                hintText: "Enter speaker notes and information that you want to use during your presentation.",
                               ),
+                              initialValue: currentPresentation?[store.presentationNotesKey] ?? "Error loading speaker notes. This presentation does not seem to be initialized correctly. Please contact the developer.",
                             ),
                           ),
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 400),
-                            curve: appDefaultCurve,
-                            margin: const EdgeInsets.symmetric(horizontal: 16),
-                            height: _presentationsExpanded
-                            ? (() {
-                              double defaultHeight = 80 + ( globalPresentations?.length ?? 2 ) * 72 - 72 + 16;
-                              return defaultHeight < screenHeight(context) - 192 ? defaultHeight : screenHeight(context) - 256;
-                            })()
-                            : 0,
-                            child: ListView(
-                              children: [
-                                for (Map<String, dynamic> p in globalPresentations ?? List.generate(2, (index) => {})) globalPresentations != null
-                                ? p[store.presentationNameKey] == ( currentPresentation ?? {} )[store.presentationNameKey]
-                                  ? const SizedBox()
-                                  : AppAnimatedSwitcher(
-                                    value: !_presentationsExpanded,
-                                    fading: true,
-                                    trueChild: const SizedBox(
-                                      height: 72,
-                                    ),
-                                    falseChild: TextButton(
-                                      onPressed: () async {
-                                        setState(() => _presentationsExpanded = false);
-                                        await Future.delayed(const Duration(milliseconds: 300));
-                                        setState(() => currentPresentation = p);
-                                      },
-                                      style: ButtonStyle(
-                                        shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                        )),
-                                        backgroundColor: MaterialStateProperty.all(colorScheme.surface),
-                                      ),
-                                      child: Container(
-                                        height: 72,
-                                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            SmallLabel(p[store.presentationNameKey] ?? "Error"),
-                                            IconButton(
-                                              onPressed: () => showBooleanDialog(
-                                                context: context,
-                                                onYes: () async {
-                                                  await store.mutatePresentation(oldPresentation: p, isDeleting: true);
-                                                  setState(() {});
-                                                },
-                                                title: "Delete ${p[store.presentationNameKey]}?",
-                                              ),
-                                              icon: Icon(
-                                                Icons.close_outlined,
-                                                color: colorScheme.onSurface.withOpacity(0.5),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    )
-                                  )
-                                : SkeletonLine(
-                                  style: SkeletonLineStyle(
-                                    padding: const EdgeInsets.only(bottom: 16),
-                                    borderRadius: BorderRadius.circular(16),
-                                    width: screenWidth(context),
-                                    height: 72,
-                                  ),
+                        ),
+                      ),
+                    )
+                    : Padding(
+                      padding: const EdgeInsets.only(top: 80 - 48),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          AppOverlayTooltip(
+                            displayIndex: 0,
+                            horizontalPosition: TooltipHorizontalPosition.CENTER,
+                            message: "When you have connected a PC, this button will start the remote control.",
+                            laterButton: true,
+                            onAdditionalButtonPressed: () => Navigator.push(context, MaterialPageRoute(
+                              builder: (context) => const WifiSetup(),
+                            )),
+                            additionalButtonLabel: 'Connect',
+                            child: GestureDetector(
+                              onTap: () => navigateToAvailablePresenter(context),
+                              onLongPress: () => navigateToAvailablePresenter(
+                                context,
+                                preferMinimalPresenter: true,
+                              ),
+                              child: ShaderMask(
+                                blendMode: BlendMode.srcIn,
+                                shaderCallback: (Rect bounds) => 
+                                SweepGradient(
+                                  transform: const GradientRotation(math.pi),
+                                  colors: [
+                                    Colors.white,
+                                    (() {
+                                      final presentationsAvailable = store.presentationAvailable(currentPresentation);
+                                      return serverIP != null
+                                      ? (
+                                        presentationsAvailable
+                                        ? Colors.blue.shade900
+                                        : Colors.green.shade900
+                                      )
+                                      : (
+                                        presentationsAvailable
+                                        ? Colors.red.shade900
+                                        : Colors.black
+                                      );
+                                    })(),
+                                  ],
+                                ).createShader(bounds),
+                                child: const Icon(
+                                  Icons.play_arrow_rounded,
+                                  size: 128,
                                 ),
-                                Container(
-                                  height: 96,
-                                  alignment: Alignment.center,
-                                  child: AppTextButton(
-                                    onPressed: () => !hasPro
-                                    ? Navigator.push(context, MaterialPageRoute(
-                                      builder: (context) => const GetProScreen(),
-                                    ))
-                                    : showFullscreenDialog(
-                                      context: context,
-                                      content: const PresentationCreationScreen(),
-                                    ),
-                                    label: hasPro ? "Add a presentation" : "Add more presentations",
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ),*/
-                ],
-              );
-            }
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 0,
+                width: screenWidth(context),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  curve: appDefaultCurve,
+                  margin: EdgeInsets.all(_editingMode ? 0 : 16),
+                  decoration: BoxDecoration(
+                    borderRadius: _presentationsExpanded
+                    ? BorderRadius.vertical(
+                      top: Radius.circular(_editingMode ? 0 : 40),
+                      bottom: Radius.circular(_editingMode && !_presentationsExpanded ? 0 : 24),
+                    )
+                    : BorderRadius.circular(_editingMode ? 0 : 40),
+                    color: colorScheme.surface,
+                  ),
+                  child: Column(
+                    children: [
+                      TextButton(
+                        onPressed: () => setState(() => _presentationsExpanded = !_presentationsExpanded),
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(colorScheme.surface),
+                          overlayColor: MaterialStateProperty.all(Colors.transparent),
+                          splashFactory: NoSplash.splashFactory,
+                          shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(_editingMode ? 0 : 40),
+                          )),
+                        ),
+                        child: Container(
+                          height: 80,
+                          padding: const EdgeInsets.only(left: 40 - 30, right: 16),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Expanded(
+                                child: AppOverlayTooltip(
+                                  displayIndex: 3,
+                                  message: "Switch between different sets of speaker notes.",
+                                  child: Skeleton(
+                                    isLoading: currentPresentation?[store.presentationNameKey] == null,
+                                    skeleton: SkeletonLine(
+                                      style: SkeletonLineStyle(
+                                        width: 128,
+                                        height: 32,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    child: AnimatedSwitcher(
+                                      duration: const Duration(milliseconds: 200),
+                                      switchInCurve: Curves.easeInOut,
+                                      switchOutCurve: Curves.easeInOut,
+                                      transitionBuilder: (Widget child, Animation<double> animation) {
+                                        return FadeTransition(
+                                          opacity: animation,
+                                          child: child,
+                                        );
+                                      },
+                                      child: SingleChildScrollView(
+                                        key: ValueKey<String?>(currentPresentation?[store.presentationNameKey]),
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(30),
+                                            color: colorScheme.surface,
+                                          ),
+                                          height: 60,
+                                          padding: const EdgeInsets.symmetric(horizontal: 30),
+                                          alignment: Alignment.centerLeft,
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              SmallLabel(currentPresentation?[store.presentationNameKey] ?? "Loading..."),
+                                              const SizedBox(width: 8),
+                                              AppAnimatedSwitcher(
+                                                value: _presentationsExpanded,
+                                                trueChild: const Icon(
+                                                  Icons.arrow_drop_up_outlined,
+                                                  size: 24,
+                                                ),
+                                                falseChild: const Icon(
+                                                  Icons.arrow_drop_down_outlined,
+                                                  size: 24,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Row(
+                                children: [
+                                  AppOverlayTooltip(
+                                    displayIndex: 2,
+                                    message: "Add a timer that vibrates when you exceed your time limit.",
+                                    child: Container(
+                                      width: 48,
+                                      height: 48,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: colorScheme.surface,
+                                      ),
+                                      child: IconButton(
+                                        onPressed: () => hasPro
+                                        ? _changeEditingMode(wasTimerButtonPressed: true)
+                                        : Navigator.push(context, MaterialPageRoute(
+                                          builder: (context) => const GetProScreen(),
+                                        )),
+                                        icon: AnimatedSwitcher(
+                                          duration: const Duration(milliseconds: 100),
+                                          switchInCurve: Curves.easeInOut,
+                                          switchOutCurve: Curves.easeInOut,
+                                          transitionBuilder: (Widget child, Animation<double> animation) {
+                                            return ScaleTransition(
+                                              scale: animation,
+                                              child: child,
+                                            );
+                                          },
+                                          child: Icon(
+                                            _isEditingTimer ? Icons.notes_outlined : Icons.timer_outlined,
+                                            key: ValueKey<bool>(_isEditingTimer),
+                                          ),
+                                        ),
+                                      )
+                                    ),
+                                  ),
+                                  AppOverlayTooltip(
+                                    displayIndex: 1,
+                                    message: "Write notes that you can use during your presentation.",
+                                    child: Container(
+                                      width: 48,
+                                      height: 48,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: colorScheme.surface,
+                                      ),
+                                      child: IconButton(
+                                        onPressed: () {
+                                          if (_editingMode) {
+                                            FocusManager.instance.primaryFocus?.unfocus();
+                                          }
+                                          _changeEditingMode();
+                                        },
+                                        icon: AnimatedSwitcher(
+                                          duration: const Duration(milliseconds: 100),
+                                          switchInCurve: Curves.easeInOut,
+                                          switchOutCurve: Curves.easeInOut,
+                                          transitionBuilder: (Widget child, Animation<double> animation) {
+                                            return ScaleTransition(
+                                              scale: animation,
+                                              child: child,
+                                            );
+                                          },
+                                          child: Icon(
+                                            _editingMode ? Icons.check_outlined : Icons.edit_outlined,
+                                            key: ValueKey<bool>(_editingMode),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 400),
+                        curve: appDefaultCurve,
+                        margin: const EdgeInsets.symmetric(horizontal: 16),
+                        height: _presentationsExpanded
+                        ? (() {
+                          double defaultHeight = 80 + ( globalPresentations?.length ?? 2 ) * 72 - 72 + 16;
+                          return defaultHeight < screenHeight(context) - 192 ? defaultHeight : screenHeight(context) - 256;
+                        })()
+                        : 0,
+                        child: ListView(
+                          children: [
+                            for (Map<String, dynamic> p in globalPresentations ?? List.generate(2, (index) => {})) globalPresentations != null
+                            ? p[store.presentationNameKey] == ( currentPresentation ?? {} )[store.presentationNameKey]
+                              ? const SizedBox()
+                              : AppAnimatedSwitcher(
+                                value: !_presentationsExpanded,
+                                fading: true,
+                                trueChild: const SizedBox(
+                                  height: 72,
+                                ),
+                                falseChild: TextButton(
+                                  onPressed: () async {
+                                    setState(() => _presentationsExpanded = false);
+                                    await Future.delayed(const Duration(milliseconds: 300));
+                                    setState(() => currentPresentation = p);
+                                  },
+                                  style: ButtonStyle(
+                                    shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    )),
+                                    backgroundColor: MaterialStateProperty.all(colorScheme.surface),
+                                  ),
+                                  child: Container(
+                                    height: 72,
+                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        SmallLabel(p[store.presentationNameKey] ?? "Error"),
+                                        IconButton(
+                                          onPressed: () => showBooleanDialog(
+                                            context: context,
+                                            onYes: () async {
+                                              await store.mutatePresentation(oldPresentation: p, isDeleting: true);
+                                              setState(() {});
+                                            },
+                                            title: "Delete ${p[store.presentationNameKey]}?",
+                                          ),
+                                          icon: Icon(
+                                            Icons.close_outlined,
+                                            color: colorScheme.onSurface.withOpacity(0.5),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                )
+                              )
+                            : SkeletonLine(
+                              style: SkeletonLineStyle(
+                                padding: const EdgeInsets.only(bottom: 16),
+                                borderRadius: BorderRadius.circular(16),
+                                width: screenWidth(context),
+                                height: 72,
+                              ),
+                            ),
+                            Container(
+                              height: 96,
+                              alignment: Alignment.center,
+                              child: AppTextButton(
+                                onPressed: () => !hasPro
+                                ? Navigator.push(context, MaterialPageRoute(
+                                  builder: (context) => const GetProScreen(),
+                                ))
+                                : showFullscreenDialog(
+                                  context: context,
+                                  content: const PresentationCreationScreen(),
+                                ),
+                                label: hasPro ? "Add a presentation" : "Add presentations",
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),*/
+            ],
           ),
         ),
       ),
