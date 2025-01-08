@@ -505,49 +505,61 @@ class GetProScreen extends StatefulWidget {
 }
 
 class _GetProScreenState extends State<GetProScreen> {
+  
+  bool _backdoorUnlocked = false;
+  
   @override
   Widget build(BuildContext context) {
     return HelpScaffold(
       tiles: [
-        AppHelpTile(
-          title: "Get Pro",
-          onButtonPressed: true
+        GestureDetector(
+          onDoubleTap: () => _backdoorUnlocked = true,
+          onLongPress: _backdoorUnlocked
           ? () async {
             hasPro = await store.accessProStatus(toggle: true) ?? true;
             setState(() {});
           }
-          // TODO: 18: Implement purchase using in_app_purchase (enable in 18 store accounts); Remove all old code
-          : () {},
-          buttonTitle: true ? hasPro ? "Return to basic" : "Unlock for free" : "Buy Pro for 4.99€",
-          content: Column(
-            children: [
-              for (List featureData in [
-                  [Icons.timer_outlined, "Presentation timer"],
-                  [Icons.copy_outlined, "Multiple presentation notes"],
-                  [Icons.text_format_outlined, "Markdown formatting"],
-              ]) Padding(
-                padding: const EdgeInsets.symmetric(vertical: 32),
-                child: SizedBox(
-                  width: screenWidth(context) - 32 - 32,
-                  child: Row(
-                    children: [
-                      Icon(
-                        featureData[0],
-                        size: 32,
-                        color: colorScheme.onSurface,
-                      ),
-                      const SizedBox(width: 32),
-                      Flexible(
-                        child: MediumLabel(
-                          featureData[1],
-                          justify: false,
+          : null,
+          child: AppHelpTile(
+            title: "Get Pro",
+            onButtonPressed: true
+            ? () async {
+              hasPro = await store.accessProStatus(toggle: true) ?? true;
+              setState(() {});
+            }
+            // TODO: 18: Implement purchase using in_app_purchase (enable in 18 store accounts); Remove all old code
+            : () {},
+            buttonTitle: true ? hasPro ? "Return to basic" : "Unlock for free" : "Buy Pro for 4.99€",
+            content: Column(
+              children: [
+                for (List featureData in [
+                    [Icons.timer_outlined, "Presentation timer"],
+                    [Icons.copy_outlined, "Multiple presentation notes"],
+                    [Icons.text_format_outlined, "Markdown formatting"],
+                ]) Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 32),
+                  child: SizedBox(
+                    width: screenWidth(context) - 32 - 32,
+                    child: Row(
+                      children: [
+                        Icon(
+                          featureData[0],
+                          size: 32,
+                          color: colorScheme.onSurface,
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 32),
+                        Flexible(
+                          child: MediumLabel(
+                            featureData[1],
+                            justify: false,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ],
