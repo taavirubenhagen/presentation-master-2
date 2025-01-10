@@ -59,6 +59,8 @@ flutter_launcher_icons:
   ios: true
   remove_alpha_ios: true
   image_path: "assets/images/square_icon.png"
+  adaptive_icon_background: "assets/images/app_icons/background.png"
+  adaptive_icon_foreground: "assets/images/app_icons/foreground_24.png"
 
 flutter:
   uses-material-design: true
@@ -68,7 +70,7 @@ flutter:
 
 flutter_native_splash:
   color: "#000000"
-  image: assets/images/presenter_splash_screen.png
+  image: assets/images/app_icons/splash_screen_24.png
   android_12:
     color: "#000000"
-    image: assets/images/presenter_splash_screen.png
+    image: assets/images/app_icons/splash_screen_24.png
