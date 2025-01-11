@@ -115,13 +115,8 @@ class _PresentationMaster2State extends State<PresentationMaster2> {
                 color: MainText.textStyle.color?.withOpacity(0.5),
               ),
           ),
-          appBarTheme: AppBarTheme(
+          appBarTheme: const AppBarTheme(
             toolbarHeight: 0,
-            systemOverlayStyle: SystemUiOverlayStyle(
-              statusBarColor: colorScheme.background,
-              statusBarIconBrightness: Brightness.light,
-              systemNavigationBarColor: colorScheme.background,
-            ),
           ),
         ),
         themeMode: ThemeMode.dark,

@@ -3,7 +3,7 @@ description: All-in-one presentation remote and note taking app
 
 publish_to: 'none'
 
-version: 3.3.5+64
+version: 3.4.0+65
 
 environment:
   sdk: '>=2.19.2 <4.0.0'
@@ -27,7 +27,6 @@ dependencies:
   network_info_plus: ^4.0.1
   ping_discover_network_forked: ^0.0.1
   url_launcher: ^6.0.18
-  in_app_review: ^2.0.6
   in_app_purchase: ^3.1.8
 
   flutter_native_splash: ^2.2.0

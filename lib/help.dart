@@ -8,7 +8,6 @@ import 'package:flutter/services.dart';
 
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:url_launcher/url_launcher_string.dart';
-import 'package:in_app_review/in_app_review.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:presentation_master_2/main.dart';
@@ -42,11 +41,12 @@ class HelpScaffold extends StatelessWidget {
     return Scaffold(
       backgroundColor: colorScheme.background,
       appBar: AppBar(
-        systemOverlayStyle: SystemUiOverlayStyle(
+        // TODO: s Play Store
+        /*systemOverlayStyle: SystemUiOverlayStyle(
           statusBarColor: colorScheme.background,
           statusBarIconBrightness: Brightness.light,
           systemNavigationBarColor: onBottomButtonPressed == null || bottomButtonLabel == null ? colorScheme.background : colorScheme.surface,
-        ),
+        ),*/
         toolbarHeight: 96,
         backgroundColor: colorScheme.background,
         leadingWidth: 96,
@@ -213,11 +213,12 @@ class _WifiSetupState extends State<WifiSetup> {
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        systemOverlayStyle: SystemUiOverlayStyle(
+        // TODO
+        /*systemOverlayStyle: SystemUiOverlayStyle(
           statusBarColor: colorScheme.surface,
           statusBarIconBrightness: Brightness.light,
           systemNavigationBarColor: colorScheme.surface,
-        ),
+        ),*/
         toolbarHeight: 96,
         leadingWidth: 96,
         leading: IconButton(
@@ -582,17 +583,6 @@ class SupportMeScreen extends StatelessWidget {
             builder: (context) => FeedbackScreen(),
           )),
           title: "Give Feedback",
-        ),
-        AppHelpTile(
-          onButtonPressed: () {
-            try {
-              InAppReview.instance.requestReview();
-            } finally {
-              launchUrlString("https://play.google.com/store/apps/details?id=tavy.presenter.presentation_master_2", mode: LaunchMode.externalApplication);
-            }
-          },
-          title: "Rate the app",
-          link: true
         ),
         FutureBuilder(
           future: (() async => ( await PackageInfo.fromPlatform() ).installerStore)(),

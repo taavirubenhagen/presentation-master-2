@@ -27,11 +27,12 @@ class OnboardingSlides extends StatelessWidget {
         backgroundColor: colorScheme.surface,
         appBar: AppBar(
           toolbarHeight: 0,
-          systemOverlayStyle: SystemUiOverlayStyle(
+          // TODO
+          /*systemOverlayStyle: SystemUiOverlayStyle(
             statusBarColor: colorScheme.surface,
             statusBarIconBrightness: Brightness.light,
             systemNavigationBarColor: colorScheme.surface,
-          ),
+            ),*/
         ),
         body: Padding(
           padding: const EdgeInsets.all(32).copyWith(top: 64),

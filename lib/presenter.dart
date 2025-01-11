@@ -560,11 +560,12 @@ class _MinimalPresenterState extends State<MinimalPresenter> {
         backgroundColor: colorScheme.background,
         appBar: AppBar(
           toolbarHeight: 0,
-          systemOverlayStyle: SystemUiOverlayStyle(
+          // TODO
+          /*systemOverlayStyle: SystemUiOverlayStyle(
             statusBarColor: colorScheme.background,
             statusBarIconBrightness: Brightness.dark,
             systemNavigationBarColor: colorScheme.background,
-          ),
+          ),*/
         ),
         body: SafeArea(
           child: AppAnimatedSwitcher(
