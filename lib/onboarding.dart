@@ -7,15 +7,11 @@ import 'package:presentation_master_2/main.dart';
 import 'package:presentation_master_2/design.dart';
 import 'package:presentation_master_2/mockups.dart';
 
-
-
-
 class OnboardingSlides extends StatelessWidget {
   const OnboardingSlides({super.key});
 
   @override
   Widget build(BuildContext context) {
-
     return PopScope(
       canPop: false,
       onPopInvoked: (_) async => showBooleanDialog(
@@ -29,26 +25,30 @@ class OnboardingSlides extends StatelessWidget {
           toolbarHeight: 0,
           // TODO
           /*systemOverlayStyle: SystemUiOverlayStyle(
-            statusBarColor: colorScheme.surface,
-            statusBarIconBrightness: Brightness.light,
-            systemNavigationBarColor: colorScheme.surface,
-            ),*/
+          statusBarColor: colorScheme.surface,
+          statusBarIconBrightness: Brightness.light,
+          systemNavigationBarColor: colorScheme.surface,
+          ),*/
         ),
         body: Padding(
-          padding: const EdgeInsets.all(32).copyWith(top: 64),
+          padding: const EdgeInsets.all(32).copyWith(top: 64, bottom: 32 + MediaQuery.paddingOf(context).bottom),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const SizedBox(),
               const SizedBox(),
               const OnboardingMockupIllustration(),
-              LargeLabel("Thank you for using Presentation Master 2, the remote control for your PowerPoint presentations."),
+              MediumLabel(
+                "Thank you for using Presentation Master 2, the remote control for your PowerPoint presentations.",
+                justify: false,
+              ),
               Column(
                 children: [
                   AppTextButton(
                     onPressed: () {
-                      onboardingTooltipController.start();
                       Navigator.pop(context);
+                      onboardingTooltipController.start();
+                      PresentationMaster2.setAppState(context);
                     },
                     next: true,
                     label: "Take tour",
@@ -57,8 +57,9 @@ class OnboardingSlides extends StatelessWidget {
                   AppTextButton(
                     onPressed: () {
                       // TODO: Does it work?
-                      PresentationMaster2.setAppState(context, () => onboarding = false);
                       Navigator.pop(context);
+                      PresentationMaster2.setAppState(
+                          context, () => onboarding = false);
                     },
                     secondary: true,
                     label: "Skip",
@@ -67,14 +68,11 @@ class OnboardingSlides extends StatelessWidget {
               ),
             ],
           ),
-        )
+        ),
       ),
     );
   }
 }
-
-
-
 
 class AppOverlayTooltip extends StatelessWidget {
   const AppOverlayTooltip({
@@ -83,6 +81,7 @@ class AppOverlayTooltip extends StatelessWidget {
     this.horizontalPosition = TooltipHorizontalPosition.WITH_WIDGET,
     this.verticalPosition = TooltipVerticalPosition.BOTTOM,
     required this.message,
+
     /// If true, the 'Next' button will be labeled 'Skip'	instead
     this.laterButton = false,
     this.onAdditionalButtonPressed,
@@ -125,17 +124,24 @@ class AppOverlayTooltip extends StatelessWidget {
                     child: AppTextButton(
                       onPressed: controller.next,
                       mini: true,
-                      label: controller.nextPlayIndex < controller.playWidgetLength - 1 ? ( laterButton ? "Later" : "Next" ) : "Got it",
+                      label: controller.nextPlayIndex <
+                              controller.playWidgetLength - 1
+                          ? (laterButton ? "Later" : "Next")
+                          : "Got it",
                     ),
                   ),
-                  if (onAdditionalButtonPressed != null && additionalButtonLabel != null) const SizedBox(width: 8),
-                  if (onAdditionalButtonPressed != null && additionalButtonLabel != null) Expanded(
-                    child: AppTextButton(
-                      onPressed: onAdditionalButtonPressed ?? () {},
-                      mini: true,
-                      label: additionalButtonLabel ?? "[Error]",
+                  if (onAdditionalButtonPressed != null &&
+                      additionalButtonLabel != null)
+                    const SizedBox(width: 8),
+                  if (onAdditionalButtonPressed != null &&
+                      additionalButtonLabel != null)
+                    Expanded(
+                      child: AppTextButton(
+                        onPressed: onAdditionalButtonPressed ?? () {},
+                        mini: true,
+                        label: additionalButtonLabel ?? "[Error]",
+                      ),
                     ),
-                  ),
                 ],
               ),
             ],

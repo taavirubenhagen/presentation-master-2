@@ -9,7 +9,7 @@
     <br/>
     Keep this desktop companion app open in background. Make sure it is running before you start the mobile app.
     <br/>
-    You should then be able to open the mobile app and control the presentation via WiFi.
+    You should then be able to open the mobile app, start Presentation Mode by tapping the big play button and control the presentation via WiFi.
     <br/><br/>
     If it doesn't work, make sure you have granted the app the necessary permissions,
     close/disconnect everything and repeat the steps above.

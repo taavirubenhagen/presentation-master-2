@@ -18,14 +18,8 @@ import 'package:presentation_master_2/help.dart';
 import 'package:presentation_master_2/onboarding.dart';
 import 'package:presentation_master_2/presenter.dart';
 
-
-
-
 String? _name;
 bool _editingMode = false;
-
-
-
 
 // ignore: must_be_immutable
 class Home extends StatefulWidget {
@@ -38,32 +32,33 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
-
   bool _presentationsExpanded = false;
   bool _isEditingTimer = false;
 
-
-  void _changeEditingMode({bool wasTimerButtonPressed = false, bool allToFalse = false}) => setState(() {
-    _presentationsExpanded = false;
-    if (allToFalse) {
-      _editingMode = false;
-      _isEditingTimer = false;
-      return;
-    }
-    if (!wasTimerButtonPressed) {
-      _editingMode = !_editingMode;
-      _isEditingTimer = false;
-      return;
-    }
-    _editingMode = true;
-    _isEditingTimer = !_isEditingTimer;
-  });
+  void _changeEditingMode(
+          {bool wasTimerButtonPressed = false, bool allToFalse = false}) =>
+      setState(() {
+        _presentationsExpanded = false;
+        if (allToFalse) {
+          _editingMode = false;
+          _isEditingTimer = false;
+          return;
+        }
+        if (!wasTimerButtonPressed) {
+          _editingMode = !_editingMode;
+          _isEditingTimer = false;
+          return;
+        }
+        _editingMode = true;
+        _isEditingTimer = !_isEditingTimer;
+      });
 
   void _nudgeTimerMinutes({required bool decrease, int interval = 1}) async {
     currentPresentation = await store.mutatePresentation(
       oldPresentation: currentPresentation,
       timerMinutes: (() {
-        int newMinutes = currentPresentation?[store.presentationMinutesKey] + ( decrease ? -interval : interval );
+        int newMinutes = currentPresentation?[store.presentationMinutesKey] +
+            (decrease ? -interval : interval);
         if (newMinutes < 0) {
           return 0;
         }
@@ -76,7 +71,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     setState(() {});
   }
 
-
   @override
   void initState() {
     super.initState();
@@ -84,18 +78,22 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       onboardingTooltipController.onDone(() => setState(() {}));
       logger.i("Calling store first time");
       if (await store.accessProStatus() == null) {
-        Navigator.push(context, MaterialPageRoute(
-          builder: (context) => const OnboardingSlides(),
-        ));
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const OnboardingSlides(),
+            ));
       } else {
         setState(() => onboarding = false);
       }
-      hasPro = await store.accessProStatus() ?? await store.accessProStatus(toggle: true) ?? false;
+      hasPro = await store.accessProStatus() ??
+          await store.accessProStatus(toggle: true) ??
+          false;
       logger.i("Pro status: $hasPro. Accessing presentations");
       await store.accessPresentations();
       logger.i("Finished");
       setState(() => currentPresentation ??= globalPresentations?.first);
-      logger.i("Called setAppState");
+      logger.i("Called setState");
     })();
     connect(context);
     _editingMode = widget.editing;
@@ -106,6 +104,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     return PopScope(
       canPop: false,
       onPopInvoked: (_) async {
+        if (onboarding) return;
         if (_editingMode) {
           _changeEditingMode(allToFalse: true);
         }
@@ -139,17 +138,21 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
               height: 80 + MediaQuery.paddingOf(context).bottom,
               child: TextButton(
                 onPressed: () => _editingMode
-                ? hasPro
-                  ? launchUrlString(
-                    "https://www.markdownguide.org/cheat-sheet/",
-                    mode: LaunchMode.externalApplication,
-                  )
-                  : Navigator.push(context, MaterialPageRoute(
-                    builder: (context) => const GetProScreen(),
-                  ))
-                : Navigator.push(context, MaterialPageRoute(
-                  builder: (context) => const HelpCenter(),
-                )),
+                    ? hasPro
+                        ? launchUrlString(
+                            "https://www.markdownguide.org/cheat-sheet/",
+                            mode: LaunchMode.externalApplication,
+                          )
+                        : Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const GetProScreen(),
+                            ))
+                    : Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const HelpCenter(),
+                        )),
                 onLongPress: () async {
                   final info = await PackageInfo.fromPlatform();
                   showBooleanDialog(
@@ -158,7 +161,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   );
                 },
                 style: ButtonStyle(
-                  shape: WidgetStateProperty.all(const RoundedRectangleBorder()),
+                  shape:
+                      WidgetStateProperty.all(const RoundedRectangleBorder()),
                   backgroundColor: WidgetStateProperty.all(colorScheme.surface),
                 ),
                 child: Padding(
@@ -169,31 +173,32 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     duration: const Duration(milliseconds: 100),
                     switchInCurve: Curves.easeInOut,
                     switchOutCurve: Curves.easeInOut,
-                    transitionBuilder: (Widget child, Animation<double> animation) {
+                    transitionBuilder:
+                        (Widget child, Animation<double> animation) {
                       return ScaleTransition(
                         scale: animation,
                         child: child,
                       );
                     },
                     child: _editingMode
-                    ? hasPro
-                      ? Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ButtonLabel("How to format"),
-                          const SizedBox(width: 8),
-                          const Icon(Icons.open_in_new_outlined),
-                        ],
-                      )
-                      : Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ButtonLabel("Timer & Formatting"),
-                          const SizedBox(width: 8),
-                          const Icon(Icons.arrow_forward_outlined),
-                        ],
-                      )
-                    : ButtonLabel("Help Center"),
+                        ? hasPro
+                            ? Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  ButtonLabel("How to format"),
+                                  const SizedBox(width: 8),
+                                  const Icon(Icons.open_in_new_outlined),
+                                ],
+                              )
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  ButtonLabel("Timer & Formatting"),
+                                  const SizedBox(width: 8),
+                                  const Icon(Icons.arrow_forward_outlined),
+                                ],
+                              )
+                        : ButtonLabel("Help Center"),
                   ),
                 ),
               ),
@@ -207,7 +212,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   duration: const Duration(milliseconds: 200),
                   switchInCurve: appDefaultCurve,
                   switchOutCurve: appDefaultCurve,
-                  transitionBuilder: (Widget child, Animation<double> animation) {
+                  transitionBuilder:
+                      (Widget child, Animation<double> animation) {
                     return FadeTransition(
                       opacity: animation,
                       child: child,
@@ -220,153 +226,190 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       top: MediaQuery.of(context).padding.top,
                     ),
                     child: _editingMode
-                    ? AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 100),
-                      switchInCurve: appDefaultCurve,
-                      switchOutCurve: appDefaultCurve,
-                      transitionBuilder: (Widget child, Animation<double> animation) {
-                        return FadeTransition(
-                          opacity: animation,
-                          child: child,
-                        );
-                      },
-                      child: _isEditingTimer
-                      ? Container(
-                        padding: const EdgeInsets.all(16).copyWith(top: 16 + 80 + 16),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Skeletonizer(
-                              enabled: currentPresentation?[store.presentationNameKey] == null || currentPresentation?[store.presentationNotesKey] == null,
-                              child: SizedBox(
-                                height: 128,
-                                child: HugeLabel(
-                                  "${(
-                                    currentPresentation?[store.presentationMinutesKey]
-                                    ?? "Error loading speaker notes. This presentation does not seem to be initialized correctly. Please contact the developer."
-                                  )} min",
-                                ),
-                              ),
-                            ),
-                            Row(
+                        ? AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 100),
+                            switchInCurve: appDefaultCurve,
+                            switchOutCurve: appDefaultCurve,
+                            transitionBuilder:
+                                (Widget child, Animation<double> animation) {
+                              return FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              );
+                            },
+                            child: _isEditingTimer
+                                ? Container(
+                                    padding: const EdgeInsets.all(16)
+                                        .copyWith(top: 16 + 80 + 16),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Skeletonizer(
+                                          enabled: currentPresentation?[store
+                                                      .presentationNameKey] ==
+                                                  null ||
+                                              currentPresentation?[store
+                                                      .presentationNotesKey] ==
+                                                  null,
+                                          child: SizedBox(
+                                            height: 128,
+                                            child: HugeLabel(
+                                              "${(currentPresentation?[store.presentationMinutesKey] ?? "Error loading speaker notes. This presentation does not seem to be initialized correctly. Please contact the developer.")} min",
+                                            ),
+                                          ),
+                                        ),
+                                        Row(
+                                          children: [
+                                            for (int i = 0; i <= 1; i++)
+                                              Expanded(
+                                                child: AspectRatio(
+                                                  aspectRatio: 1 / 1,
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(4),
+                                                    child: TextButton(
+                                                      onLongPress: () =>
+                                                          _nudgeTimerMinutes(
+                                                        decrease: i < 1,
+                                                        interval: 10,
+                                                      ),
+                                                      onPressed: () =>
+                                                          _nudgeTimerMinutes(
+                                                              decrease: i < 1),
+                                                      style: ButtonStyle(
+                                                        shape: WidgetStateProperty
+                                                            .all(
+                                                                RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(16),
+                                                        )),
+                                                        backgroundColor:
+                                                            WidgetStateProperty
+                                                                .all(colorScheme
+                                                                    .surface),
+                                                      ),
+                                                      child: Icon(
+                                                        [
+                                                          Icons.remove_outlined,
+                                                          Icons.add_outlined
+                                                        ][i],
+                                                        size: 48,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                : SingleChildScrollView(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16, vertical: 16 + 16 + 80),
+                                    child: Skeletonizer(
+                                      enabled: currentPresentation?[
+                                                  store.presentationNameKey] ==
+                                              null ||
+                                          currentPresentation?[
+                                                  store.presentationNotesKey] ==
+                                              null,
+                                      child: ConstrainedBox(
+                                        constraints: BoxConstraints(
+                                          minHeight: screenHeight(context),
+                                        ),
+                                        child: TextFormField(
+                                          onChanged: (newNotes) async {
+                                            currentPresentation =
+                                                await store.mutatePresentation(
+                                              oldPresentation:
+                                                  currentPresentation,
+                                              speakerNotes: newNotes,
+                                            );
+                                            setState(() {});
+                                          },
+                                          keyboardAppearance: Brightness.dark,
+                                          scrollPhysics:
+                                              const NeverScrollableScrollPhysics(),
+                                          minLines: null,
+                                          maxLines: null,
+                                          cursorRadius:
+                                              const Radius.circular(16),
+                                          cursorColor: colorScheme.onSurface,
+                                          style: MainText.textStyle,
+                                          decoration: const InputDecoration(
+                                            border: InputBorder.none,
+                                            hintMaxLines: 3,
+                                            hintText:
+                                                "Enter speaker notes and information that you want to use during your presentation.",
+                                          ),
+                                          initialValue: currentPresentation?[
+                                                  store.presentationNotesKey] ??
+                                              "Error loading speaker notes. This presentation does not seem to be initialized correctly. Please contact the developer.",
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                          )
+                        : Padding(
+                            padding: const EdgeInsets.only(top: 80 - 48),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                for (int i = 0; i <= 1; i++) Expanded(
-                                  child: AspectRatio(
-                                    aspectRatio: 1/1,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(4),
-                                      child: TextButton(
-                                        onLongPress: () => _nudgeTimerMinutes(
-                                          decrease: i < 1,
-                                          interval: 10,
-                                        ),
-                                        onPressed: () => _nudgeTimerMinutes(decrease: i < 1),
-                                        style: ButtonStyle(
-                                          shape: WidgetStateProperty.all(RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(16),
+                                AppOverlayTooltip(
+                                  displayIndex: 0,
+                                  horizontalPosition: TooltipHorizontalPosition.CENTER,
+                                  message: "When you have connected a PC, the big play button will start the remote control.",
+                                  laterButton: true,
+                                  onAdditionalButtonPressed: () =>
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const WifiSetup(),
                                           )),
-                                          backgroundColor: WidgetStateProperty.all(colorScheme.surface),
-                                        ),
-                                        child: Icon(
-                                          [Icons.remove_outlined, Icons.add_outlined][i],
-                                          size: 48,
-                                        ),
+                                  additionalButtonLabel: 'Connect',
+                                  child: GestureDetector(
+                                    onTap: () =>
+                                        navigateToAvailablePresenter(context),
+                                    onLongPress: () =>
+                                        navigateToAvailablePresenter(
+                                      context,
+                                      preferMinimalPresenter: true,
+                                    ),
+                                    child: ShaderMask(
+                                      blendMode: BlendMode.srcIn,
+                                      shaderCallback: (Rect bounds) =>
+                                          SweepGradient(
+                                        transform: const GradientRotation(pi),
+                                        colors: [
+                                          Colors.white,
+                                          (() {
+                                            final presentationsAvailable =
+                                                store.presentationAvailable(
+                                                    currentPresentation);
+                                            return serverIP != null
+                                                ? (presentationsAvailable
+                                                    ? Colors.blue.shade900
+                                                    : Colors.green.shade900)
+                                                : (presentationsAvailable
+                                                    ? Colors.red.shade900
+                                                    : Colors.black);
+                                          })(),
+                                        ],
+                                      ).createShader(bounds),
+                                      child: const Icon(
+                                        Icons.play_arrow_rounded,
+                                        size: 128,
                                       ),
                                     ),
                                   ),
                                 ),
                               ],
                             ),
-                          ],
-                        ),
-                      )
-                      : SingleChildScrollView(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16 + 16 + 80),
-                        child: Skeletonizer(
-                          enabled: currentPresentation?[store.presentationNameKey] == null || currentPresentation?[store.presentationNotesKey] == null,
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                              minHeight: screenHeight(context),
-                            ),
-                            child: TextFormField(
-                              onChanged: (newNotes) async {
-                                currentPresentation = await store.mutatePresentation(
-                                  oldPresentation: currentPresentation,
-                                  speakerNotes: newNotes,
-                                );
-                                setState(() {});
-                              },
-                              keyboardAppearance: Brightness.dark,
-                              scrollPhysics: const NeverScrollableScrollPhysics(),
-                              minLines: null,
-                              maxLines: null,
-                              cursorRadius: const Radius.circular(16),
-                              cursorColor: colorScheme.onSurface,
-                              style: MainText.textStyle,
-                              decoration: const InputDecoration(
-                                border: InputBorder.none,
-                                hintMaxLines: 3,
-                                hintText: "Enter speaker notes and information that you want to use during your presentation.",
-                              ),
-                              initialValue: currentPresentation?[store.presentationNotesKey] ?? "Error loading speaker notes. This presentation does not seem to be initialized correctly. Please contact the developer.",
-                            ),
                           ),
-                        ),
-                      ),
-                    )
-                    : Padding(
-                      padding: const EdgeInsets.only(top: 80 - 48),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          AppOverlayTooltip(
-                            displayIndex: 0,
-                            horizontalPosition: TooltipHorizontalPosition.CENTER,
-                            message: "When you have connected a PC, this button will start the remote control.",
-                            laterButton: true,
-                            onAdditionalButtonPressed: () => Navigator.push(context, MaterialPageRoute(
-                              builder: (context) => const WifiSetup(),
-                            )),
-                            additionalButtonLabel: 'Connect',
-                            child: GestureDetector(
-                              onTap: () => navigateToAvailablePresenter(context),
-                              onLongPress: () => navigateToAvailablePresenter(
-                                context,
-                                preferMinimalPresenter: true,
-                              ),
-                              child: ShaderMask(
-                                blendMode: BlendMode.srcIn,
-                                shaderCallback: (Rect bounds) => 
-                                SweepGradient(
-                                  transform: const GradientRotation(pi),
-                                  colors: [
-                                    Colors.white,
-                                    (() {
-                                      final presentationsAvailable = store.presentationAvailable(currentPresentation);
-                                      return serverIP != null
-                                      ? (
-                                        presentationsAvailable
-                                        ? Colors.blue.shade900
-                                        : Colors.green.shade900
-                                      )
-                                      : (
-                                        presentationsAvailable
-                                        ? Colors.red.shade900
-                                        : Colors.black
-                                      );
-                                    })(),
-                                  ],
-                                ).createShader(bounds),
-                                child: const Icon(
-                                  Icons.play_arrow_rounded,
-                                  size: 128,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
                   ),
                 ),
               ),
@@ -381,7 +424,9 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       padding: EdgeInsets.only(
                         top: MediaQuery.of(context).padding.top,
                       ),
-                      color: _editingMode ? colorScheme.surface : colorScheme.background,
+                      color: _editingMode
+                          ? colorScheme.surface
+                          : colorScheme.background,
                     ),
                     AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
@@ -389,71 +434,98 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       margin: EdgeInsets.all(_editingMode ? 0 : 16),
                       decoration: BoxDecoration(
                         borderRadius: _presentationsExpanded
-                        ? BorderRadius.vertical(
-                          top: Radius.circular(_editingMode ? 0 : 40),
-                          bottom: Radius.circular(_editingMode && !_presentationsExpanded ? 0 : 24),
-                        )
-                        : BorderRadius.circular(_editingMode ? 0 : 40),
+                            ? BorderRadius.vertical(
+                                top: Radius.circular(_editingMode ? 0 : 40),
+                                bottom: Radius.circular(
+                                    _editingMode && !_presentationsExpanded
+                                        ? 0
+                                        : 24),
+                              )
+                            : BorderRadius.circular(_editingMode ? 0 : 40),
                         color: colorScheme.surface,
                       ),
                       child: Column(
                         children: [
                           TextButton(
-                            onPressed: () => setState(() => _presentationsExpanded = !_presentationsExpanded),
+                            onPressed: () => setState(() =>
+                                _presentationsExpanded =
+                                    !_presentationsExpanded),
                             style: ButtonStyle(
-                              backgroundColor: WidgetStateProperty.all(colorScheme.surface),
-                              overlayColor: WidgetStateProperty.all(Colors.transparent),
+                              backgroundColor:
+                                  WidgetStateProperty.all(colorScheme.surface),
+                              overlayColor:
+                                  WidgetStateProperty.all(Colors.transparent),
                               splashFactory: NoSplash.splashFactory,
-                              shape: WidgetStateProperty.all(RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(_editingMode ? 0 : 40),
+                              shape: WidgetStateProperty.all(
+                                  RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                    _editingMode ? 0 : 40),
                               )),
                             ),
                             child: Container(
                               height: 80,
-                              padding: const EdgeInsets.only(left: 40 - 30, right: 16),
+                              padding: const EdgeInsets.only(
+                                  left: 40 - 30, right: 16),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
                                   Expanded(
                                     child: AppOverlayTooltip(
                                       displayIndex: 3,
-                                      message: "Switch between different sets of speaker notes.",
+                                      message:
+                                          "Switch between different sets of speaker notes.",
                                       child: Skeletonizer(
-                                        enabled: currentPresentation?[store.presentationNameKey] == null,
+                                        enabled: currentPresentation?[
+                                                store.presentationNameKey] ==
+                                            null,
                                         child: AnimatedSwitcher(
-                                          duration: const Duration(milliseconds: 200),
+                                          duration:
+                                              const Duration(milliseconds: 200),
                                           switchInCurve: Curves.easeInOut,
                                           switchOutCurve: Curves.easeInOut,
-                                          transitionBuilder: (Widget child, Animation<double> animation) {
+                                          transitionBuilder: (Widget child,
+                                              Animation<double> animation) {
                                             return FadeTransition(
                                               opacity: animation,
                                               child: child,
                                             );
                                           },
                                           child: SingleChildScrollView(
-                                            key: ValueKey<String?>(currentPresentation?[store.presentationNameKey]),
+                                            key: ValueKey<String?>(
+                                                currentPresentation?[
+                                                    store.presentationNameKey]),
                                             child: Container(
                                               decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.circular(30),
+                                                borderRadius:
+                                                    BorderRadius.circular(30),
                                                 color: colorScheme.surface,
                                               ),
                                               height: 60,
-                                              padding: const EdgeInsets.symmetric(horizontal: 30),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 30),
                                               alignment: Alignment.centerLeft,
                                               child: Row(
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
-                                                  SmallLabel(currentPresentation?[store.presentationNameKey] ?? "Loading..."),
+                                                  SmallLabel(
+                                                      currentPresentation?[store
+                                                              .presentationNameKey] ??
+                                                          "Loading..."),
                                                   const SizedBox(width: 8),
                                                   AppAnimatedSwitcher(
-                                                    value: _presentationsExpanded,
+                                                    value:
+                                                        _presentationsExpanded,
                                                     trueChild: const Icon(
-                                                      Icons.arrow_drop_up_outlined,
+                                                      Icons
+                                                          .arrow_drop_up_outlined,
                                                       size: 24,
                                                     ),
                                                     falseChild: const Icon(
-                                                      Icons.arrow_drop_down_outlined,
+                                                      Icons
+                                                          .arrow_drop_down_outlined,
                                                       size: 24,
                                                     ),
                                                   ),
@@ -469,41 +541,55 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                     children: [
                                       AppOverlayTooltip(
                                         displayIndex: 2,
-                                        message: "Add a timer that vibrates when you exceed your time limit.",
+                                        message:
+                                            "Add a timer that vibrates when you exceed your time limit.",
                                         child: Container(
-                                          width: 48,
-                                          height: 48,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: colorScheme.surface,
-                                          ),
-                                          child: IconButton(
-                                            onPressed: () => hasPro
-                                            ? _changeEditingMode(wasTimerButtonPressed: true)
-                                            : Navigator.push(context, MaterialPageRoute(
-                                              builder: (context) => const GetProScreen(),
-                                            )),
-                                            icon: AnimatedSwitcher(
-                                              duration: const Duration(milliseconds: 100),
-                                              switchInCurve: Curves.easeInOut,
-                                              switchOutCurve: Curves.easeInOut,
-                                              transitionBuilder: (Widget child, Animation<double> animation) {
-                                                return ScaleTransition(
-                                                  scale: animation,
-                                                  child: child,
-                                                );
-                                              },
-                                              child: Icon(
-                                                _isEditingTimer ? Icons.notes_outlined : Icons.timer_outlined,
-                                                key: ValueKey<bool>(_isEditingTimer),
-                                              ),
+                                            width: 48,
+                                            height: 48,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: colorScheme.surface,
                                             ),
-                                          )
-                                        ),
+                                            child: IconButton(
+                                              onPressed: () => hasPro
+                                                  ? _changeEditingMode(
+                                                      wasTimerButtonPressed:
+                                                          true)
+                                                  : Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            const GetProScreen(),
+                                                      )),
+                                              icon: AnimatedSwitcher(
+                                                duration: const Duration(
+                                                    milliseconds: 100),
+                                                switchInCurve: Curves.easeInOut,
+                                                switchOutCurve:
+                                                    Curves.easeInOut,
+                                                transitionBuilder:
+                                                    (Widget child,
+                                                        Animation<double>
+                                                            animation) {
+                                                  return ScaleTransition(
+                                                    scale: animation,
+                                                    child: child,
+                                                  );
+                                                },
+                                                child: Icon(
+                                                  _isEditingTimer
+                                                      ? Icons.notes_outlined
+                                                      : Icons.timer_outlined,
+                                                  key: ValueKey<bool>(
+                                                      _isEditingTimer),
+                                                ),
+                                              ),
+                                            )),
                                       ),
                                       AppOverlayTooltip(
                                         displayIndex: 1,
-                                        message: "Write notes that you can use during your presentation.",
+                                        message:
+                                            "Write notes that you can use during your presentation.",
                                         child: Container(
                                           width: 48,
                                           height: 48,
@@ -514,23 +600,30 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                           child: IconButton(
                                             onPressed: () {
                                               if (_editingMode) {
-                                                FocusManager.instance.primaryFocus?.unfocus();
+                                                FocusManager
+                                                    .instance.primaryFocus
+                                                    ?.unfocus();
                                               }
                                               _changeEditingMode();
                                             },
                                             icon: AnimatedSwitcher(
-                                              duration: const Duration(milliseconds: 100),
+                                              duration: const Duration(
+                                                  milliseconds: 100),
                                               switchInCurve: Curves.easeInOut,
                                               switchOutCurve: Curves.easeInOut,
-                                              transitionBuilder: (Widget child, Animation<double> animation) {
+                                              transitionBuilder: (Widget child,
+                                                  Animation<double> animation) {
                                                 return ScaleTransition(
                                                   scale: animation,
                                                   child: child,
                                                 );
                                               },
                                               child: Icon(
-                                                _editingMode ? Icons.check_outlined : Icons.edit_outlined,
-                                                key: ValueKey<bool>(_editingMode),
+                                                _editingMode
+                                                    ? Icons.check_outlined
+                                                    : Icons.edit_outlined,
+                                                key: ValueKey<bool>(
+                                                    _editingMode),
                                               ),
                                             ),
                                           ),
@@ -547,87 +640,132 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                             curve: appDefaultCurve,
                             margin: const EdgeInsets.symmetric(horizontal: 16),
                             height: _presentationsExpanded
-                            ? (() {
-                              double defaultHeight = 80 + ( globalPresentations?.length ?? 2 ) * 72 - 72 + 16;
-                              return defaultHeight < screenHeight(context) - 192 ? defaultHeight : screenHeight(context) - 256;
-                            })()
-                            : 0,
+                                ? (() {
+                                    double defaultHeight = 80 +
+                                        (globalPresentations?.length ?? 2) *
+                                            72 -
+                                        72 +
+                                        16;
+                                    return defaultHeight <
+                                            screenHeight(context) - 192
+                                        ? defaultHeight
+                                        : screenHeight(context) - 256;
+                                  })()
+                                : 0,
                             child: ListView(
                               padding: EdgeInsets.zero,
                               children: [
-                                for (Map<String, dynamic> p in globalPresentations ?? List.generate(2, (index) => {})) globalPresentations != null
-                                ? p[store.presentationNameKey] == ( currentPresentation ?? {} )[store.presentationNameKey]
-                                  ? const SizedBox()
-                                  : AppAnimatedSwitcher(
-                                    value: !_presentationsExpanded,
-                                    fading: true,
-                                    trueChild: const SizedBox(
-                                      height: 72,
-                                    ),
-                                    falseChild: TextButton(
-                                      onPressed: () async {
-                                        setState(() => _presentationsExpanded = false);
-                                        await Future.delayed(const Duration(milliseconds: 300));
-                                        setState(() => currentPresentation = p);
-                                      },
-                                      style: ButtonStyle(
-                                        shape: WidgetStateProperty.all(RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(16),
-                                        )),
-                                        backgroundColor: WidgetStateProperty.all(colorScheme.surface),
-                                      ),
-                                      child: Container(
-                                        height: 72,
-                                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            SmallLabel(p[store.presentationNameKey] ?? "Error"),
-                                            IconButton(
-                                              onPressed: () => showBooleanDialog(
-                                                context: context,
-                                                onYes: () async {
-                                                  await store.mutatePresentation(oldPresentation: p, isDeleting: true);
-                                                  setState(() {});
+                                for (Map<String, dynamic> p
+                                    in globalPresentations ??
+                                        List.generate(2, (index) => {}))
+                                  globalPresentations != null
+                                      ? p[store.presentationNameKey] ==
+                                              (currentPresentation ??
+                                                  {})[store.presentationNameKey]
+                                          ? const SizedBox()
+                                          : AppAnimatedSwitcher(
+                                              value: !_presentationsExpanded,
+                                              fading: true,
+                                              trueChild: const SizedBox(
+                                                height: 72,
+                                              ),
+                                              falseChild: TextButton(
+                                                onPressed: () async {
+                                                  setState(() =>
+                                                      _presentationsExpanded =
+                                                          false);
+                                                  await Future.delayed(
+                                                      const Duration(
+                                                          milliseconds: 300));
+                                                  setState(() =>
+                                                      currentPresentation = p);
                                                 },
-                                                title: "Delete ${p[store.presentationNameKey]}?",
-                                              ),
-                                              icon: Icon(
-                                                Icons.close_outlined,
-                                                color: colorScheme.onSurface.withOpacity(0.5),
-                                              ),
+                                                style: ButtonStyle(
+                                                  shape: WidgetStateProperty.all(
+                                                      RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            16),
+                                                  )),
+                                                  backgroundColor:
+                                                      WidgetStateProperty.all(
+                                                          colorScheme.surface),
+                                                ),
+                                                child: Container(
+                                                  height: 72,
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 16),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      SmallLabel(p[store
+                                                              .presentationNameKey] ??
+                                                          "Error"),
+                                                      IconButton(
+                                                        onPressed: () =>
+                                                            showBooleanDialog(
+                                                          context: context,
+                                                          onYes: () async {
+                                                            await store
+                                                                .mutatePresentation(
+                                                                    oldPresentation:
+                                                                        p,
+                                                                    isDeleting:
+                                                                        true);
+                                                            setState(() {});
+                                                          },
+                                                          title:
+                                                              "Delete ${p[store.presentationNameKey]}?",
+                                                        ),
+                                                        icon: Icon(
+                                                          Icons.close_outlined,
+                                                          color: colorScheme
+                                                              .onSurface
+                                                              .withOpacity(0.5),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ))
+                                      : Skeletonizer(
+                                          child: ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(16),
+                                            child: Container(
+                                              padding: const EdgeInsets.only(
+                                                  bottom: 16),
+                                              width: screenWidth(context),
+                                              height: 72,
                                             ),
-                                          ],
+                                          ),
                                         ),
-                                      ),
-                                    )
-                                  )
-                                : Skeletonizer(
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(16),
-                                    child: Container(
-                                      padding: const EdgeInsets.only(bottom: 16),
-                                      width: screenWidth(context),
-                                      height: 72,
-                                    ),
-                                  ),
-                                ),
                                 Container(
                                   height: 96,
                                   alignment: Alignment.center,
                                   child: AppTextButton(
                                     onPressed: () {
-                                      setState(() => _presentationsExpanded = false);
+                                      setState(
+                                          () => _presentationsExpanded = false);
                                       !hasPro
-                                      ? Navigator.push(context, MaterialPageRoute(
-                                        builder: (context) => const GetProScreen(),
-                                      ))
-                                      : showFullscreenDialog(
-                                        context: context,
-                                        content: const PresentationCreationScreen(),
-                                      );
+                                          ? Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const GetProScreen(),
+                                              ))
+                                          : showFullscreenDialog(
+                                              context: context,
+                                              content:
+                                                  const PresentationCreationScreen(),
+                                            );
                                     },
-                                    label: hasPro ? "Add a presentation" : "Add presentations",
+                                    label: hasPro
+                                        ? "Add a presentation"
+                                        : "Add presentations",
                                   ),
                                 ),
                               ],
@@ -1138,19 +1276,17 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   }
 }
 
-
-
-
 // TODO: [2] Move into giant Home widget to keep presentations expanded and directly show the newly created presentation
 class PresentationCreationScreen extends StatefulWidget {
   const PresentationCreationScreen({super.key});
 
   @override
-  State<PresentationCreationScreen> createState() => _PresentationCreationScreenState();
+  State<PresentationCreationScreen> createState() =>
+      _PresentationCreationScreenState();
 }
 
-class _PresentationCreationScreenState extends State<PresentationCreationScreen> {
-
+class _PresentationCreationScreenState
+    extends State<PresentationCreationScreen> {
   int _invalidNameFeedbackState = 0;
 
   @override
@@ -1178,14 +1314,17 @@ class _PresentationCreationScreenState extends State<PresentationCreationScreen>
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: _invalidNameFeedbackState == 0 ? colorScheme.onSurface : colorScheme.error,
+                  color: _invalidNameFeedbackState == 0
+                      ? colorScheme.onSurface
+                      : colorScheme.error,
                 ),
               ),
               height: 64,
               alignment: Alignment.center,
               child: TextField(
                 onChanged: (value) => setState(() => _name = value),
-                decoration: const InputDecoration.collapsed(hintText: "Enter a project name"),
+                decoration: const InputDecoration.collapsed(
+                    hintText: "Enter a project name"),
                 textAlign: TextAlign.center,
                 style: MainText.textStyle,
               ),
@@ -1221,19 +1360,21 @@ class _PresentationCreationScreenState extends State<PresentationCreationScreen>
                       return;
                     }
                     checkForName(String currentName) {
-                      if (currentName.length > 16 && !currentName.contains(" 2")) {
+                      if (currentName.length > 16 &&
+                          !currentName.contains(" 2")) {
                         return checkForName(currentName.substring(0, 15));
                       }
-                      for (
-                        Map<String, dynamic> p in
-                        globalPresentations ?? [{store.presentationNameKey: _name}]
-                      ) {
+                      for (Map<String, dynamic> p in globalPresentations ??
+                          [
+                            {store.presentationNameKey: _name}
+                          ]) {
                         if (p[store.presentationNameKey] == currentName) {
                           return checkForName("$currentName 2");
                         }
                       }
                       return currentName;
                     }
+
                     String finalName = checkForName(_name ?? "Presentation 1");
                     await store.mutatePresentation(
                       oldPresentation: null,
@@ -1242,7 +1383,8 @@ class _PresentationCreationScreenState extends State<PresentationCreationScreen>
                     Navigator.pop(context);
                     //setState(() => _name = null);
                   },
-                  padding: EdgeInsets.all(( ( screenWidth(context) / 2 ) - 32 ) / 2),
+                  padding:
+                      EdgeInsets.all(((screenWidth(context) / 2) - 32) / 2),
                   iconSize: 32,
                   color: colorScheme.onSurface,
                   icon: const Icon(Icons.check_outlined),

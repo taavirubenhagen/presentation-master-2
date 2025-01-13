@@ -2,7 +2,6 @@
 
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 
@@ -146,9 +145,12 @@ class _NotePresenterState extends State<NotePresenter> {
               GestureDetector(
                 onDoubleTap: () => _showClosingDialog(context, navigateToNoteEditor: true),
                 child: Container(
+                  width: screenWidth(context),
                   height: screenHeight(context),
                   padding: const EdgeInsets.all(16).copyWith(top: 32, bottom: 64 + 64 + (serverIP == null ? 0 : 256)),
-                  child: Markdown(
+                  child: !hasPro
+                  ? MainText(currentPresentation?[store.presentationNotesKey] ?? "Error loading notes. Please contact the developer.")
+                  : Markdown(
                     styleSheet: MarkdownStyleSheet(
                       textScaleFactor: _notesTextScaleFactor,
                       blockSpacing: 16,

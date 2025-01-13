@@ -137,7 +137,7 @@ class SmallHeading extends BaseText {
   : super(data, textStyle, textAlign: TextAlign.left, isOnPrimary: isOnPrimary, isOnBackground: isOnBackground);
 
   static final TextStyle textStyle = GoogleFonts.dmMono(
-    fontSize: 28,
+    fontSize: 24,
     wordSpacing: 2,
   );
 }
@@ -242,8 +242,16 @@ class AppTextButton extends StatelessWidget {
         ),
         child: Container(
           width: docked ? screenWidth(context) : null,
-          height: mini ? 32 : docked ? 80 : defaultHeight,
-          padding: EdgeInsets.symmetric(horizontal: mini ? 12 : 32),
+          height: mini
+          ? 32
+          : docked
+            ? 80 + MediaQuery.paddingOf(context).bottom
+            : defaultHeight,
+          padding: EdgeInsets.symmetric(
+            horizontal: mini ? 12 : 32,
+          ).copyWith(
+            bottom: docked ? MediaQuery.paddingOf(context).bottom : 0,
+          ),
           alignment: Alignment.center,
           child: AnimatedSwitcher(
             duration: const Duration(milliseconds: 100),

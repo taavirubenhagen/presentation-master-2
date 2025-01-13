@@ -79,10 +79,10 @@ Future<void> connect(context) async {
   final String? subnet = deviceIP?.substring(0, deviceIP.lastIndexOf('.'));
   logger.v('Subnet: $subnet');
   if (subnet == null) {
-    showBooleanDialog(
+    /*showBooleanDialog(
       context: context,
       title: "Couldn't connect. Go to the Help Center for instructions or use the app without the remote control.",
-    );
+    );*/
     // TODO: Does it work?
     PresentationMaster2.setAppState(context, () => serverIP = null);
     return;
