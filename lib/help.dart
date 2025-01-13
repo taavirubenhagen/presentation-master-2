@@ -1,6 +1,5 @@
 // ignore_for_file: deprecated_member_use
 
-import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -156,25 +155,25 @@ class HelpCenter extends StatelessWidget {
     return HelpScaffold(
       tiles: [
         for (List e in [
-          ["Remote Control", (context) => const WifiSetup()],
+          ["Remote Setup", (context) => const WifiSetup()],
           [hasPro ? "Manage Pro" : "Get Pro", (context) => const GetProScreen()],
-          ["Contact", (context) => const ContactCenter()],
+          ["Legal", (context) => const ContactCenter()],
         ]) AppHelpTile(
           onButtonPressed: () => Navigator.push(context, MaterialPageRoute(
             builder: e[1],
           )),
           title: e[0],
         ),
-        FutureBuilder(
-            future: (() async => ( await PackageInfo.fromPlatform() ).installerStore)(),
-            builder: (context, snapshot) => Platform.isAndroid
-            ? AppHelpTile(
-              onButtonPressed: () => launchUrlString("https://www.buymeacoffee.com/taavirubenhagen", mode: LaunchMode.externalApplication),
-              title: "Support me",
-              link: true
-            )
-            : const SizedBox(),
-          ),
+        /*FutureBuilder(
+          future: (() async => ( await PackageInfo.fromPlatform() ).installerStore)(),
+          builder: (context, snapshot) => Platform.isAndroid
+          ? AppHelpTile(
+            onButtonPressed: () => launchUrlString("https://www.buymeacoffee.com/taavirubenhagen", mode: LaunchMode.externalApplication),
+            title: "Support me",
+            link: true
+          )
+          : const SizedBox(),
+        ),*/
       ],
     );
   }
@@ -183,32 +182,8 @@ class HelpCenter extends StatelessWidget {
 
 
 
-class WifiSetup extends StatefulWidget {
+class WifiSetup extends StatelessWidget {
   const WifiSetup({super.key});
-
-  @override
-  State<WifiSetup> createState() => _WifiSetupState();
-}
-
-class _WifiSetupState extends State<WifiSetup> {
-  
-  Timer? _connectionStatusTimer;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _connectionStatusTimer = Timer.periodic(
-      const Duration(seconds: 1),
-      (Timer timer) => setState(() {}),
-    );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _connectionStatusTimer?.cancel();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -287,9 +262,6 @@ class _WifiSetupState extends State<WifiSetup> {
   }
 }
 
-
-
-
 class GetProScreen extends StatefulWidget {
   const GetProScreen({super.key});
 
@@ -303,63 +275,57 @@ class _GetProScreenState extends State<GetProScreen> {
   Widget build(BuildContext context) {
     return HelpScaffold(
       tiles: [
-        GestureDetector(
-          onDoubleTap: () async {
+        AppHelpTile(
+          title: "Get Pro",
+          onButtonPressed: true
+          ? () async {
+            if (hasPro) {
+              showBooleanDialog(
+                context: context,
+                title: "Permanently switch back to Basic?",
+                onYes: () async {
+                  hasPro = await store.accessProStatus(toggle: true) ?? false;
+                  setState(() {});
+                },
+              );
+              return;
+            }
             hasPro = await store.accessProStatus(toggle: true) ?? true;
             setState(() {});
-          },
-          child: AppHelpTile(
-            title: "Get Pro",
-            onButtonPressed: true
-            ? () async {
-              if (hasPro) {
-                showBooleanDialog(
-                  context: context,
-                  title: "Permanently switch back to Basic?",
-                  onYes: () async {
-                    hasPro = await store.accessProStatus(toggle: true) ?? false;
-                    setState(() {});
-                  },
-                );
-                return;
-              }
-              hasPro = await store.accessProStatus(toggle: true) ?? true;
-              setState(() {});
-            }
-            // TODO: 18: Implement purchase using in_app_purchase (enable in 18 store accounts); Remove all old code
-            : () {},
-            buttonTitle: hasPro ? "✓ Unlocked" : true ? "Unlock for free" : "Buy for 8.99€",
-            content: Column(
-              children: [
-                for (List featureData in [
-                    [Icons.copy_outlined, "Multiple note sets"],
-                    [Icons.timer_outlined, "Presentation timer"],
-                    [Icons.text_format_outlined, "Markdown formatting"],
-                    [Icons.text_increase_outlined, "Change text size"],
-                ]) Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 32),
-                  child: SizedBox(
-                    width: screenWidth(context) - 32 - 32,
-                    child: Row(
-                      children: [
-                        Icon(
-                          featureData[0],
-                          size: 32,
-                          color: colorScheme.onSurface,
+          }
+          // TODO: 18: Implement purchase using in_app_purchase (enable in 18 store accounts); Remove all old code
+          : () {},
+          buttonTitle: hasPro ? "✓ Unlocked" : true ? "Unlock for free" : "Buy for 8.99€",
+          content: Column(
+            children: [
+              for (List featureData in [
+                  [Icons.copy_outlined, "Multiple note sets"],
+                  [Icons.timer_outlined, "Presentation timer"],
+                  [Icons.text_format_outlined, "Markdown formatting"],
+                  [Icons.text_increase_outlined, "Change text size"],
+              ]) Padding(
+                padding: const EdgeInsets.symmetric(vertical: 32),
+                child: SizedBox(
+                  width: screenWidth(context) - 32 - 32,
+                  child: Row(
+                    children: [
+                      Icon(
+                        featureData[0],
+                        size: 32,
+                        color: colorScheme.onSurface,
+                      ),
+                      const SizedBox(width: 32),
+                      Flexible(
+                        child: MediumLabel(
+                          featureData[1],
+                          justify: false,
                         ),
-                        const SizedBox(width: 32),
-                        Flexible(
-                          child: MediumLabel(
-                            featureData[1],
-                            justify: false,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ],
@@ -378,54 +344,20 @@ class ContactCenter extends StatelessWidget {
     return HelpScaffold(
       tiles: [
         AppHelpTile(
-          onButtonPressed: () => Navigator.push(context, MaterialPageRoute(
-            builder: (context) => const ContactScreen(),
-          )),
-          title: "Imprint",
-        ),
-        AppHelpTile(
           link: true,
           onButtonPressed: () => launchUrlString("mailto:t.ruebenhagen@gmail.com?subject=Feedback for Presentation Master 2"),
           title: "E-Mail me",
         ),
         AppHelpTile(
+          link: true,
+          // TODO: Make webpage
+          onButtonPressed: () => launchUrlString("https://rubenhagen.com/legal/imprint", mode: LaunchMode.externalApplication),
+          title: "Imprint",
+        ),
+        AppHelpTile(
           onButtonPressed: () => launchUrlString("https://rubenhagen.com/legal/presenter", mode: LaunchMode.externalApplication),
           title: "Privacy Policy",
           link: true
-        ),
-      ],
-    );
-  }
-}
-
-
-
-
-class ContactScreen extends StatelessWidget {
-  const ContactScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return HelpScaffold(
-      onBottomButtonPressed: () => launchUrlString("mailto:taavi.ruebenhagen@gmail.com"),
-      bottomButtonIsLink: true,
-      bottomButtonLabel: "E-Mail me",
-      tiles: [
-        for (String line in [
-          "Taavi Rübenhagen",
-          "Pothof 9d, 38122 Braunschweig, Germany",
-          "t.ruebenhagen@gmail.com",
-        ]) Container(
-          margin: const EdgeInsets.only(left: 16, right: 16, bottom: 24),
-          padding: const EdgeInsets.all(32),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            color: colorScheme.surface,
-          ),
-          child: MediumLabel(
-            line,
-            justify: false,
-          ),
         ),
       ],
     );

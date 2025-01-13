@@ -92,7 +92,12 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       logger.i("Pro status: $hasPro. Accessing presentations");
       await store.accessPresentations();
       logger.i("Finished");
-      setState(() => currentPresentation ??= globalPresentations?.first);
+      setState(() {
+        currentPresentation ??= globalPresentations?.first;
+        if (currentPresentation?[store.presentationNotesKey] == ".") {
+          currentPresentation?[store.presentationNotesKey] == "";
+        }
+      });
       logger.i("Called setState");
     })();
     connect(context);
