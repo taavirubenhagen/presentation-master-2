@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import 'package:overlay_tooltip/overlay_tooltip.dart';
 
@@ -14,15 +13,6 @@ class OnboardingSlides extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: colorScheme.surface,
-      appBar: AppBar(
-        toolbarHeight: 0,
-        // TODO
-        /*systemOverlayStyle: SystemUiOverlayStyle(
-        statusBarColor: colorScheme.surface,
-        statusBarIconBrightness: Brightness.light,
-        systemNavigationBarColor: colorScheme.surface,
-        ),*/
-      ),
       body: Padding(
         padding: const EdgeInsets.all(32).copyWith(top: 64, bottom: 32 + MediaQuery.paddingOf(context).bottom),
         child: Column(
@@ -72,11 +62,6 @@ class AppOverlayTooltip extends StatelessWidget {
     this.horizontalPosition = TooltipHorizontalPosition.WITH_WIDGET,
     this.verticalPosition = TooltipVerticalPosition.BOTTOM,
     required this.message,
-
-    /// If true, the 'Next' button will be labeled 'Skip'	instead
-    //this.laterButton = false,
-    //this.onAdditionalButtonPressed,
-    //this.additionalButtonLabel,
     required this.child,
   });
 
@@ -84,9 +69,6 @@ class AppOverlayTooltip extends StatelessWidget {
   final TooltipHorizontalPosition horizontalPosition;
   final TooltipVerticalPosition verticalPosition;
   final String message;
-  //final bool laterButton;
-  //final Function()? onAdditionalButtonPressed;
-  //final String? additionalButtonLabel;
   final Widget child;
 
   @override
@@ -121,18 +103,6 @@ class AppOverlayTooltip extends StatelessWidget {
                           : "Got it",
                     ),
                   ),
-                  /*if (onAdditionalButtonPressed != null &&
-                      additionalButtonLabel != null)
-                    const SizedBox(width: 8),
-                  if (onAdditionalButtonPressed != null &&
-                      additionalButtonLabel != null)
-                    Expanded(
-                      child: AppTextButton(
-                        onPressed: onAdditionalButtonPressed ?? () {},
-                        mini: true,
-                        label: additionalButtonLabel ?? "[Error]",
-                      ),
-                    ),*/
                 ],
               ),
             ],

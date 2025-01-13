@@ -1,9 +1,9 @@
 name: presentation_master_2
-description: All-in-one presentation remote and note taking app
+description: An all-in-one presentation companion.
 
 publish_to: 'none'
 
-version: 3.5.0+69
+version: 3.5.1+70
 
 environment:
   sdk: '>=2.19.2 <4.0.0'
@@ -36,7 +36,7 @@ dependencies:
   zwidget: ^0.0.2
   overlay_tooltip: ^0.2.3
 
-  package_info_plus: ^8.0.0
+  package_info_plus: ^8.1.2
   skeletonizer: ^1.4.1+1
 
 

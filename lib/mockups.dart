@@ -5,7 +5,6 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import 'package:google_fonts/google_fonts.dart';
-import 'package:presentation_master_2/design.dart';
 import 'package:zwidget/zwidget.dart';
 
 import 'package:presentation_master_2/main.dart';
@@ -148,28 +147,6 @@ class LaptopFrame extends StatelessWidget {
 
 
 
-class PresentationMaster2ForPCMockup extends StatelessWidget {
-  const PresentationMaster2ForPCMockup({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(8),
-      alignment: Alignment.center,
-      child: Text(
-        "Use the mobile app to connect.",
-        style: GoogleFonts.lexend(
-          fontSize: 4,
-        ),
-        textAlign: TextAlign.center,
-      ),
-    );
-  }
-}
-
-
-
-
 class ExamplePresentationMockup extends StatelessWidget {
   const ExamplePresentationMockup({
     super.key,
@@ -254,96 +231,6 @@ class PhoneFrame extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         child: child,
       ),
-    );
-  }
-}
-
-
-
-
-class HomeMockup extends StatefulWidget {
-  const HomeMockup({super.key});
-
-  @override
-  State<HomeMockup> createState() => _HomeMockupState();
-}
-
-class _HomeMockupState extends State<HomeMockup> {
-
-
-  bool _playButtonLarge = false;
-  Timer _timer = Timer(Duration.zero, () {});
-
-  @override
-  void initState() {
-    super.initState();
-
-    _timer = Timer.periodic(
-      const Duration(milliseconds: 400),
-      (timer) async => setState(() => _playButtonLarge = !_playButtonLarge),
-    );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _timer.cancel();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Container(
-          margin: EdgeInsets.all(phoneDownsizingFactor(context) * 16 * 2),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(phoneDownsizingFactor(context) * 40),
-            color: colorScheme.surface,
-          ),
-          height: phoneDownsizingFactor(context) * 80,
-          alignment: Alignment.center,
-          child: Text(
-            "Presentation 1",
-            style: GoogleFonts.flowCircular(
-              fontSize: phoneDownsizingFactor(context) * ButtonLabel.textStyle.fontSize,
-            ),
-          ),
-        ),
-        AnimatedScale(
-          duration: const Duration(milliseconds: 400),
-          curve: _playButtonLarge ? Curves.easeIn : Curves.easeOut,
-          scale: _playButtonLarge ? 1.25 : 1,
-          child: ShaderMask(
-            blendMode: BlendMode.srcIn,
-            shaderCallback: (Rect bounds) => 
-            SweepGradient(
-              transform: const GradientRotation(math.pi),
-              colors: [
-                Colors.white,
-                Colors.blue.shade900,
-              ],
-            ).createShader(bounds),
-            child: Icon(
-              Icons.play_arrow_rounded,
-              size: phoneDownsizingFactor(context) * 128,
-            ),
-          ),
-        ),
-        Container(
-          margin: EdgeInsets.only(top: phoneDownsizingFactor(context) * 64),
-          width: phoneWidth(context),
-          height: phoneDownsizingFactor(context) * 80,
-          color: colorScheme.surface,
-          alignment: Alignment.center,
-          child: Text(
-            "Help Center",
-            style: GoogleFonts.flowCircular(
-              fontSize: phoneDownsizingFactor(context) * ButtonLabel.textStyle.fontSize,
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

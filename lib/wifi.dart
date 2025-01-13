@@ -2,7 +2,6 @@ import 'dart:async';
 import "package:http/http.dart" as http;
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:ping_discover_network_forked/ping_discover_network_forked.dart';
-import 'package:presentation_master_2/design.dart';
 
 import 'package:presentation_master_2/main.dart';
 

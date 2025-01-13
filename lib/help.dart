@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:presentation_master_2/store.dart' as store;
 
 import 'package:url_launcher/url_launcher_string.dart';
@@ -174,7 +175,12 @@ class HelpCenter extends StatelessWidget {
                       title: "Permanently switch to the ${hasPro ? "Basic" : "Pro"} version?",
                       onYes: () async => hasPro = await store.accessProStatus(toggle: true) ?? true,
                     ),
-                    child: SmallLabel("3.5.1"),
+                    child: FutureBuilder(
+                      future: PackageInfo.fromPlatform(),
+                      builder: (context, snapshot) {
+                        return SmallLabel(snapshot.data?.version ?? "© Taavi Rübenhagen 2025");
+                      }
+                    ),
                   ),
                 ),
               ],
