@@ -538,50 +538,48 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                     children: [
                                       AppOverlayTooltip(
                                         displayIndex: 2,
-                                        message:
-                                            "Add a timer that vibrates when you exceed your time limit.",
+                                        message: "Add a timer that vibrates when you exceed your time limit.",
                                         child: Container(
-                                            width: 48,
-                                            height: 48,
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              color: colorScheme.surface,
-                                            ),
-                                            child: IconButton(
-                                              onPressed: () => hasPro
-                                                  ? _changeEditingMode(
-                                                      wasTimerButtonPressed:
-                                                          true)
-                                                  : Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            const GetProScreen(),
-                                                      )),
-                                              icon: AnimatedSwitcher(
-                                                duration: const Duration(
-                                                    milliseconds: 100),
-                                                switchInCurve: Curves.easeInOut,
-                                                switchOutCurve:
-                                                    Curves.easeInOut,
-                                                transitionBuilder:
-                                                    (Widget child,
-                                                        Animation<double>
-                                                            animation) {
-                                                  return ScaleTransition(
-                                                    scale: animation,
-                                                    child: child,
-                                                  );
-                                                },
-                                                child: Icon(
-                                                  _isEditingTimer
-                                                      ? Icons.notes_outlined
-                                                      : Icons.timer_outlined,
-                                                  key: ValueKey<bool>(
-                                                      _isEditingTimer),
-                                                ),
+                                          width: 48,
+                                          height: 48,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: colorScheme.surface,
+                                          ),
+                                          child: IconButton(
+                                            onPressed: () => hasPro
+                                                ? _changeEditingMode(
+                                                    wasTimerButtonPressed:
+                                                        true)
+                                                : Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          const GetProScreen(),
+                                                    )),
+                                            icon: AnimatedSwitcher(
+                                              duration: const Duration(
+                                                  milliseconds: 100),
+                                              switchInCurve: Curves.easeInOut,
+                                              switchOutCurve:
+                                                  Curves.easeInOut,
+                                              transitionBuilder:
+                                                  (Widget child,
+                                                      Animation<double>
+                                                          animation) {
+                                                return ScaleTransition(
+                                                  scale: animation,
+                                                  child: child,
+                                                );
+                                              },
+                                              child: Icon(
+                                                _isEditingTimer ? Icons.notes_outlined : Icons.timer_outlined,
+                                                key: ValueKey<bool>(_isEditingTimer),
+                                                size: 20,
                                               ),
-                                            )),
+                                            ),
+                                          ),
+                                        ),
                                       ),
                                       AppOverlayTooltip(
                                         displayIndex: 1,
@@ -621,6 +619,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                                     : Icons.edit_outlined,
                                                 key: ValueKey<bool>(
                                                     _editingMode),
+                                                size: 20,
                                               ),
                                             ),
                                           ),

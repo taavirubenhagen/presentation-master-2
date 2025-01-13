@@ -14,17 +14,15 @@ class OnboardingSlides extends StatelessWidget {
     return Scaffold(
       backgroundColor: colorScheme.surface,
       body: Padding(
-        padding: const EdgeInsets.all(32).copyWith(top: 64, bottom: 32 + MediaQuery.paddingOf(context).bottom),
+        padding: const EdgeInsets.all(32).copyWith(
+            top: 64, bottom: 32 + MediaQuery.paddingOf(context).bottom),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const SizedBox(),
             const SizedBox(),
             const OnboardingMockupIllustration(),
-            MediumLabel(
-              "Thank you for using Presentation Master 2, the all-in-one presentation remote control.",
-              justify: false,
-            ),
+            LargeLabel("Thank you for using Presentation Master 2, the all-in-one presentation remote control."),
             Column(
               children: [
                 AppTextButton(
@@ -99,7 +97,7 @@ class AppOverlayTooltip extends StatelessWidget {
                       mini: true,
                       label: controller.nextPlayIndex <
                               controller.playWidgetLength - 1
-                          ? "Next"//(laterButton ? "Later" : "Next")
+                          ? "Next" //(laterButton ? "Later" : "Next")
                           : "Got it",
                     ),
                   ),

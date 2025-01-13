@@ -61,36 +61,18 @@ class SmallLabel extends BaseText {
 }
 
 
-class MediumLabel extends BaseText {
-  MediumLabel(
-    String data,
-    {
-      bool justify = true,
-      bool isOnPrimary = false,
-      bool isOnBackground = false,
-      super.key,
-    })
-  : super(data, textStyle, textAlign: justify ? TextAlign.justify : TextAlign.left, isOnPrimary: isOnPrimary, isOnBackground: isOnBackground);
-
-  static final TextStyle textStyle = GoogleFonts.dmMono(
-    fontSize: 20,
-  );
-}
-
-
 class LargeLabel extends BaseText {
   LargeLabel(
     String data,
     {
-      bool onPrimary = false,
+      bool isOnPrimary = false,
       bool isOnBackground = false,
       super.key,
     })
-  : super(data, textStyle, textAlign: TextAlign.center, isOnPrimary: onPrimary, isOnBackground: isOnBackground);
+  : super(data, textStyle, textAlign: TextAlign.left, isOnPrimary: isOnPrimary, isOnBackground: isOnBackground);
 
   static final TextStyle textStyle = GoogleFonts.dmMono(
-    fontSize: 24,
-    wordSpacing: 2,
+    fontSize: 20,
   );
 }
 
@@ -333,7 +315,12 @@ void showBooleanDialog({
         children: [
           Material(
             color: Colors.transparent,
-            child: LargeLabel(title),
+            child: Text(
+              title,
+              style: LargeLabel.textStyle.copyWith(
+                fontSize: 24,
+              ),
+            ),
           ),
           const SizedBox(height: 64),
           Row(

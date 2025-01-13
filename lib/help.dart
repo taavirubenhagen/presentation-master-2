@@ -80,54 +80,36 @@ class AppHelpTile extends StatelessWidget {
     super.key,
     this.onButtonPressed,
     required this.title,
-    this.buttonTitle,
     this.link = false,
-    this.content,
   });
 
   final Function()? onButtonPressed;
   final String title;
-  final String? buttonTitle;
   final bool link;
-  final Widget? content;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(left: 16, right: 16, bottom: content == null ? 24 : 16),
+      padding: EdgeInsets.only(left: 16, right: 16, bottom: 24),
       child: TextButton(
         onPressed: onButtonPressed ?? () {},
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all(colorScheme.surface),
           shape: MaterialStateProperty.all(RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(content == null ? 16 : 32),
+            borderRadius: BorderRadius.circular(16),
           )),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
+        child: Container(
+          height: 96,
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          alignment: Alignment.center,
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Flexible(
-                    child: LargeLabel(title),
-                  ),
-                  if (buttonTitle == null) Icon(
-                    link ? Icons.open_in_new_outlined : Icons.arrow_forward_ios_outlined,
-                    size: 32,
-                    color: colorScheme.onSurface.withOpacity(0.5)
-                  ),
-                ],
-              ),
-              if (content != null) const SizedBox(height: 32),
-              if (content != null) content!,
-              if (buttonTitle != null) const SizedBox(height: 32),
-              if (buttonTitle != null) AppTextButton(
-                onPressed: onButtonPressed ?? () {},
-                label: buttonTitle!,
+              LargeLabel(title),
+              Icon(
+                link ? Icons.open_in_new_rounded : Icons.arrow_forward_ios_rounded,
+                size: 28,
               ),
             ],
           ),
@@ -255,7 +237,7 @@ class WifiSetup extends StatelessWidget {
                         child: Text(
                           "presenter.onrender.com",
                           style: GoogleFonts.dmMono(
-                            fontSize: MediumLabel.textStyle.fontSize,
+                            fontSize: LargeLabel.textStyle.fontSize,
                           ),
                         ),
                       ),
@@ -322,14 +304,14 @@ class _GetProScreenState extends State<GetProScreen> {
                 children: [
                   const SizedBox(height: 32),
                   Heading(hasPro ? "Pro Features" : "Get Pro"),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
                   for (List featureData in [
                       [Icons.copy_outlined, "Multiple note sets"],
                       [Icons.timer_outlined, "Presentation timer"],
                       [Icons.text_format_outlined, "Markdown formatting"],
                       [Icons.text_increase_outlined, "Change text size"],
                   ]) Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 32),
+                    padding: const EdgeInsets.only(top: 48),
                     child: SizedBox(
                       width: screenWidth(context) - 32 - 32,
                       child: Row(
@@ -340,12 +322,7 @@ class _GetProScreenState extends State<GetProScreen> {
                             color: colorScheme.onSurface,
                           ),
                           const SizedBox(width: 32),
-                          Flexible(
-                            child: MediumLabel(
-                              featureData[1],
-                              justify: false,
-                            ),
-                          ),
+                          LargeLabel(featureData[1]),
                         ],
                       ),
                     ),
