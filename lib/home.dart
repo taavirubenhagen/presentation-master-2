@@ -336,19 +336,19 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                             setState(() {});
                                           },
                                           keyboardAppearance: Brightness.dark,
-                                          scrollPhysics:
-                                              const NeverScrollableScrollPhysics(),
+                                          scrollPhysics: const NeverScrollableScrollPhysics(),
                                           minLines: null,
                                           maxLines: null,
-                                          cursorRadius:
-                                              const Radius.circular(16),
+                                          cursorRadius: const Radius.circular(16),
                                           cursorColor: colorScheme.onSurface,
                                           style: MainText.textStyle,
-                                          decoration: const InputDecoration(
+                                          decoration: InputDecoration(
                                             border: InputBorder.none,
+                                            hintStyle: MainText.textStyle.copyWith(
+                                              color: colorScheme.onSurface.withOpacity(0.5),
+                                            ),
                                             hintMaxLines: 3,
-                                            hintText:
-                                                "Enter speaker notes and information that you want to use during your presentation.",
+                                            hintText: "Enter speaker notes and information that you want to use during your presentation.",
                                           ),
                                           initialValue: currentPresentation?[
                                                   store.presentationNotesKey] ??
@@ -1328,8 +1328,12 @@ class _PresentationCreationScreenState
               alignment: Alignment.center,
               child: TextField(
                 onChanged: (value) => setState(() => _name = value),
-                decoration: const InputDecoration.collapsed(
-                    hintText: "Enter a project name"),
+                decoration: InputDecoration.collapsed(
+                    hintStyle: MainText.textStyle.copyWith(
+                      color: colorScheme.onSurface.withOpacity(0.5),
+                    ),
+                    hintText: "Enter a project name",
+                ),
                 textAlign: TextAlign.center,
                 style: MainText.textStyle,
               ),

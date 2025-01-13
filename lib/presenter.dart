@@ -322,7 +322,11 @@ class _NotePresenterState extends State<NotePresenter> {
                                 color: colorScheme.onSurface.withOpacity(0.5),
                               ),
                               TextButton(
-                                onPressed: () => setState(() => _notesTextScaleFactor /= 1.1),
+                                onPressed: () => hasPro
+                                ? setState(() => _notesTextScaleFactor /= 1.1)
+                                : Navigator.push(context, MaterialPageRoute(
+                                  builder: (context) => const GetProScreen(),
+                                )),
                                 child: SizedBox(
                                   width: serverIP != null || ( hasPro && _isTimerActive ) ? 64 : screenWidth(context) / 3,
                                   height: 64,
@@ -337,7 +341,11 @@ class _NotePresenterState extends State<NotePresenter> {
                                 color: colorScheme.onSurface.withOpacity(0.5),
                               ),
                               TextButton(
-                                onPressed: () => setState(() => _notesTextScaleFactor *= 1.1),
+                                onPressed: () => hasPro
+                                ? setState(() => _notesTextScaleFactor *= 1.1)
+                                : Navigator.push(context, MaterialPageRoute(
+                                  builder: (context) => const GetProScreen(),
+                                )),
                                 child: SizedBox(
                                   width: serverIP != null || ( hasPro && _isTimerActive ) ? 64 : screenWidth(context) / 3,
                                   height: 64,

@@ -112,8 +112,8 @@ class _PresentationMaster2State extends State<PresentationMaster2> {
           inputDecorationTheme: InputDecorationTheme(
             contentPadding: EdgeInsets.zero,
             hintStyle: MainText.textStyle.copyWith(
-                color: MainText.textStyle.color?.withOpacity(0.5),
-              ),
+              color: MainText.textStyle.color?.withOpacity(0.5),
+            ),
           ),
           appBarTheme: const AppBarTheme(
             toolbarHeight: 0,
