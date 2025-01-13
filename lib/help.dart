@@ -33,12 +33,6 @@ class HelpScaffold extends StatelessWidget {
     return Scaffold(
       backgroundColor: colorScheme.background,
       appBar: AppBar(
-        // TODO: s Play Store
-        /*systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarColor: colorScheme.background,
-          statusBarIconBrightness: Brightness.light,
-          systemNavigationBarColor: onBottomButtonPressed == null || bottomButtonLabel == null ? colorScheme.background : colorScheme.surface,
-        ),*/
         toolbarHeight: 96,
         backgroundColor: colorScheme.background,
         leadingWidth: 96,
@@ -150,19 +144,44 @@ class HelpCenter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return HelpScaffold(
-      tiles: [
-        for (List e in [
-          ["Remote Setup", (context) => const WifiSetup()],
-          [hasPro ? "Pro Features" : "Get Pro", (context) => const GetProScreen()],
-          ["Legal", (context) => const ContactCenter()],
-        ]) AppHelpTile(
-          onButtonPressed: () => Navigator.push(context, MaterialPageRoute(
-            builder: e[1],
-          )),
-          title: e[0],
-        ),
-      ],
+    return Scaffold(
+      body: Stack(
+        children: [
+          HelpScaffold(
+            tiles: [
+              for (List e in [
+                ["Remote Setup", (context) => const WifiSetup()],
+                [hasPro ? "Pro Features" : "Get Pro", (context) => const GetProScreen()],
+                ["Legal", (context) => const ContactCenter()],
+              ]) AppHelpTile(
+                onButtonPressed: () => Navigator.push(context, MaterialPageRoute(
+                  builder: e[1],
+                )),
+                title: e[0],
+              ),
+            ],
+          ),
+          Positioned(
+            bottom: MediaQuery.paddingOf(context).bottom + 32,
+            width: screenWidth(context),
+            child: Column(
+              children: [
+                Opacity(
+                  opacity: 0.5,
+                  child: GestureDetector(
+                    onDoubleTap: () => showBooleanDialog(
+                      context: context,
+                      title: "Permanently switch to the ${hasPro ? "Basic" : "Pro"} version?",
+                      onYes: () async => hasPro = await store.accessProStatus(toggle: true) ?? true,
+                    ),
+                    child: SmallLabel("3.5.1"),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -329,7 +348,11 @@ class _GetProScreenState extends State<GetProScreen> {
                     child: SizedBox(),
                   ),
                   AppTextButton(
-                    onPressed: () => setState(() async => hasPro = await store.accessProStatus(toggle: true) ?? true),
+                    active: !hasPro,
+                    onPressed: () async {
+                      hasPro = await store.accessProStatus(toggle: true) ?? true;
+                      setState(() {});
+                    },
                     label: hasPro ? "✓ Unlocked" : true ? "Unlock for free" : "Buy for 8.99€",
                   ),
                 ],

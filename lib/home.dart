@@ -79,10 +79,11 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       logger.i("Calling store first time");
       if (await store.accessProStatus() == null) {
         Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const OnboardingSlides(),
-            ));
+          context,
+          MaterialPageRoute(
+            builder: (context) => const OnboardingSlides(),
+          ),
+        );
       } else {
         setState(() => onboarding = false);
       }
@@ -137,7 +138,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             displayIndex: 4,
             horizontalPosition: TooltipHorizontalPosition.CENTER,
             verticalPosition: TooltipVerticalPosition.TOP,
-            message: "Connect the remote control, give feedback or support me.",
+            message: "Set up the remote control, upgrade or contact the developer.",
             child: SizedBox(
               width: screenWidth(context),
               height: 80 + MediaQuery.paddingOf(context).bottom,
@@ -366,16 +367,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                 AppOverlayTooltip(
                                   displayIndex: 0,
                                   horizontalPosition: TooltipHorizontalPosition.CENTER,
-                                  message: "When you have connected a PC, the big play button will start the remote control.",
-                                  laterButton: true,
-                                  onAdditionalButtonPressed: () =>
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                const WifiSetup(),
-                                          )),
-                                  additionalButtonLabel: 'Connect',
+                                  message: "The big play button starts Presentation Mode with notes, timer and, when connected, the remote control.",
                                   child: GestureDetector(
                                     onTap: () =>
                                         navigateToAvailablePresenter(context),

@@ -12,61 +12,53 @@ class OnboardingSlides extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvoked: (_) async => showBooleanDialog(
-        context: context,
-        title: "Exit app?",
-        onYes: () => SystemNavigator.pop(),
+    return Scaffold(
+      backgroundColor: colorScheme.surface,
+      appBar: AppBar(
+        toolbarHeight: 0,
+        // TODO
+        /*systemOverlayStyle: SystemUiOverlayStyle(
+        statusBarColor: colorScheme.surface,
+        statusBarIconBrightness: Brightness.light,
+        systemNavigationBarColor: colorScheme.surface,
+        ),*/
       ),
-      child: Scaffold(
-        backgroundColor: colorScheme.surface,
-        appBar: AppBar(
-          toolbarHeight: 0,
-          // TODO
-          /*systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarColor: colorScheme.surface,
-          statusBarIconBrightness: Brightness.light,
-          systemNavigationBarColor: colorScheme.surface,
-          ),*/
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(32).copyWith(top: 64, bottom: 32 + MediaQuery.paddingOf(context).bottom),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const SizedBox(),
-              const SizedBox(),
-              const OnboardingMockupIllustration(),
-              MediumLabel(
-                "Thank you for using Presentation Master 2, the remote control for your PowerPoint presentations.",
-                justify: false,
-              ),
-              Column(
-                children: [
-                  AppTextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      onboardingTooltipController.start();
-                      PresentationMaster2.setAppState(context);
-                    },
-                    next: true,
-                    label: "Take tour",
-                  ),
-                  const SizedBox(height: 16),
-                  AppTextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      PresentationMaster2.setAppState(
-                          context, () => onboarding = false);
-                    },
-                    secondary: true,
-                    label: "Skip",
-                  ),
-                ],
-              ),
-            ],
-          ),
+      body: Padding(
+        padding: const EdgeInsets.all(32).copyWith(top: 64, bottom: 32 + MediaQuery.paddingOf(context).bottom),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const SizedBox(),
+            const SizedBox(),
+            const OnboardingMockupIllustration(),
+            MediumLabel(
+              "Thank you for using Presentation Master 2, the all-in-one presentation remote control.",
+              justify: false,
+            ),
+            Column(
+              children: [
+                AppTextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    onboardingTooltipController.start();
+                    PresentationMaster2.setAppState(context);
+                  },
+                  next: true,
+                  label: "Take tour",
+                ),
+                const SizedBox(height: 16),
+                AppTextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    PresentationMaster2.setAppState(
+                        context, () => onboarding = false);
+                  },
+                  secondary: true,
+                  label: "Skip",
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -82,9 +74,9 @@ class AppOverlayTooltip extends StatelessWidget {
     required this.message,
 
     /// If true, the 'Next' button will be labeled 'Skip'	instead
-    this.laterButton = false,
-    this.onAdditionalButtonPressed,
-    this.additionalButtonLabel,
+    //this.laterButton = false,
+    //this.onAdditionalButtonPressed,
+    //this.additionalButtonLabel,
     required this.child,
   });
 
@@ -92,9 +84,9 @@ class AppOverlayTooltip extends StatelessWidget {
   final TooltipHorizontalPosition horizontalPosition;
   final TooltipVerticalPosition verticalPosition;
   final String message;
-  final bool laterButton;
-  final Function()? onAdditionalButtonPressed;
-  final String? additionalButtonLabel;
+  //final bool laterButton;
+  //final Function()? onAdditionalButtonPressed;
+  //final String? additionalButtonLabel;
   final Widget child;
 
   @override
@@ -125,11 +117,11 @@ class AppOverlayTooltip extends StatelessWidget {
                       mini: true,
                       label: controller.nextPlayIndex <
                               controller.playWidgetLength - 1
-                          ? (laterButton ? "Later" : "Next")
+                          ? "Next"//(laterButton ? "Later" : "Next")
                           : "Got it",
                     ),
                   ),
-                  if (onAdditionalButtonPressed != null &&
+                  /*if (onAdditionalButtonPressed != null &&
                       additionalButtonLabel != null)
                     const SizedBox(width: 8),
                   if (onAdditionalButtonPressed != null &&
@@ -140,7 +132,7 @@ class AppOverlayTooltip extends StatelessWidget {
                         mini: true,
                         label: additionalButtonLabel ?? "[Error]",
                       ),
-                    ),
+                    ),*/
                 ],
               ),
             ],
