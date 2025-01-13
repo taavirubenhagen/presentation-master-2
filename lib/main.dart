@@ -45,7 +45,7 @@ Map<String, dynamic>? currentPresentation;
 bool hasPro = false;
 String? serverIP;
 
-double screenHeight(BuildContext context) => MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top;
+double screenHeight(BuildContext context) => MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top - MediaQuery.of(context).padding.bottom;
 double screenWidth(BuildContext context) => MediaQuery.of(context).size.width;
 
 

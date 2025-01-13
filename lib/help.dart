@@ -1,15 +1,13 @@
 // ignore_for_file: deprecated_member_use
 
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:presentation_master_2/store.dart' as store;
 
 import 'package:url_launcher/url_launcher_string.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 
 import 'package:presentation_master_2/main.dart';
 import 'package:presentation_master_2/design.dart';
-import 'package:presentation_master_2/store.dart' as store;
 
 
 
@@ -85,14 +83,14 @@ class HelpScaffold extends StatelessWidget {
 class AppHelpTile extends StatelessWidget {
   const AppHelpTile({
     super.key,
-    required this.onButtonPressed,
+    this.onButtonPressed,
     required this.title,
     this.buttonTitle,
     this.link = false,
     this.content,
   });
 
-  final Function() onButtonPressed;
+  final Function()? onButtonPressed;
   final String title;
   final String? buttonTitle;
   final bool link;
@@ -103,7 +101,7 @@ class AppHelpTile extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(left: 16, right: 16, bottom: content == null ? 24 : 16),
       child: TextButton(
-        onPressed: onButtonPressed,
+        onPressed: onButtonPressed ?? () {},
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all(colorScheme.surface),
           shape: MaterialStateProperty.all(RoundedRectangleBorder(
@@ -120,7 +118,7 @@ class AppHelpTile extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Flexible(
-                    child: SmallHeading(title),
+                    child: LargeLabel(title),
                   ),
                   if (buttonTitle == null) Icon(
                     link ? Icons.open_in_new_outlined : Icons.arrow_forward_ios_outlined,
@@ -133,7 +131,7 @@ class AppHelpTile extends StatelessWidget {
               if (content != null) content!,
               if (buttonTitle != null) const SizedBox(height: 32),
               if (buttonTitle != null) AppTextButton(
-                onPressed: onButtonPressed,
+                onPressed: onButtonPressed ?? () {},
                 label: buttonTitle!,
               ),
             ],
@@ -156,7 +154,7 @@ class HelpCenter extends StatelessWidget {
       tiles: [
         for (List e in [
           ["Remote Setup", (context) => const WifiSetup()],
-          [hasPro ? "Manage Pro" : "Get Pro", (context) => const GetProScreen()],
+          [hasPro ? "Pro Features" : "Get Pro", (context) => const GetProScreen()],
           ["Legal", (context) => const ContactCenter()],
         ]) AppHelpTile(
           onButtonPressed: () => Navigator.push(context, MaterialPageRoute(
@@ -164,16 +162,6 @@ class HelpCenter extends StatelessWidget {
           )),
           title: e[0],
         ),
-        /*FutureBuilder(
-          future: (() async => ( await PackageInfo.fromPlatform() ).installerStore)(),
-          builder: (context, snapshot) => Platform.isAndroid
-          ? AppHelpTile(
-            onButtonPressed: () => launchUrlString("https://www.buymeacoffee.com/taavirubenhagen", mode: LaunchMode.externalApplication),
-            title: "Support me",
-            link: true
-          )
-          : const SizedBox(),
-        ),*/
       ],
     );
   }
@@ -207,13 +195,18 @@ class WifiSetup extends StatelessWidget {
                 icon: const Icon(Icons.arrow_back_outlined),
               ),
             ),
-            const SizedBox(height: 64),
+            const SizedBox(height: 32),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const SizedBox(height: 32),
+                  Heading("Remote setup"),
+                  const SizedBox(height: 32),
                   Text(
-                    "To turn your phone into a wireless presenter (this is not necessary to use the Notes and Timer features), "
+                    "To turn your phone into a wireless presenter "
+                    "(this is not necessary to use the Notes and Timer features), "
                     "you need to download an additional app on your Windows device "
                     "that receives the control signals.\n\n"
                     "Open the website at",
@@ -262,6 +255,9 @@ class WifiSetup extends StatelessWidget {
   }
 }
 
+
+
+
 class GetProScreen extends StatefulWidget {
   const GetProScreen({super.key});
 
@@ -273,62 +269,75 @@ class _GetProScreenState extends State<GetProScreen> {
   
   @override
   Widget build(BuildContext context) {
-    return HelpScaffold(
-      tiles: [
-        AppHelpTile(
-          title: "Get Pro",
-          onButtonPressed: true
-          ? () async {
-            if (hasPro) {
-              showBooleanDialog(
-                context: context,
-                title: "Permanently switch back to Basic?",
-                onYes: () async {
-                  hasPro = await store.accessProStatus(toggle: true) ?? false;
-                  setState(() {});
-                },
-              );
-              return;
-            }
-            hasPro = await store.accessProStatus(toggle: true) ?? true;
-            setState(() {});
-          }
-          // TODO: 18: Implement purchase using in_app_purchase (enable in 18 store accounts); Remove all old code
-          : () {},
-          buttonTitle: hasPro ? "✓ Unlocked" : true ? "Unlock for free" : "Buy for 8.99€",
-          content: Column(
-            children: [
-              for (List featureData in [
-                  [Icons.copy_outlined, "Multiple note sets"],
-                  [Icons.timer_outlined, "Presentation timer"],
-                  [Icons.text_format_outlined, "Markdown formatting"],
-                  [Icons.text_increase_outlined, "Change text size"],
-              ]) Padding(
-                padding: const EdgeInsets.symmetric(vertical: 32),
-                child: SizedBox(
-                  width: screenWidth(context) - 32 - 32,
-                  child: Row(
-                    children: [
-                      Icon(
-                        featureData[0],
-                        size: 32,
-                        color: colorScheme.onSurface,
-                      ),
-                      const SizedBox(width: 32),
-                      Flexible(
-                        child: MediumLabel(
-                          featureData[1],
-                          justify: false,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+    return Scaffold(
+      backgroundColor: colorScheme.surface,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: MediaQuery.paddingOf(context).top),
+          const SizedBox(height: 32),
+          Padding(
+            padding: const EdgeInsets.only(left: 16),
+            child: IconButton(
+              onPressed: () => Navigator.pop(context),
+              padding: const EdgeInsets.all(16),
+              iconSize: 32,
+              color: colorScheme.onBackground,
+              icon: const Icon(Icons.arrow_back_outlined),
+            ),
           ),
-        ),
-      ],
+          const SizedBox(height: 32),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: SizedBox(
+              height: screenHeight(context) - 128 - 16,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 32),
+                  Heading(hasPro ? "Pro Features" : "Get Pro"),
+                  const SizedBox(height: 32),
+                  for (List featureData in [
+                      [Icons.copy_outlined, "Multiple note sets"],
+                      [Icons.timer_outlined, "Presentation timer"],
+                      [Icons.text_format_outlined, "Markdown formatting"],
+                      [Icons.text_increase_outlined, "Change text size"],
+                  ]) Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 32),
+                    child: SizedBox(
+                      width: screenWidth(context) - 32 - 32,
+                      child: Row(
+                        children: [
+                          Icon(
+                            featureData[0],
+                            size: 32,
+                            color: colorScheme.onSurface,
+                          ),
+                          const SizedBox(width: 32),
+                          Flexible(
+                            child: MediumLabel(
+                              featureData[1],
+                              justify: false,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const Expanded(
+                    child: SizedBox(),
+                  ),
+                  AppTextButton(
+                    onPressed: () => setState(() async => hasPro = await store.accessProStatus(toggle: true) ?? true),
+                    label: hasPro ? "✓ Unlocked" : true ? "Unlock for free" : "Buy for 8.99€",
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -350,7 +359,6 @@ class ContactCenter extends StatelessWidget {
         ),
         AppHelpTile(
           link: true,
-          // TODO: Make webpage
           onButtonPressed: () => launchUrlString("https://rubenhagen.com/legal/imprint", mode: LaunchMode.externalApplication),
           title: "Imprint",
         ),

@@ -597,7 +597,7 @@ class _MinimalPresenterState extends State<MinimalPresenter> {
                     ),
                   ),
                   const SizedBox(height: 64),
-                  SmallHeading("Reconnecting..."),
+                  Heading("Reconnecting..."),
                   const SizedBox(height: 64),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,

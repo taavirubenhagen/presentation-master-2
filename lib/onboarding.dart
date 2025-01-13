@@ -56,7 +56,6 @@ class OnboardingSlides extends StatelessWidget {
                   const SizedBox(height: 16),
                   AppTextButton(
                     onPressed: () {
-                      // TODO: Does it work?
                       Navigator.pop(context);
                       PresentationMaster2.setAppState(
                           context, () => onboarding = false);
