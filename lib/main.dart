@@ -3,6 +3,7 @@
 
 import "package:flutter/services.dart";
 import 'package:flutter/material.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 
 import "package:logger/logger.dart";
 import 'package:overlay_tooltip/overlay_tooltip.dart';
@@ -55,7 +56,21 @@ double screenWidth(BuildContext context) => MediaQuery.of(context).size.width;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await store.accessPro(null);
+  store.moneyPrinter.purchaseStream.listen(
+    (details) async {
+      if (
+        details.last.pendingCompletePurchase ||
+        details.last.status == PurchaseStatus.purchased ||
+        details.last.status == PurchaseStatus.restored
+      ) {
+        if (details.last.pendingCompletePurchase) {
+          store.moneyPrinter.completePurchase(details.first);
+        }
+        store.changePro(true);
+      }
+    },
+  );
+  await store.moneyPrinter.restorePurchases();
   runApp(const PresentationMaster2());
 }
 

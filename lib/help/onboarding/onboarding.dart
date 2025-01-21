@@ -4,7 +4,11 @@ import 'package:overlay_tooltip/overlay_tooltip.dart';
 
 import 'package:presentation_master_2/main.dart';
 import 'package:presentation_master_2/design.dart';
-import 'package:presentation_master_2/mockups.dart';
+import 'package:presentation_master_2/help/onboarding/mockups.dart';
+import 'package:presentation_master_2/store.dart' as store;
+
+
+
 
 class OnboardingSlides extends StatelessWidget {
   const OnboardingSlides({super.key});
@@ -17,34 +21,24 @@ class OnboardingSlides extends StatelessWidget {
         padding: const EdgeInsets.all(32).copyWith(
             top: 64, bottom: 32 + MediaQuery.paddingOf(context).bottom),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            const SizedBox(),
-            const SizedBox(),
-            const OnboardingMockupIllustration(),
-            LargeLabel("Thank you for using Presentation Master 2, the all-in-one presentation remote control."),
             Column(
               children: [
-                AppTextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    onboardingTooltipController.start();
-                    PresentationMaster2.setAppState(context);
-                  },
-                  next: true,
-                  label: "Take tour",
-                ),
-                const SizedBox(height: 16),
-                AppTextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    PresentationMaster2.setAppState(
-                        context, () => onboarding = false);
-                  },
-                  secondary: true,
-                  label: "Skip",
-                ),
+                const OnboardingMockupIllustration(),
+                const SizedBox(height: 64),
+                LargeLabel("Thank you for using Presentation Master 2, the all-in-one presentation remote control."),
               ],
+            ),
+            const SizedBox(height: 128),
+            AppTextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                onboardingTooltipController.start();
+                PresentationMaster2.setAppState(context);
+              },
+              next: true,
+              label: "Take a tour",
             ),
           ],
         ),
@@ -52,6 +46,9 @@ class OnboardingSlides extends StatelessWidget {
     );
   }
 }
+
+
+
 
 class AppOverlayTooltip extends StatelessWidget {
   const AppOverlayTooltip({
@@ -97,7 +94,7 @@ class AppOverlayTooltip extends StatelessWidget {
                       mini: true,
                       label: controller.nextPlayIndex <
                               controller.playWidgetLength - 1
-                          ? "Next" //(laterButton ? "Later" : "Next")
+                          ? "Next"
                           : "Got it",
                     ),
                   ),

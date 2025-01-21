@@ -3,7 +3,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:presentation_master_2/help/help.dart';
+import 'package:presentation_master_2/help/pro.dart';
 
 
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -16,7 +16,7 @@ import 'package:presentation_master_2/main.dart';
 import 'package:presentation_master_2/design.dart';
 import 'package:presentation_master_2/wifi.dart';
 import 'package:presentation_master_2/home.dart';
-import 'package:presentation_master_2/help.dart';
+import 'package:presentation_master_2/help/pages.dart';
 
 
 

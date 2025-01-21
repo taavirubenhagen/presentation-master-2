@@ -1,5 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:presentation_master_2/store.dart' as store;
@@ -74,35 +76,38 @@ class _GetProScreenState extends State<GetProScreen> {
                   const Expanded(
                     child: SizedBox(),
                   ),
-                  !true
-                  ? AppTextButton(
-                    active: !hasPro,
-                    onPressed: () async {
-                      hasPro = await store.accessProStatus(toggle: true) ?? true;
-                      setState(() {});
-                    },
-                    label: hasPro ? "✓ Unlocked" : "Get for 0.00€",
-                  )
-                  : FutureBuilder(
+                  Platform.isAndroid && !( DateTime.now().year > 2025 || DateTime.now().month >= 2)
+                  ? FutureBuilder(
                     future: (() async => (await api.queryProductDetails({"pro"})).productDetails.first)(),
                     builder: (context, snapshot) {
                       return AppTextButton(
-                        loadingLabel: snapshot.hasData ? null : "Connecting",
+                        loadingLabel: snapshot.hasData || hasPro ? null : "Connecting",
                         active: !hasPro,
                         onPressed: () async {
                           if (snapshot.hasData) {
-                            api.buyNonConsumable(
+                            await api.buyNonConsumable(
                               purchaseParam: PurchaseParam(
                                 productDetails: snapshot.data!,
                               ),
                             );
+                            setState(() {});
+                            // ignore: use_build_context_synchronously
+                            PresentationMaster2.setAppState(context);
                           }
-                          //hasPro = await store.accessProStatus(toggle: true) ?? true;
-                          //setState(() {});
                         },
                         label: hasPro ? "✓ Unlocked" : "Get for ${snapshot.data?.price ?? "Loading"}",
                       );
                     }
+                  )
+                  : AppTextButton(
+                    active: !hasPro,
+                    onPressed: () async {
+                      await store.changePro(true);
+                      setState(() {});
+                      // ignore: use_build_context_synchronously
+                      PresentationMaster2.setAppState(context);
+                    },
+                    label: hasPro ? "✓ Unlocked" : "Get for 0.00€",
                   ),
                 ],
               ),

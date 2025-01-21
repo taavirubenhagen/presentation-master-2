@@ -4,7 +4,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:presentation_master_2/help/help.dart';
+import 'package:presentation_master_2/help/pro.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import 'package:url_launcher/url_launcher_string.dart';
@@ -15,8 +15,8 @@ import 'package:presentation_master_2/store.dart' as store;
 import 'package:presentation_master_2/main.dart';
 import 'package:presentation_master_2/wifi.dart';
 import 'package:presentation_master_2/design.dart';
-import 'package:presentation_master_2/help.dart';
-import 'package:presentation_master_2/onboarding.dart';
+import 'package:presentation_master_2/help/pages.dart';
+import 'package:presentation_master_2/help/onboarding/onboarding.dart';
 import 'package:presentation_master_2/presenter.dart';
 
 String? _name;
@@ -78,7 +78,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     (() async {
       onboardingTooltipController.onDone(() => setState(() {}));
       logger.i("Calling store first time");
-      if (await store.accessProStatus() == null) {
+      if (await store.newUser()) {
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -88,9 +88,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       } else {
         setState(() => onboarding = false);
       }
-      hasPro = await store.accessProStatus() ??
-          await store.accessProStatus(toggle: true) ??
-          false;
       logger.i("Pro status: $hasPro. Accessing presentations");
       await store.accessPresentations();
       logger.i("Finished");
@@ -114,6 +111,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
         if (onboarding) return;
         if (_editingMode) {
           _changeEditingMode(allToFalse: true);
+          return;
         }
         showBooleanDialog(
           context: context,
@@ -139,7 +137,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             displayIndex: 4,
             horizontalPosition: TooltipHorizontalPosition.CENTER,
             verticalPosition: TooltipVerticalPosition.TOP,
-            message: "Set up the remote control, upgrade or contact the developer.",
+            message:
+                "Set up the remote control, upgrade or contact the developer.",
             child: SizedBox(
               width: screenWidth(context),
               height: 80 + MediaQuery.paddingOf(context).bottom,
@@ -253,19 +252,15 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                           MainAxisAlignment.center,
                                       children: [
                                         Skeletonizer(
-                                          enabled: currentPresentation?[store
-                                                      .presentationNameKey] ==
-                                                  null ||
-                                              currentPresentation?[store
-                                                      .presentationNotesKey] ==
-                                                  null,
+                                          enabled: currentPresentation?[store.presentationNameKey] == null ||
+                                            currentPresentation?[store.presentationNotesKey] == null,
                                           child: SizedBox(
                                             height: 128,
                                             child: Text(
-                                              (
-                                                currentPresentation?[store.presentationMinutesKey]
-                                                ?? "Error loading speaker notes. This presentation does not seem to be initialized correctly. Please contact the developer."
-                                              ) + " min",
+                                              "${
+                                                currentPresentation?[store.presentationMinutesKey].toString() ??
+                                                "Error loading speaker notes. This presentation does not seem to be initialized correctly. Please contact the developer."
+                                              } min",
                                               style: LargeLabel.textStyle.copyWith(
                                                 fontSize: 72,
                                               ),
@@ -344,19 +339,24 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                             setState(() {});
                                           },
                                           keyboardAppearance: Brightness.dark,
-                                          scrollPhysics: const NeverScrollableScrollPhysics(),
+                                          scrollPhysics:
+                                              const NeverScrollableScrollPhysics(),
                                           minLines: null,
                                           maxLines: null,
-                                          cursorRadius: const Radius.circular(16),
+                                          cursorRadius:
+                                              const Radius.circular(16),
                                           cursorColor: colorScheme.onSurface,
                                           style: MainText.textStyle,
                                           decoration: InputDecoration(
                                             border: InputBorder.none,
-                                            hintStyle: MainText.textStyle.copyWith(
-                                              color: colorScheme.onSurface.withOpacity(0.5),
+                                            hintStyle:
+                                                MainText.textStyle.copyWith(
+                                              color: colorScheme.onSurface
+                                                  .withOpacity(0.5),
                                             ),
                                             hintMaxLines: 3,
-                                            hintText: "Enter speaker notes and information that you want to use during your presentation.",
+                                            hintText:
+                                                "Enter speaker notes and information that you want to use during your presentation.",
                                           ),
                                           initialValue: currentPresentation?[
                                                   store.presentationNotesKey] ??
@@ -373,8 +373,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                               children: [
                                 AppOverlayTooltip(
                                   displayIndex: 0,
-                                  horizontalPosition: TooltipHorizontalPosition.CENTER,
-                                  message: "The big play button starts Presentation Mode with notes, timer and, when connected, the remote control.",
+                                  horizontalPosition:
+                                      TooltipHorizontalPosition.CENTER,
+                                  message:
+                                      "The big play button starts Presentation Mode with notes, timer and, when connected, the remote control.",
                                   child: GestureDetector(
                                     onTap: () =>
                                         navigateToAvailablePresenter(context),
@@ -545,7 +547,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                     children: [
                                       AppOverlayTooltip(
                                         displayIndex: 2,
-                                        message: "Add a timer that vibrates when you exceed your time limit.",
+                                        message:
+                                            "Add a timer that vibrates when you exceed your time limit.",
                                         child: Container(
                                           width: 48,
                                           height: 48,
@@ -556,31 +559,31 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                           child: IconButton(
                                             onPressed: () => hasPro
                                                 ? _changeEditingMode(
-                                                    wasTimerButtonPressed:
-                                                        true)
+                                                    wasTimerButtonPressed: true)
                                                 : Navigator.push(
                                                     context,
                                                     MaterialPageRoute(
-                                                      builder: (context) => const GetProScreen(),
+                                                      builder: (context) =>
+                                                          const GetProScreen(),
                                                     )),
                                             icon: AnimatedSwitcher(
                                               duration: const Duration(
                                                   milliseconds: 100),
                                               switchInCurve: Curves.easeInOut,
-                                              switchOutCurve:
-                                                  Curves.easeInOut,
-                                              transitionBuilder:
-                                                  (Widget child,
-                                                      Animation<double>
-                                                          animation) {
+                                              switchOutCurve: Curves.easeInOut,
+                                              transitionBuilder: (Widget child,
+                                                  Animation<double> animation) {
                                                 return ScaleTransition(
                                                   scale: animation,
                                                   child: child,
                                                 );
                                               },
                                               child: Icon(
-                                                _isEditingTimer ? Icons.notes_outlined : Icons.timer_outlined,
-                                                key: ValueKey<bool>(_isEditingTimer),
+                                                _isEditingTimer
+                                                    ? Icons.notes_outlined
+                                                    : Icons.timer_outlined,
+                                                key: ValueKey<bool>(
+                                                    _isEditingTimer),
                                               ),
                                             ),
                                           ),

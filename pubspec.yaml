@@ -3,7 +3,7 @@ description: An all-in-one presentation companion.
 
 publish_to: 'none'
 
-version: 3.5.2+71
+version: 3.6.1+73
 
 environment:
   sdk: '>=2.19.2 <4.0.0'

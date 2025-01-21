@@ -16,6 +16,9 @@ const presentationMinutesKey = "timerminutes";
 const _presentationsKey = "presentations";
 const _proStatusKey = "prostatus";
 
+final moneyPrinter = InAppPurchase.instance;
+final _db = SharedPreferences.getInstance();
+
 
 
 
@@ -69,45 +72,13 @@ presentationAvailable(Map<String, dynamic>? presentation) => ( presentation?[pre
 
 
 
-
-// TODO: R
-Future<bool?> accessProStatus({final bool toggle = false}) async {
-  final SharedPreferences instance = await SharedPreferences.getInstance();
-  if (toggle) {
-    instance.setBool(_proStatusKey, !( await accessProStatus() ?? true ));
-  }
-  try {
-    return instance.getBool(_proStatusKey);
-  } catch (e) {
-    return null;
-  }
+Future<bool> newUser() async {
+  final currentValue = ( await _db ).getBool(_proStatusKey);
+  hasPro = currentValue ?? false;
+  return currentValue == null;
 }
 
-
-
-
-Future<void> accessPro(final bool? x) async {
-  final SharedPreferences instance = await SharedPreferences.getInstance();
-  InAppPurchase api = InAppPurchase.instance;
-  
-  if (x != null) {
-    instance.setBool(_proStatusKey, !( await accessProStatus() ?? true ));
-  }
-  hasPro = instance.getBool(_proStatusKey) ?? true;
-  
-  await api.restorePurchases();
-  api.purchaseStream.listen(
-    (details) async {
-      if (
-        details.last.pendingCompletePurchase ||
-        details.last.status == PurchaseStatus.purchased ||
-        details.last.status == PurchaseStatus.restored
-      ) {
-        if (details.last.pendingCompletePurchase) {
-          api.completePurchase(details.first);
-        }
-        hasPro = true;
-      }
-    },
-  );
+Future<void> changePro(final bool x) async {
+  await (await _db).setBool(_proStatusKey, x);
+  hasPro = x;
 }

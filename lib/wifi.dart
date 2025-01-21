@@ -26,36 +26,6 @@ Map<ControlAction, String> controlRoutes = {
 
 
 
-/*Future connect(context, {recursionIndex = 0}) async {
-  logger.i("Starting network scan");
-  final String? deviceIP = await NetworkInfo().getWifiIP();
-  final String subnet = ( deviceIP?.substring(0, deviceIP.lastIndexOf('.')) )!;
-  do {
-    final stream = NetworkAnalyzer.discover2(subnet, 1138, timeout: const Duration(seconds: 5));
-    stream.listen((NetworkAddress addr) async {
-      if (addr.exists) {
-        if (await control(context: context, ip: addr.ip, action: ControlAction.ping) == "ok") {
-          logger.i("Server found");
-          serverIP = addr.ip;
-          MyApp.setAppState(context);
-        }
-      }
-    });
-    await Future.delayed(const Duration(seconds: 6));
-  } while (deviceIP != null && serverIP == null);
-  while (await control(context: context, ip: serverIP, action: ControlAction.ping) == "ok") {
-    await Future.delayed(const Duration(seconds: 3));
-  }
-  logger.e("Lost connection");
-  MyApp.setAppState(context, () => serverIP = null);
-  if (recursionIndex < 16) {
-    connect(context, recursionIndex: recursionIndex + 1);
-  }
-}*/
-
-
-
-
 StreamSubscription<NetworkAddress>? _scanningSubscription;
 
 void _resetScanningSubscription(context) async {
@@ -78,11 +48,6 @@ Future<void> connect(context) async {
   final String? subnet = deviceIP?.substring(0, deviceIP.lastIndexOf('.'));
   logger.v('Subnet: $subnet');
   if (subnet == null) {
-    /*showBooleanDialog(
-      context: context,
-      title: "Couldn't connect. Go to the Help Center for instructions or use the app without the remote control.",
-    );*/
-    // TODO: Does it work?
     PresentationMaster2.setAppState(context, () => serverIP = null);
     return;
   }
