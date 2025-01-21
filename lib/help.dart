@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:presentation_master_2/help/help.dart';
 import 'package:presentation_master_2/store.dart' as store;
 
 import 'package:url_launcher/url_launcher_string.dart';
@@ -78,21 +79,21 @@ class HelpScaffold extends StatelessWidget {
 class AppHelpTile extends StatelessWidget {
   const AppHelpTile({
     super.key,
-    this.onButtonPressed,
+    required this.onButtonPressed,
     required this.title,
     this.link = false,
   });
 
-  final Function()? onButtonPressed;
+  final Function() onButtonPressed;
   final String title;
   final bool link;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(left: 16, right: 16, bottom: 24),
+      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 24),
       child: TextButton(
-        onPressed: onButtonPressed ?? () {},
+        onPressed: onButtonPressed,
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.all(colorScheme.surface),
           shape: MaterialStateProperty.all(RoundedRectangleBorder(
@@ -265,7 +266,7 @@ class WifiSetup extends StatelessWidget {
 
 
 
-class GetProScreen extends StatefulWidget {
+/*class GetProScreen extends StatefulWidget {
   const GetProScreen({super.key});
 
   @override
@@ -336,7 +337,7 @@ class _GetProScreenState extends State<GetProScreen> {
                       hasPro = await store.accessProStatus(toggle: true) ?? true;
                       setState(() {});
                     },
-                    label: hasPro ? "✓ Unlocked" : true ? "Unlock for free" : "Buy for 8.99€",
+                    label: hasPro ? "✓ Unlocked" : "Get for 0.00€",
                   ),
                 ],
               ),
@@ -346,7 +347,7 @@ class _GetProScreenState extends State<GetProScreen> {
       ),
     );
   }
-}
+}*/
 
 
 
@@ -358,20 +359,15 @@ class ContactCenter extends StatelessWidget {
   Widget build(BuildContext context) {
     return HelpScaffold(
       tiles: [
-        AppHelpTile(
+        for (List data in [
+          // TODO: Test first
+          ["E-Mail me", "mailto:t.ruebenhagen@gmail.com?subject=Feedback for Presentation Master 2"],
+          ["Imprint", "https://rubenhagen.com/legal/imprint"],
+          ["Privacy Policy", "https://rubenhagen.com/legal/presenter"],
+        ]) AppHelpTile(
           link: true,
-          onButtonPressed: () => launchUrlString("mailto:t.ruebenhagen@gmail.com?subject=Feedback for Presentation Master 2"),
-          title: "E-Mail me",
-        ),
-        AppHelpTile(
-          link: true,
-          onButtonPressed: () => launchUrlString("https://rubenhagen.com/legal/imprint", mode: LaunchMode.externalApplication),
-          title: "Imprint",
-        ),
-        AppHelpTile(
-          onButtonPressed: () => launchUrlString("https://rubenhagen.com/legal/presenter", mode: LaunchMode.externalApplication),
-          title: "Privacy Policy",
-          link: true
+          onButtonPressed: () => launchUrlString(data[1], mode: LaunchMode.externalApplication),
+          title: data[0],
         ),
       ],
     );

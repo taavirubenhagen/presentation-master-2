@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:presentation_master_2/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -69,6 +70,7 @@ presentationAvailable(Map<String, dynamic>? presentation) => ( presentation?[pre
 
 
 
+// TODO: R
 Future<bool?> accessProStatus({final bool toggle = false}) async {
   final SharedPreferences instance = await SharedPreferences.getInstance();
   if (toggle) {
@@ -79,4 +81,33 @@ Future<bool?> accessProStatus({final bool toggle = false}) async {
   } catch (e) {
     return null;
   }
+}
+
+
+
+
+Future<void> accessPro(final bool? x) async {
+  final SharedPreferences instance = await SharedPreferences.getInstance();
+  InAppPurchase api = InAppPurchase.instance;
+  
+  if (x != null) {
+    instance.setBool(_proStatusKey, !( await accessProStatus() ?? true ));
+  }
+  hasPro = instance.getBool(_proStatusKey) ?? true;
+  
+  await api.restorePurchases();
+  api.purchaseStream.listen(
+    (details) async {
+      if (
+        details.last.pendingCompletePurchase ||
+        details.last.status == PurchaseStatus.purchased ||
+        details.last.status == PurchaseStatus.restored
+      ) {
+        if (details.last.pendingCompletePurchase) {
+          api.completePurchase(details.first);
+        }
+        hasPro = true;
+      }
+    },
+  );
 }

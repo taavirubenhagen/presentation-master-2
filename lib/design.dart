@@ -11,18 +11,16 @@ class BaseText extends Text {
     String data,
     style,
     {
-      required TextAlign textAlign,
-      required bool isOnPrimary,
-      required bool isOnBackground,
+      required Color? color,
       super.key
     }
   ) : super(
     data,
-    textAlign: textAlign,
+    textAlign: TextAlign.left,
     style: style.copyWith(
       //fontFamily: 'Trap',
       //fontWeight: FontWeight.w500,
-      color: isOnPrimary ? colorScheme.onPrimary : ( isOnBackground ? colorScheme.onSurface : colorScheme.onSurface ),
+      color: color ?? colorScheme.onSurface,
     ),
   );
 }
@@ -32,11 +30,10 @@ class MainText extends BaseText {
   MainText(
     String data,
     {
-      bool isOnPrimary = false,
-      bool isOnBackground = false,
+      Color? color,
       super.key,
     })
-  : super(data, textStyle, textAlign: TextAlign.left, isOnPrimary: isOnPrimary, isOnBackground: isOnBackground);
+  : super(data, textStyle, color: color);
 
   static final TextStyle textStyle = GoogleFonts.lexend(
     fontSize: 18,
@@ -49,11 +46,10 @@ class SmallLabel extends BaseText {
   SmallLabel(
     String data,
     {
-      bool isOnPrimary = false,
-      bool isOnBackground = false,
+      Color? color,
       super.key,
     })
-  : super(data, textStyle, textAlign: TextAlign.left, isOnPrimary: isOnPrimary, isOnBackground: isOnBackground);
+  : super(data, textStyle, color: color);
 
   static final TextStyle textStyle = GoogleFonts.dmMono(
     fontSize: 16,
@@ -65,30 +61,13 @@ class LargeLabel extends BaseText {
   LargeLabel(
     String data,
     {
-      bool isOnPrimary = false,
-      bool isOnBackground = false,
+      Color? color,
       super.key,
     })
-  : super(data, textStyle, textAlign: TextAlign.left, isOnPrimary: isOnPrimary, isOnBackground: isOnBackground);
+  : super(data, textStyle, color: color);
 
   static final TextStyle textStyle = GoogleFonts.dmMono(
     fontSize: 20,
-  );
-}
-
-
-class HugeLabel extends BaseText {
-  HugeLabel(
-    String data,
-    {
-      bool isOnPrimary = false,
-      bool isOnBackground = false,
-      super.key,
-    })
-  : super(data, textStyle, textAlign: TextAlign.left, isOnPrimary: isOnPrimary, isOnBackground: isOnBackground);
-
-  static final TextStyle textStyle = GoogleFonts.dmMono(
-    fontSize: 72,
   );
 }
 
@@ -97,11 +76,10 @@ class ButtonLabel extends BaseText {
   ButtonLabel(
     String data,
     {
-      bool isOnPrimary = false,
-      bool isOnBackground = false,
+      Color? color,
       super.key,
     })
-  : super(data, textStyle, textAlign: TextAlign.left, isOnPrimary: isOnPrimary, isOnBackground: isOnBackground);
+  : super(data, textStyle, color: color);
 
   static final TextStyle textStyle = GoogleFonts.dmMono(
     fontSize: 20,
@@ -113,11 +91,10 @@ class Heading extends BaseText {
   Heading(
     String data,
     {
-      bool isOnPrimary = false,
-      bool isOnBackground = false,
+      Color? color,
       super.key,
     })
-  : super(data, textStyle, textAlign: TextAlign.left, isOnPrimary: isOnPrimary, isOnBackground: isOnBackground);
+  : super(data, textStyle, color: color);
 
   static final TextStyle textStyle = GoogleFonts.dmMono(
     fontSize: 24,
@@ -253,7 +230,7 @@ class AppTextButton extends StatelessWidget {
                 children: loadingLabel != null
                 ? [
                   mini ? SmallLabel(loadingLabel ?? 'ERROR') : ButtonLabel(loadingLabel ?? 'ERROR'),
-                  if (loadingLabel != null) const SizedBox(width: 16),
+                  if (loadingLabel != null) const SizedBox(width: 32),//Expanded(child: SizedBox()),
                   SizedBox(
                     width: mini ? 16 : 24,
                     height: mini ? 16 : 24,

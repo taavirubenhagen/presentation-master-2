@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:presentation_master_2/help/help.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 import 'package:url_launcher/url_launcher_string.dart';
@@ -260,8 +261,14 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                                   null,
                                           child: SizedBox(
                                             height: 128,
-                                            child: HugeLabel(
-                                              "${(currentPresentation?[store.presentationMinutesKey] ?? "Error loading speaker notes. This presentation does not seem to be initialized correctly. Please contact the developer.")} min",
+                                            child: Text(
+                                              (
+                                                currentPresentation?[store.presentationMinutesKey]
+                                                ?? "Error loading speaker notes. This presentation does not seem to be initialized correctly. Please contact the developer."
+                                              ) + " min",
+                                              style: LargeLabel.textStyle.copyWith(
+                                                fontSize: 72,
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -554,8 +561,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                                 : Navigator.push(
                                                     context,
                                                     MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          const GetProScreen(),
+                                                      builder: (context) => const GetProScreen(),
                                                     )),
                                             icon: AnimatedSwitcher(
                                               duration: const Duration(
@@ -575,7 +581,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                               child: Icon(
                                                 _isEditingTimer ? Icons.notes_outlined : Icons.timer_outlined,
                                                 key: ValueKey<bool>(_isEditingTimer),
-                                                size: 20,
                                               ),
                                             ),
                                           ),

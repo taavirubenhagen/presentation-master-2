@@ -45,7 +45,9 @@ Map<String, dynamic>? currentPresentation;
 bool hasPro = false;
 String? serverIP;
 
-double screenHeight(BuildContext context) => MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top - MediaQuery.of(context).padding.bottom;
+double topPadding(BuildContext context) => MediaQuery.of(context).padding.top;
+double bottomPadding(BuildContext context) => MediaQuery.of(context).padding.bottom;
+double screenHeight(BuildContext context) => MediaQuery.of(context).size.height - topPadding(context) - bottomPadding(context);
 double screenWidth(BuildContext context) => MediaQuery.of(context).size.width;
 
 
@@ -53,6 +55,7 @@ double screenWidth(BuildContext context) => MediaQuery.of(context).size.width;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await store.accessPro(null);
   runApp(const PresentationMaster2());
 }
 
