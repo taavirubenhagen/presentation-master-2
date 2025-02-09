@@ -5,7 +5,6 @@ import 'package:overlay_tooltip/overlay_tooltip.dart';
 import 'package:presentation_master_2/main.dart';
 import 'package:presentation_master_2/design.dart';
 import 'package:presentation_master_2/help/onboarding/mockups.dart';
-import 'package:presentation_master_2/store.dart' as store;
 
 
 

@@ -74,11 +74,11 @@ presentationAvailable(Map<String, dynamic>? presentation) => ( presentation?[pre
 
 Future<bool> newUser() async {
   final currentValue = ( await _db ).getBool(_proStatusKey);
-  hasPro = currentValue ?? false;
+  await changePro(currentValue ?? false);
   return currentValue == null;
 }
 
-Future<void> changePro(final bool x) async {
-  await (await _db).setBool(_proStatusKey, x);
-  hasPro = x;
+Future<void> changePro(final bool newValue) async {
+  hasPro = newValue;
+  await (await _db).setBool(_proStatusKey, newValue);
 }

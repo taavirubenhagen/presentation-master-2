@@ -1,12 +1,13 @@
 // ignore_for_file: deprecated_member_use
 
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:presentation_master_2/store.dart' as store;
 import 'package:presentation_master_2/main.dart';
 import 'package:presentation_master_2/design.dart';
+
+
+
 
 class GetProScreen extends StatefulWidget {
   const GetProScreen({super.key});
@@ -16,8 +17,6 @@ class GetProScreen extends StatefulWidget {
 }
 
 class _GetProScreenState extends State<GetProScreen> {
-  
-  InAppPurchase api = InAppPurchase.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -56,36 +55,36 @@ class _GetProScreenState extends State<GetProScreen> {
                     [Icons.text_format_outlined, "Markdown formatting"],
                     [Icons.text_increase_outlined, "Change text size"],
                   ])
-                    Padding(
-                      padding: const EdgeInsets.only(top: 48),
-                      child: SizedBox(
-                        width: screenWidth(context) - 32 - 32,
-                        child: Row(
-                          children: [
-                            Icon(
-                              featureData[0],
-                              size: 32,
-                              color: colorScheme.onSurface,
-                            ),
-                            const SizedBox(width: 32),
-                            LargeLabel(featureData[1]),
-                          ],
-                        ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 48),
+                    child: SizedBox(
+                      width: screenWidth(context) - 32 - 32,
+                      child: Row(
+                        children: [
+                          Icon(
+                            featureData[0],
+                            size: 32,
+                            color: colorScheme.onSurface,
+                          ),
+                          const SizedBox(width: 32),
+                          LargeLabel(featureData[1]),
+                        ],
                       ),
                     ),
+                  ),
                   const Expanded(
                     child: SizedBox(),
                   ),
-                  Platform.isAndroid && !( DateTime.now().year > 2025 || DateTime.now().month >= 2)
+                  monetization
                   ? FutureBuilder(
-                    future: (() async => (await api.queryProductDetails({"pro"})).productDetails.first)(),
+                    future: (() async => (await store.moneyPrinter.queryProductDetails({"pro"})).productDetails.first)(),
                     builder: (context, snapshot) {
                       return AppTextButton(
                         loadingLabel: snapshot.hasData || hasPro ? null : "Connecting",
                         active: !hasPro,
                         onPressed: () async {
                           if (snapshot.hasData) {
-                            await api.buyNonConsumable(
+                            await store.moneyPrinter.buyNonConsumable(
                               purchaseParam: PurchaseParam(
                                 productDetails: snapshot.data!,
                               ),

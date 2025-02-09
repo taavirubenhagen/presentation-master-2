@@ -86,17 +86,17 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           ),
         );
       } else {
-        setState(() => onboarding = false);
+        onboarding = false;
       }
+      setState(() {});
       logger.i("Pro status: $hasPro. Accessing presentations");
       await store.accessPresentations();
       logger.i("Finished");
-      setState(() {
-        currentPresentation ??= globalPresentations?.first;
-        if (currentPresentation?[store.presentationNotesKey] == ".") {
-          currentPresentation?[store.presentationNotesKey] == "";
-        }
-      });
+      currentPresentation ??= globalPresentations?.first;
+      if (currentPresentation?[store.presentationNotesKey] == ".") {
+        currentPresentation?[store.presentationNotesKey] == "";
+      }
+      setState(() {});
       logger.i("Called setState");
     })();
     connect(context);
