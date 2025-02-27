@@ -1,0 +1,2 @@
+/home/taavi/Collection/Projects/Presentation Master 2/android/app/.cxx/RelWithDebInfo/6h6w17v1/x86/CMakeFiles/rebuild_cache.dir
+/home/taavi/Collection/Projects/Presentation Master 2/android/app/.cxx/RelWithDebInfo/6h6w17v1/x86/CMakeFiles/edit_cache.dir
