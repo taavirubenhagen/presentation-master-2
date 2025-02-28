@@ -1,0 +1,2 @@
+/home/taavi/Collection/Work/Software/Public/tavy/presenter/presentation_master_2/Source Code/android/app/.cxx/RelWithDebInfo/5gl2337y/x86/CMakeFiles/rebuild_cache.dir
+/home/taavi/Collection/Work/Software/Public/tavy/presenter/presentation_master_2/Source Code/android/app/.cxx/RelWithDebInfo/5gl2337y/x86/CMakeFiles/edit_cache.dir

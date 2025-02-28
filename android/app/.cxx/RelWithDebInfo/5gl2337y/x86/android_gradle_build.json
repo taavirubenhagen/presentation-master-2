@@ -1,0 +1,28 @@
+{
+  "buildFiles": [
+    "/home/taavi/snap/flutter/common/flutter/packages/flutter_tools/gradle/src/main/groovy/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/home/taavi/Android/Sdk/cmake/3.18.1/bin/ninja",
+      "-C",
+      "/home/taavi/Collection/Work/Software/Public/tavy/presenter/presentation_master_2/Source Code/android/app/.cxx/RelWithDebInfo/5gl2337y/x86",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/home/taavi/Android/Sdk/cmake/3.18.1/bin/ninja",
+    "-C",
+    "/home/taavi/Collection/Work/Software/Public/tavy/presenter/presentation_master_2/Source Code/android/app/.cxx/RelWithDebInfo/5gl2337y/x86",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {},
+  "toolchains": {
+    "toolchain": {
+      "cCompilerExecutable": "/home/taavi/Android/Sdk/ndk/26.3.11579264/toolchains/llvm/prebuilt/linux-x86_64/bin/clang.lld",
+      "cppCompilerExecutable": "/home/taavi/Android/Sdk/ndk/26.3.11579264/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++.lld"
+    }
+  },
+  "cFileExtensions": [],
+  "cppFileExtensions": []
+}
