@@ -136,7 +136,7 @@ class WifiSetup extends StatelessWidget {
                       alignment: Alignment.center,
                       child: FittedBox(
                         child: Text(
-                          "presenter.onrender.com",
+                          "pm2app.com",
                           style: GoogleFonts.dmMono(
                             fontSize: LargeLabel.textStyle.fontSize,
                           ),
