@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+main {
+    @apply selection:bg-white selection:text-black;
+    font-family: Lexend;
+}
+
+h1 {
+    @apply text-[2.25rem] md:text-[3.5rem] font-bold tracking-[0.015em];
+}
+
+p1 {
+    @apply block text-[0.875rem] sm:text-[1rem];
+}
+
+p3 {
+    @apply text-[0.875rem] sm:text-[0.875rem];
+}
